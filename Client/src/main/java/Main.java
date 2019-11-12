@@ -10,16 +10,10 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private SimulationManager simulationManager;
-
-
-    //keep a reference to the main  window controller
-    public MainWindowViewController mainwindow;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-
         this.simulationManager = new SimulationManager();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
