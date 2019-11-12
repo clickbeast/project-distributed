@@ -1,5 +1,4 @@
 
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,41 +9,38 @@ public class Main extends Application {
 
     private ClientManager clientManager;
 
-
-    //keep a reference to the main  window controller
+    // keep a reference to the main window controller
     private MainWindowViewController mainWindowViewController;
 
-
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
 
-        //region UI SETUP
+        // region UI SETUP
 
         this.clientManager = new ClientManager();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
 
-        //provide the controller with a reference of the simulationManager
-        loader.setControllerFactory( c -> {
-            if(c == MainWindowViewController.class) {
+        // provide the controller with a reference of the simulationManager
+        loader.setControllerFactory(c -> {
+            if (c == MainWindowViewController.class) {
                 MainWindowViewController mc = new MainWindowViewController();
                 mc.setClientManager(this.clientManager);
                 mainWindowViewController = mc;
                 return mc;
-            }else{
+            } else {
                 try {
                     return c.newInstance();
-                }catch (Exception exc){
+                } catch (Exception exc) {
                     throw new RuntimeException(exc);
                 }
             }
         });
 
-
         Parent flowPane = loader.load();
 
         primaryStage.setTitle("Linkonardo Da Criptni");
-        //primaryStage.setResizable(false);
+        // primaryStage.setResizable(false);
         primaryStage.setScene(new Scene(flowPane, 1200, 860));
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(750);
@@ -53,16 +49,14 @@ public class Main extends Application {
         this.clientManager.setMainWindowViewController(mainWindowViewController);
         mainWindowViewController.scene = primaryStage.getScene();
 
-        //endregion
-
+        // endregion
 
         /**
          *
-         *  RUN YOUR TESTS BELOW THIS
+         * RUN YOUR TESTS BELOW THIS
          */
 
     }
-
 
     public static void main(String[] args) {
         launch(args);
