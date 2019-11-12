@@ -1,7 +1,4 @@
-package UserInterface;
 
-import VirtueelGeheugen.DataProcessing.Processing.XMLProcessor;
-import VirtueelGeheugen.Simulation.SimulationManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,58 +7,56 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+    private ClientManager clientManager;
 
+    // keep a reference to the main window controller
+    private MainWindowViewController mainWindowViewController;
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        this.simulationManager = new SimulationManager();
+    public void start(Stage primaryStage) throws Exception {
+
+        // region UI SETUP
+
+        this.clientManager = new ClientManager();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
 
-        //provide the controller with a reference of the simulationManager
-        loader.setControllerFactory( c -> {
-            if(c == MainWindowViewController.class) {
+        // provide the controller with a reference of the simulationManager
+        loader.setControllerFactory(c -> {
+            if (c == MainWindowViewController.class) {
                 MainWindowViewController mc = new MainWindowViewController();
-                mc.setSimulationManager(this.simulationManager);
-                mainwindow = mc;
+                mc.setClientManager(this.clientManager);
+                mainWindowViewController = mc;
                 return mc;
-            }else{
+            } else {
                 try {
                     return c.newInstance();
-                }catch (Exception exc){
+                } catch (Exception exc) {
                     throw new RuntimeException(exc);
                 }
             }
         });
 
-
         Parent flowPane = loader.load();
 
-        primaryStage.setTitle("Memory Simulator");
-        //primaryStage.setResizable(false);
+        primaryStage.setTitle("Linkonardo Da Criptni");
+        // primaryStage.setResizable(false);
         primaryStage.setScene(new Scene(flowPane, 1200, 860));
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(750);
         primaryStage.show();
-        this.simulationManager.setMainWindowController(mainwindow);
-        mainwindow.scene = primaryStage.getScene();
 
-        System.out.println("SETTING XML DATA");
-        this.simulationManager.setInstructionList(new XMLProcessor().generateProcessListBasedOnXML("Instructions_30_3.xml"));
-        this.mainwindow.startFinished();
+        this.clientManager.setMainWindowViewController(mainWindowViewController);
+        mainWindowViewController.scene = primaryStage.getScene();
 
-
+        // endregion
 
         /**
          *
-         *  RUN YOUR TESTS BELOW THIS , COMMENT  ABOVE CODE WHEN NO NEED FOR History (temp)
+         * RUN YOUR TESTS BELOW THIS
          */
 
-
-
-
     }
-
 
     public static void main(String[] args) {
         launch(args);
