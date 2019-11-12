@@ -1,7 +1,5 @@
-package UserInterface;
 
-import VirtueelGeheugen.DataProcessing.Processing.XMLProcessor;
-import VirtueelGeheugen.Simulation.SimulationManager;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,17 +8,19 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private SimulationManager simulationManager;
+    private ClientManager clientManager;
 
 
     //keep a reference to the main  window controller
-    public MainWindowViewController mainwindow;
+    private MainWindowViewController mainWindowViewController;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception{
 
-        this.simulationManager = new SimulationManager();
+        //region UI SETUP
+
+        this.clientManager = new ClientManager();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
 
@@ -28,8 +28,8 @@ public class Main extends Application {
         loader.setControllerFactory( c -> {
             if(c == MainWindowViewController.class) {
                 MainWindowViewController mc = new MainWindowViewController();
-                mc.setSimulationManager(this.simulationManager);
-                mainwindow = mc;
+                mc.setClientManager(this.clientManager);
+                mainWindowViewController = mc;
                 return mc;
             }else{
                 try {
@@ -43,28 +43,23 @@ public class Main extends Application {
 
         Parent flowPane = loader.load();
 
-        primaryStage.setTitle("Memory Simulator");
+        primaryStage.setTitle("Linkonardo Da Criptni");
         //primaryStage.setResizable(false);
         primaryStage.setScene(new Scene(flowPane, 1200, 860));
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(750);
         primaryStage.show();
-        this.simulationManager.setMainWindowController(mainwindow);
-        mainwindow.scene = primaryStage.getScene();
 
-        System.out.println("SETTING XML DATA");
-        this.simulationManager.setInstructionList(new XMLProcessor().generateProcessListBasedOnXML("Instructions_30_3.xml"));
-        this.mainwindow.startFinished();
+        this.clientManager.setMainWindowViewController(mainWindowViewController);
+        mainWindowViewController.scene = primaryStage.getScene();
 
+        //endregion
 
 
         /**
          *
-         *  RUN YOUR TESTS BELOW THIS , COMMENT  ABOVE CODE WHEN NO NEED FOR History (temp)
+         *  RUN YOUR TESTS BELOW THIS
          */
-
-
-
 
     }
 
