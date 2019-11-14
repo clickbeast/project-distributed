@@ -14,4 +14,31 @@ public class ClientManager {
     public void setMainWindowViewController(MainWindowViewController mainWindowViewController) {
         this.mainWindowViewController = mainWindowViewController;
     }
+
+
+
+
+    /**
+     *
+     * Subject to change!
+     */
+
+
+    public void getConversations() {
+
+
+    }
+
+    public void getConversation() {
+
+
+    }
+
+    public void sendMessage() {
+
+
+    }
+
+
+
 }
