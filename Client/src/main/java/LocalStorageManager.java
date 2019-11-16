@@ -1,3 +1,5 @@
+import exceptions.AccountAlreadyExistsException;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -56,7 +58,7 @@ public class LocalStorageManager {
      * @param pass      unedited password of the user
      * @param salt      salt for the password, can be empty string
      */
-    public static void addAccount(String path, String loginname, String pass, String salt) {
+    public static void addAccount(String path, String loginname, String pass, String salt) throws AccountAlreadyExistsException {
         if (salt == null) {
             salt = "";
         }
@@ -71,8 +73,14 @@ public class LocalStorageManager {
             pstmt.setString(2, bytesToHex(hash(pass + salt)));
             pstmt.setString(3, salt);
             pstmt.executeUpdate();
-        } catch (SQLException | NoSuchAlgorithmException e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 19) {
+                throw new AccountAlreadyExistsException("Account " + loginname + " exists already.");
+            }
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getMessage());
         }
 
     }
@@ -85,12 +93,10 @@ public class LocalStorageManager {
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // set the value
             pstmt.setString(1, loginname);
-            //
             ResultSet rs = pstmt.executeQuery();
 
-            // loop through the result set
+            // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
                 if (rs.getString("password").equals(bytesToHex(hash(pass + rs.getString("salt"))))) {
                     return true;
@@ -98,7 +104,7 @@ public class LocalStorageManager {
             }
             return false;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -122,15 +128,15 @@ public class LocalStorageManager {
         return hexString.toString();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AccountAlreadyExistsException {
 
         Parameters params = new Parameters(args);
         if (params.getNamed().containsKey("dbpath")) {
             createDatabase(params.getNamed().get("dbpathd"));
-           // initializeAccountsDatabase(params.getNamed().get("dbpath"));
+            // initializeAccountsDatabase(params.getNamed().get("dbpath"));
             //very secure login
             //addAccount(params.getNamed().get("dbpath"), "admin", "admin", "salt");
-           /* if (login(params.getNamed().get("dbpath"), "admin", "admin")) {
+            if (login(params.getNamed().get("dbpath"), "admin", "admin")) {
                 System.out.println("good login");
             } else {
                 System.out.println("bad login");
@@ -139,38 +145,17 @@ public class LocalStorageManager {
                 System.out.println("good login");
             } else {
                 System.out.println("bad login");
-            }*/
+            }
+            if (login(params.getNamed().get("dbpath"), "admin2", "admin")) {
+                System.out.println("good login");
+            } else {
+                System.out.println("bad login");
+            }
+        } else {
+            System.out.println("Usage:");
+            System.out.println("   --dbpath=<path_to_database.db>");
         }
     }
 
 
-    /*    public static void main(String[] args) throws NoSuchAlgorithmException {
-        Person person1 = new Person("name1", "Stad1", "phone1");
-        Person person1Fake = new Person("name0", "Stad1", "phone1");
-        Person person2 = new Person("name2", "Stad2", "phone2");
-
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-        byte[] person1Byte = person1.getBytes();
-        byte[] encodedhashp1 = digest.digest(person1Byte);
-        System.out.println(bytesToHex(encodedhashp1));
-
-        byte[] person1FakeByte = person1Fake.getBytes();
-        byte[] person2Byte = person2.getBytes();
-        byte[] encodedhashp1fake = digest.digest(person1FakeByte);
-        byte[] encodedhashp2 = digest.digest(person2Byte);
-
-        System.out.println(bytesToHex(encodedhashp1fake));
-        System.out.println(bytesToHex(encodedhashp2));
-    }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }*/
 }
