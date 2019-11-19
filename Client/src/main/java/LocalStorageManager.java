@@ -85,6 +85,14 @@ public class LocalStorageManager {
 
     }
 
+    /**
+     * checks if the login with the given password is correct
+     *
+     * @param path      path to db
+     * @param loginname loginname
+     * @param pass      password
+     * @return true if good login, false if bad login
+     */
     public static boolean login(String path, String loginname, String pass) {
         String url = "jdbc:sqlite:" + path;
 
@@ -98,6 +106,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
+
                 if (rs.getString("password").equals(bytesToHex(hash(pass + rs.getString("salt"))))) {
                     return true;
                 }
@@ -111,6 +120,13 @@ public class LocalStorageManager {
         return false;
     }
 
+    /**
+     * hashes given string
+     *
+     * @param string string
+     * @return hash of given string
+     * @throws NoSuchAlgorithmException
+     */
     private static byte[] hash(String string) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] passwordByte = string.getBytes();
@@ -118,6 +134,12 @@ public class LocalStorageManager {
 
     }
 
+    /**
+     * converts bytearray to string
+     *
+     * @param hash bytearray
+     * @return
+     */
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
@@ -126,6 +148,32 @@ public class LocalStorageManager {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+
+    public static void initializeConversationsDatabase(String path) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "CREATE TABLE IF NOT EXISTS`conversations` (\n" +
+                "\t`userId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "\t`contactname`\tTEXT,\n" +
+                "\t`enxryptKey`\tTEXT,\n" +
+                "\t`nextSpot`\tINTEGER\n" +
+                ");";
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+            sql = "CREATE TABLE IF NOT EXISTS `messages` (\n" +
+                    "\t`messageID`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "\t`userID`\tINTEGER,\n" +
+                    "\t`text`\tTEXT,\n" +
+                    "\t`messageDate`\tTIMESTAMP  \n" +
+                    ",FOREIGN KEY " +
+                    "(userID) REFERENCES conversations(userID));";
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getErrorCode() + " " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) throws AccountAlreadyExistsException {
@@ -151,6 +199,7 @@ public class LocalStorageManager {
             } else {
                 System.out.println("bad login");
             }
+            initializeConversationsDatabase(params.getNamed().get("dbpath"));
         } else {
             System.out.println("Usage:");
             System.out.println("   --dbpath=<path_to_database.db>");
