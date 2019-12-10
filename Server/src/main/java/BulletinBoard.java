@@ -3,7 +3,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class BulletinBoard {
+public class BulletinBoard implements Chat {
     /**
      * Iedere cel in het messageBoard houdt een set (hier een
      * HashMap) bij van entries, elke entry bestaat uit een
@@ -31,19 +31,27 @@ public class BulletinBoard {
         }
     }
 
-    public void add(int index, String tag, String value){
-        readWriteLocks[index].writeLock().lock();
-        messageBoard[index].put(tag, value);
-        readWriteLocks[index].writeLock().unlock();
+    public boolean sendMessage(int boxNumber, String tag, String message){
+        try{
+            readWriteLocks[boxNumber].writeLock().lock();
+            messageBoard[boxNumber].put(tag, message);
+            readWriteLocks[boxNumber].writeLock().unlock();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
-    public String get(int index, String preImageTag){
-        String tag = globalHashFunction(preImageTag);
+    public String get(int boxNumber, String tag){
+        tag = globalHashFunction(tag);
         String content = null;
 
-        readWriteLocks[index].readLock().lock();
-        content = messageBoard[index].get(tag);
-        readWriteLocks[index].readLock().unlock();
+        readWriteLocks[boxNumber].readLock().lock();
+        content = messageBoard[boxNumber].get(tag);
+        readWriteLocks[boxNumber].readLock().unlock();
 
         return content;
     }
