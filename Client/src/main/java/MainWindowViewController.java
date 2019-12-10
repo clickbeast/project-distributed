@@ -17,7 +17,6 @@ public class MainWindowViewController implements Initializable {
     public Scene scene;
 
     //handles the main application
-    private ClientManager clientManager;
 
 
     /**
@@ -36,34 +35,33 @@ public class MainWindowViewController implements Initializable {
     public TextArea messageField;
 
 
-    //Left panel
-    public AnchorPane leftPanel;
-    //Right panel
-    public AnchorPane rightPanel;
-
 
 
 
 
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Initializing...");
-        this.configureUIElements();
+        //this.configureUIElements();
 
     }
 
+
+    public void setupComplete() {
+        this.configureUIElements();
+    }
 
 
     //Configures all Elements when starting the application_
     public void configureUIElements() {
         System.out.println("Configuring UI Elements");
-        leftPanel.setOnDragEntered(new EventHandler<DragEvent>() {
+        /*leftPanel.setOnDragEntered(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 // TODO : Show visual feedback in left side
                 System.out.println("feedback");
             }
-        });
-        leftPanel.setOnDragDropped(new EventHandler<DragEvent>() {
+        });*/
+        /*leftPanel.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 Dragboard db = event.getDragboard();
@@ -72,15 +70,13 @@ public class MainWindowViewController implements Initializable {
                     System.out.println(db.getFiles().toString());
                     success = true;
                 }
-                /* let the source know whether the string was successfully
-                 * transferred and used */
+
                 event.setDropCompleted(success);
 
                 event.consume();
             }
         });
-
-
+*/
     }
 
 
@@ -98,7 +94,6 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void setClientManager(ClientManager clientManager) {
-        this.clientManager = clientManager;
     }
 
 
@@ -110,7 +105,7 @@ public class MainWindowViewController implements Initializable {
 
 
     public void addNewConversation() {
-
+        System.out.println("called");
     }
 
 
@@ -125,7 +120,7 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void deleteConversation() {
-        int id;
+        int id = 0;
 
 
         Optional<ButtonType> result = new Alert(
@@ -140,7 +135,6 @@ public class MainWindowViewController implements Initializable {
             System.out.println("Resetting everything" + "");
 
             //delete conversation
-
 
         }else{
             //do nothing

@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private ClientManager clientManager;
 
     // keep a reference to the main window controller
     private MainWindowViewController mainWindowViewController;
@@ -20,7 +19,6 @@ public class Main extends Application {
 
         // region UI SETUP
 
-        this.clientManager = new ClientManager();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("layout.fxml"));
 
@@ -28,7 +26,6 @@ public class Main extends Application {
         loader.setControllerFactory(c -> {
             if (c == MainWindowViewController.class) {
                 MainWindowViewController mc = new MainWindowViewController();
-                mc.setClientManager(this.clientManager);
                 mainWindowViewController = mc;
                 return mc;
             } else {
@@ -48,11 +45,11 @@ public class Main extends Application {
         primaryStage.setMinHeight(750);
         primaryStage.show();
 
-        this.clientManager.setMainWindowViewController(mainWindowViewController);
         mainWindowViewController.scene = primaryStage.getScene();
 
-        // endregion
 
+        // endregion
+        this.mainWindowViewController.setupComplete();
         /**
          *
          * RUN YOUR TESTS BELOW THIS
@@ -60,6 +57,9 @@ public class Main extends Application {
 
 
     }
+
+
+
 
     public static void main(String[] args) {
         launch(args);
