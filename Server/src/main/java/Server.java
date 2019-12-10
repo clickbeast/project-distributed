@@ -16,7 +16,7 @@ public class Server {
      * Dit is de werkwijze in het paper maar kan
      * mss beter?
      */
-    private static BulletinBoard boardA,boardB;
+    private static BulletinBoard boardA, boardB;
     /**
      * Een lijst van threads, een per user
      * waarmee de server is aan het praten
