@@ -169,12 +169,10 @@ public class LocalStorageManager {
             while (rs.next()) {
                 messages.add(new Message(rs.getString("text"), rs.getInt("userID"), rs.getLong("messageDate")));
             }
-            return false;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
+        return messages;
 
     }
 
