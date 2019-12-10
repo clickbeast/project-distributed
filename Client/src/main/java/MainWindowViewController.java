@@ -56,24 +56,20 @@ public class MainWindowViewController implements Initializable {
     //Configures all Elements when starting the application_
     public void configureUIElements() {
         System.out.println("Configuring UI Elements");
-
-
-
-
         leftPanel.setOnDragEntered(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
                 // TODO : Show visual feedback in left side
+                System.out.println("feedback");
             }
         });
         leftPanel.setOnDragDropped(new EventHandler<DragEvent>() {
-
             @Override
             public void handle(DragEvent event) {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
                 if (db.hasFiles()) {
-                    dropped.setText(db.getFiles().toString());
+                    System.out.println(db.getFiles().toString());
                     success = true;
                 }
                 /* let the source know whether the string was successfully
@@ -144,15 +140,13 @@ public class MainWindowViewController implements Initializable {
             System.out.println("Resetting everything" + "");
 
             //delete conversation
-            this.clientManager.deleteConversation(id);
+
 
         }else{
             //do nothing
             System.out.println("NO CALLED");
         }
     }
-
-
 
 
 

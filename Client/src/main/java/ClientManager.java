@@ -40,5 +40,9 @@ public class ClientManager {
     }
 
 
+    public void deleteConversation(int id) {
+        System.out.println("deleting conversation");
+    }
+
 
 }
