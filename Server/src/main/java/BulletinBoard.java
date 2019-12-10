@@ -1,9 +1,11 @@
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class BulletinBoard implements Chat {
+public class BulletinBoard extends UnicastRemoteObject implements Chat {
     /**
      * Iedere cel in het messageBoard houdt een set (hier een
      * HashMap) bij van entries, elke entry bestaat uit een
@@ -21,7 +23,7 @@ public class BulletinBoard implements Chat {
      */
     private ReadWriteLock[] readWriteLocks;
 
-    public BulletinBoard(int numberOfCells, int capacityPerCell){
+    public BulletinBoard(int numberOfCells, int capacityPerCell) throws RemoteException {
         messageBoard = new HashMap[numberOfCells];
         readWriteLocks = new ReadWriteLock[numberOfCells];
 
@@ -31,7 +33,8 @@ public class BulletinBoard implements Chat {
         }
     }
 
-    public boolean sendMessage(int boxNumber, String tag, String message){
+    public boolean sendMessage(int boxNumber, String tag, String message) throws RemoteException{
+        System.out.println("sendMessage started");
         try{
             readWriteLocks[boxNumber].writeLock().lock();
             messageBoard[boxNumber].put(tag, message);
@@ -45,7 +48,8 @@ public class BulletinBoard implements Chat {
         return true;
     }
 
-    public String get(int boxNumber, String tag){
+    public String getMessage(int boxNumber, String tag) throws RemoteException{
+        System.out.println("getMessage started");
         tag = globalHashFunction(tag);
         String content = null;
 
