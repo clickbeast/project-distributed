@@ -1,4 +1,5 @@
 import exceptions.AccountAlreadyExistsException;
+import model.Message;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -9,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO: MAKE ALL FUNCTIONS NOT STATIC, now static for testing
 public class LocalStorageManager {
@@ -150,6 +153,48 @@ public class LocalStorageManager {
         return hexString.toString();
     }
 
+    public static List<Message> getMessagesFromUserID(String path, int userId) {
+        List<Message> messages = new ArrayList<>();
+        String url = "jdbc:sqlite:" + path;
+
+        String sql = "SELECT userID,text,messageDate FROM messages WHERE userID = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            // There should only be one person with that loginname, but just to be sure.
+            while (rs.next()) {
+                messages.add(new Message(rs.getString("text"), rs.getInt("userID"), rs.getLong("messageDate")));
+            }
+            return false;
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void storeMessage(String path, int userId, String message, long timeMillis) {
+
+        String url = "jdbc:sqlite:" + path;
+        String sql = "INSERT INTO messages (userID,text,messageDate) VALUES(?,?,?)";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setString(2, message);
+            pstmt.setLong(3, timeMillis);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+
+    }
 
     public static void initializeConversationsDatabase(String path) {
         String url = "jdbc:sqlite:" + path;
