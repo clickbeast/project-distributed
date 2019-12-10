@@ -1,9 +1,18 @@
+import java.io.File;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class BulletinBoard {
+public class BulletinBoard extends UnicastRemoteObject implements Chat {
     /**
      * Iedere cel in het messageBoard houdt een set (hier een
      * HashMap) bij van entries, elke entry bestaat uit een
@@ -21,35 +30,101 @@ public class BulletinBoard {
      */
     private ReadWriteLock[] readWriteLocks;
 
-    public BulletinBoard(int numberOfCells, int capacityPerCell){
-        messageBoard = new HashMap[numberOfCells];
-        readWriteLocks = new ReadWriteLock[numberOfCells];
 
-        for(int i=0;i<numberOfCells;i++) {
-            messageBoard[i] = new HashMap<String, String>(capacityPerCell);
-            readWriteLocks[i] = new ReentrantReadWriteLock();
+    private String path;
+
+    public BulletinBoard() {
+        path = System.getProperty("user.dir") + File.separator + "board.db";
+        createDatabase();
+        initializeMessageTable();
+
+    }
+
+    public void createDatabase() {
+        String url = "jdbc:sqlite:" + path;
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            if (conn != null) {
+                DatabaseMetaData meta = conn.getMetaData();
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    public void add(int index, String tag, String value){
-        readWriteLocks[index].writeLock().lock();
-        messageBoard[index].put(tag, value);
-        readWriteLocks[index].writeLock().unlock();
+    /**
+     * Creates an database for accounts to be saved at, including a login, pass and salt.
+     * This won't do anything if the database is already initialized
+     */
+    public void initializeMessageTable() {
+        String url = "jdbc:sqlite:" + path;
+
+        String sql = "CREATE TABLE IF NOT EXISTS messages ( boxNumber INT NOT NULL,tag VARCHAR NOT NULL,message " +
+                "VARCHAR NOT NULL,PRIMARY KEY (boxNumber,tag));";
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
-    public String get(int index, String preImageTag){
-        String tag = globalHashFunction(preImageTag);
-        String content = null;
+    public boolean sendMessage(int boxNumber, String tag, String message) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "INSERT INTO messages (boxNumber,tag,message) VALUES(?,?,?)";
 
-        readWriteLocks[index].readLock().lock();
-        content = messageBoard[index].get(tag);
-        readWriteLocks[index].readLock().unlock();
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, boxNumber);
+            pstmt.setString(2, tag);
+            pstmt.setString(3, message);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
 
-        return content;
+        return true;
     }
+
+    public String getMessage(int boxNumber, String tag) {
+        String url = "jdbc:sqlite:" + path;
+
+        String sql = "SELECT message FROM messages WHERE boxNumber = ? AND tag = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, boxNumber);
+            pstmt.setString(2, tag);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            // There should only be one person with that loginname, but just to be sure.
+            if (rs.next()) {
+                sql = "DELETE FROM messages WHERE boxNumber = ? AND tag = ?";
+
+                PreparedStatement pstmt2 = conn.prepareStatement(sql);
+                pstmt2.setInt(1, boxNumber);
+                pstmt2.setString(2, tag);
+                pstmt2.executeUpdate();
+
+
+                return rs.getString("message");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
 
     //TODO: implement
-    public static String globalHashFunction(String s){
+    public static String globalHashFunction(String s) {
         return null;
     }
 }

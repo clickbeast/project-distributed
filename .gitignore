@@ -31,3 +31,5 @@ Client/.settings
 *.project
 */target/**
 null
+
+*.db

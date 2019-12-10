@@ -1,4 +1,10 @@
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class Server {
     private static final int CELLS_PER_BOARD = 512;
@@ -10,7 +16,7 @@ public class Server {
      * Dit is de werkwijze in het paper maar kan
      * mss beter?
      */
-    private static BulletinBoard boardA,boardB;
+    private static BulletinBoard boardA, boardB;
     /**
      * Een lijst van threads, een per user
      * waarmee de server is aan het praten
@@ -25,8 +31,8 @@ public class Server {
      */
     private static CommunicationThread communicationThread;
 
-    public static void main(String[] args) {
-        Chat protocol;
-        boardA = new BulletinBoard(CELLS_PER_BOARD, CAPACITY_PER_CELL);
+    public static void main(String[] args) throws MalformedURLException, RemoteException {
+        Registry registry = LocateRegistry.createRegistry(5000);
+        registry.rebind("Chat", new BulletinBoard(CELLS_PER_BOARD,CAPACITY_PER_CELL));
     }
 }
