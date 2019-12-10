@@ -1,6 +1,7 @@
 import exceptions.AccountAlreadyExistsException;
 import model.Message;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -15,12 +16,16 @@ import java.util.List;
 
 //TODO: MAKE ALL FUNCTIONS NOT STATIC, now static for testing
 public class LocalStorageManager {
+    private String path;
+
+    public LocalStorageManager(String databaseName) {
+        this.path = System.getProperty("user.dir") + File.separator + databaseName;
+    }
+
     /**
      * Creates a Database at the given path
-     *
-     * @param path the path for the database to be saved at
      */
-    public static void createDatabase(String path) {
+    public void createDatabase() {
         String url = "jdbc:sqlite:" + path;
 
         try (Connection conn = DriverManager.getConnection(url)) {
@@ -36,10 +41,8 @@ public class LocalStorageManager {
     /**
      * Creates an database for accounts to be saved at, including a login, pass and salt.
      * This won't do anything if the database is already initialized
-     *
-     * @param path the path for the database to be initialzed
      */
-    public static void initializeAccountsDatabase(String path) {
+    public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
         String sql = "CREATE TABLE IF NOT EXISTS accounts ( loginname VARCHAR NOT NULL,password VARCHAR NOT NULL,salt" +
                 " VARCHAR DEFAULT '',PRIMARY KEY (loginname));";
@@ -56,16 +59,15 @@ public class LocalStorageManager {
     /**
      * Saves an account, password gets salted+hashed here
      *
-     * @param path      path of the database
      * @param loginname loginname of the user
      * @param pass      unedited password of the user
      * @param salt      salt for the password, can be empty string
      */
-    public static void addAccount(String path, String loginname, String pass, String salt) throws AccountAlreadyExistsException {
+    public void addAccount(String loginname, String pass, String salt) throws AccountAlreadyExistsException {
         if (salt == null) {
             salt = "";
         }
-        initializeAccountsDatabase(path);
+        initializeAccountsDatabase();
 
         String url = "jdbc:sqlite:" + path;
         String sql = "INSERT INTO accounts (loginname,password,salt) VALUES(?,?,?)";
@@ -91,12 +93,11 @@ public class LocalStorageManager {
     /**
      * checks if the login with the given password is correct
      *
-     * @param path      path to db
      * @param loginname loginname
      * @param pass      password
      * @return true if good login, false if bad login
      */
-    public static boolean login(String path, String loginname, String pass) {
+    public boolean login(String loginname, String pass) {
         String url = "jdbc:sqlite:" + path;
 
         String sql = "SELECT loginname,password,salt FROM accounts WHERE loginname = ?";
@@ -153,7 +154,7 @@ public class LocalStorageManager {
         return hexString.toString();
     }
 
-    public static List<Message> getMessagesFromUserID(String path, int userId) {
+    public List<Message> getMessagesFromUserID(int userId) {
         List<Message> messages = new ArrayList<>();
         String url = "jdbc:sqlite:" + path;
 
@@ -176,7 +177,7 @@ public class LocalStorageManager {
 
     }
 
-    public static void storeMessage(String path, int userId, String message, long timeMillis) {
+    public void storeMessage(int userId, String message, long timeMillis) {
 
         String url = "jdbc:sqlite:" + path;
         String sql = "INSERT INTO messages (userID,text,messageDate) VALUES(?,?,?)";
@@ -194,7 +195,7 @@ public class LocalStorageManager {
 
     }
 
-    public static void initializeConversationsDatabase(String path) {
+    public void initializeConversationsDatabase() {
         String url = "jdbc:sqlite:" + path;
         String sql = "CREATE TABLE IF NOT EXISTS`conversations` (\n" +
                 "\t`userId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
@@ -216,36 +217,6 @@ public class LocalStorageManager {
             stmt.execute(sql);
         } catch (SQLException e) {
             System.out.println(e.getErrorCode() + " " + e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) throws AccountAlreadyExistsException {
-
-        Parameters params = new Parameters(args);
-        if (params.getNamed().containsKey("dbpath")) {
-            createDatabase(params.getNamed().get("dbpathd"));
-            // initializeAccountsDatabase(params.getNamed().get("dbpath"));
-            //very secure login
-            //addAccount(params.getNamed().get("dbpath"), "admin", "admin", "salt");
-            if (login(params.getNamed().get("dbpath"), "admin", "admin")) {
-                System.out.println("good login");
-            } else {
-                System.out.println("bad login");
-            }
-            if (login(params.getNamed().get("dbpath"), "admin", "admin2")) {
-                System.out.println("good login");
-            } else {
-                System.out.println("bad login");
-            }
-            if (login(params.getNamed().get("dbpath"), "admin2", "admin")) {
-                System.out.println("good login");
-            } else {
-                System.out.println("bad login");
-            }
-            initializeConversationsDatabase(params.getNamed().get("dbpath"));
-        } else {
-            System.out.println("Usage:");
-            System.out.println("   --dbpath=<path_to_database.db>");
         }
     }
 

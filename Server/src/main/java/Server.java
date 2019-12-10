@@ -10,7 +10,7 @@ public class Server {
      * Dit is de werkwijze in het paper maar kan
      * mss beter?
      */
-    private static BulletinBoard boardA,boardB;
+    private static BulletinBoard boardA, boardB;
     /**
      * Een lijst van threads, een per user
      * waarmee de server is aan het praten
@@ -26,7 +26,8 @@ public class Server {
     private static CommunicationThread communicationThread;
 
     public static void main(String[] args) {
-        Chat protocol;
-        boardA = new BulletinBoard(CELLS_PER_BOARD, CAPACITY_PER_CELL);
+        boardA = new BulletinBoard();
+        boardA.sendMessage(0, "abc", "123123");
+        System.out.println(boardA.getMessage(0, "abc"));
     }
 }
