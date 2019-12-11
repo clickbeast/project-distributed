@@ -1,3 +1,5 @@
+import java.io.File;
+
 public class ClientManager {
 
 
@@ -34,7 +36,7 @@ public class ClientManager {
 
     }
 
-    public void sendMessage() {
+    public void sendMessage(int id, String text) {
 
 
     }
@@ -45,4 +47,16 @@ public class ClientManager {
     }
 
 
+    public void getKeyForConversation(int id, File directoryLocation) {
+
+
+    }
+
+    public void createAccount(String username, String password, File directoryLocation) {
+
+    }
+
+    public void addNewConversation(String name, File location) {
+
+    }
 }

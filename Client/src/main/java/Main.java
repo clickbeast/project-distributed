@@ -46,6 +46,7 @@ public class Main extends Application {
         primaryStage.show();
 
         mainWindowViewController.scene = primaryStage.getScene();
+        mainWindowViewController.stage = primaryStage;
 
 
         // endregion
