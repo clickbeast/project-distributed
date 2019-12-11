@@ -15,7 +15,6 @@ public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCom
 
         toMaster.confirmPort(portNumber);
 
-        System.out.println("Slave server created on port " + portNumber);
         System.out.println("Bulletin board server created on port " + (portNumber+1));
     }
 

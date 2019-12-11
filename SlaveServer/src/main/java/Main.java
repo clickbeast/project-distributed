@@ -14,5 +14,6 @@ public class Main {
 
         Registry registryFromServer = LocateRegistry.createRegistry(portNumber);
         registryFromServer.rebind("MasterToSlaveCommunication", new SlaveServer(portNumber, toServer));
+        System.out.println("Slave server created on port " + portNumber);
     }
 }
