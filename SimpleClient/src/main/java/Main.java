@@ -8,7 +8,7 @@ import java.rmi.registry.Registry;
 public class Main {
     public static Chat chat;
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
+    public static void main(String[] args) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry("localhost", 5000);
         chat = (Chat) registry.lookup("Chat");
 

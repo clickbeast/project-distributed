@@ -1,45 +1,19 @@
 import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BulletinBoard extends UnicastRemoteObject implements Chat {
-    /**
-     * Iedere cel in het messageBoard houdt een set (hier een
-     * HashMap) bij van entries, elke entry bestaat uit een
-     * tag (waarmee de ontvanger het bericht kan vinden) en
-     * een value (deze value bevat het bericht en de index+tag
-     * van het volgende bericht).
-     * De key in deze HashMaps is de tag en de waarde is de value.
-     */
-    private HashMap<String, String>[] messageBoard;
-
-    /**
-     * Ieder mailbox mag door meerdere threads gelezen worden
-     * en mag door maximum 1 thread gewrite worden; Daarom
-     * houden we een ReadWriteLock bij per cell in de mailbox
-     */
-    private ReadWriteLock[] readWriteLocks;
-
-
-    private String path;
+   private String path;
+   int amountOfMessages;
 
     public BulletinBoard() throws RemoteException {
         path = System.getProperty("user.dir") + File.separator + "board.db";
         createDatabase();
         initializeMessageTable();
-
+        amountOfMessages=0;
     }
 
     public void createDatabase() {
@@ -90,6 +64,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             return false;
         }
 
+        amountOfMessages++;
         return true;
     }
 
@@ -115,19 +90,13 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
                 pstmt2.setString(2, tag);
                 pstmt2.executeUpdate();
 
-
+                amountOfMessages--;
                 return rs.getString("message");
             }
 
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
-        return null;
-    }
-
-
-    //TODO: implement
-    public static String globalHashFunction(String s) {
         return null;
     }
 }
