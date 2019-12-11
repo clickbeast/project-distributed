@@ -13,14 +13,21 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     }
 
     @Override
-    public int getPort() {
-        try {
-            slaves.add(new SlaveServer(currentPort));
-            return currentPort++;
+    public int getPort() throws RemoteException{
+        int ret = currentPort;
+        currentPort += 2;
+        return ret;
+    }
+
+    @Override
+    public boolean confirmPort(int portNumber) throws RemoteException {
+        try{
+            slaves.add(new SlaveServer(portNumber));
         }
         catch (Exception e){
             e.printStackTrace();
-            return -1;
+            return false;
         }
+        return true;
     }
 }

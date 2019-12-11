@@ -9,14 +9,18 @@ public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCom
 
     public SlaveServer(int portNumber, SlaveToMasterCommunication toMaster) throws RemoteException {
         bulletinBoard = new BulletinBoard();
-        Registry registry = LocateRegistry.createRegistry(portNumber);
+        Registry registry = LocateRegistry.createRegistry(portNumber+1);
         registry.rebind("Chat", bulletinBoard);
         this.toMaster = toMaster;
+
+        toMaster.confirmPort(portNumber);
+
         System.out.println("Slave server created on port " + portNumber);
+        System.out.println("Bulletin board server created on port " + (portNumber+1));
     }
 
     @Override
-    public boolean ping() {
+    public boolean ping() throws RemoteException {
         return true;
     }
 }
