@@ -1,9 +1,13 @@
 package model;
 
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
 @SuppressWarnings("Duplicates")
@@ -34,24 +38,32 @@ public class BoardKey {
         this.nextSpot = nextSpot;
     }
 
-    public Key getEncryptKey() throws NoSuchAlgorithmException {
-        SecureRandom random = new SecureRandom(key.getBytes());
+    public Key getEncryptKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), new byte[1], 1000, 128 * 8);
+        return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1").generateSecret(spec);
+
+
+
+
+
+
+
+       /* SecureRandom random = new SecureRandom(key.getBytes());
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(random);
 
         //Creating/Generating a key
-        return keyGen.generateKey();
+        return keyGen.generateKey();*/
     }
 
     public String getKey() {
         return key;
     }
 
-    public void generateNextKey() throws NoSuchAlgorithmException {
-        SecureRandom random = new SecureRandom(getEncryptKey().getEncoded());
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(random);
-        key = bytesToHex(keyGen.generateKey().getEncoded());
+    public void generateNextKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PBEKeySpec spec = new PBEKeySpec(key.toCharArray(), new byte[1], 1000, 128 * 8);
+        key = bytesToHex(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1").generateSecret(spec).getEncoded());
     }
 
     public String getTag() {
