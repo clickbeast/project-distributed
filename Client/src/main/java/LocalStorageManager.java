@@ -168,7 +168,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                messages.add(new Message(rs.getString("text"), rs.getInt("userID"), rs.getLong("messageDate")));
+                messages.add(new Message(rs.getString("text"), rs.getInt("userID"),rs.getInt("fromUser")==1, rs.getLong("messageDate")));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -177,16 +177,17 @@ public class LocalStorageManager {
 
     }
 
-    public void storeMessage(int userId, String message, long timeMillis) {
+    public void storeMessage(int userId, String message, long timeMillis, boolean fromUser) {
 
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO messages (userID,text,messageDate) VALUES(?,?,?)";
+        String sql = "INSERT INTO messages (userID,text,fromUser,messageDate) VALUES(?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setString(2, message);
-            pstmt.setLong(3, timeMillis);
+            pstmt.setInt(3, fromUser?1:0);
+            pstmt.setLong(4, timeMillis);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
@@ -200,8 +201,10 @@ public class LocalStorageManager {
         String sql = "CREATE TABLE IF NOT EXISTS`conversations` (\n" +
                 "\t`userId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                 "\t`contactname`\tTEXT,\n" +
-                "\t`enxryptKey`\tTEXT,\n" +
+                "\t`encryptKey`\tTEXT,\n" +
                 "\t`nextSpot`\tINTEGER\n" +
+                "\t`encryptKeyUs`\tTEXT,\n" +
+                "\t`nextSpotUs`\tINTEGER\n" +
                 ");";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
@@ -211,6 +214,7 @@ public class LocalStorageManager {
                     "\t`messageID`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                     "\t`userID`\tINTEGER,\n" +
                     "\t`text`\tTEXT,\n" +
+                    "\t`fromUser`\tINTEGER,\n" +
                     "\t`messageDate`\tTIMESTAMP  \n" +
                     ",FOREIGN KEY " +
                     "(userID) REFERENCES conversations(userID));";

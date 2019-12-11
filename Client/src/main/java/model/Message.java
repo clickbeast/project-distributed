@@ -4,11 +4,13 @@ public class Message {
     private String text;
     private int userId;
     private long timeStamp;
+    private boolean fromUser;
 
-    public Message(String text, int userId, long timeStamp) {
+    public Message(String text, int userId, boolean fromUser, long timeStamp) {
         this.text = text;
         this.userId = userId;
         this.timeStamp = timeStamp;
+        this.fromUser = fromUser;
     }
 
     public String getText() {
@@ -35,12 +37,21 @@ public class Message {
         this.timeStamp = timeStamp;
     }
 
+    public boolean isFromUser() {
+        return fromUser;
+    }
+
+    public void setFromUser(boolean fromUser) {
+        this.fromUser = fromUser;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
                 "text='" + text + '\'' +
                 ", userId=" + userId +
                 ", timeStamp=" + timeStamp +
+                ", fromUser=" + fromUser +
                 '}';
     }
 }
