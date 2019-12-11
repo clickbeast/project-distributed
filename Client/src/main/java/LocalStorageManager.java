@@ -1,4 +1,5 @@
 import exceptions.AccountAlreadyExistsException;
+import model.BoardKey;
 import model.Message;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //TODO: MAKE ALL FUNCTIONS NOT STATIC, now static for testing
+@SuppressWarnings("Duplicates")
 public class LocalStorageManager {
     private String path;
 
@@ -168,7 +170,8 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                messages.add(new Message(rs.getString("text"), rs.getInt("userID"),rs.getInt("fromUser")==1, rs.getLong("messageDate")));
+                messages.add(new Message(rs.getString("text"), rs.getInt("userID"), rs.getInt("fromUser") == 1,
+                        rs.getLong("messageDate")));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -186,7 +189,7 @@ public class LocalStorageManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setString(2, message);
-            pstmt.setInt(3, fromUser?1:0);
+            pstmt.setInt(3, fromUser ? 1 : 0);
             pstmt.setLong(4, timeMillis);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -196,14 +199,37 @@ public class LocalStorageManager {
 
     }
 
+    public void saveConversation(String contactname, BoardKey boardKey, BoardKey boardKeyUs) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "INSERT INTO conversations (contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs) " +
+                "VALUES(?,?,?,?,?,?,?)";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, contactname);
+            pstmt.setString(2, boardKey.getKey());
+            pstmt.setString(3, boardKey.getTag());
+            pstmt.setInt(4, boardKey.getNextSpot());
+            pstmt.setString(5, boardKeyUs.getKey());
+            pstmt.setString(6, boardKeyUs.getTag());
+            pstmt.setInt(7, boardKeyUs.getNextSpot());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
+
     public void initializeConversationsDatabase() {
         String url = "jdbc:sqlite:" + path;
         String sql = "CREATE TABLE IF NOT EXISTS`conversations` (\n" +
                 "\t`userId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                 "\t`contactname`\tTEXT,\n" +
                 "\t`encryptKey`\tTEXT,\n" +
+                "\t`tag`\tTEXT,\n" +
                 "\t`nextSpot`\tINTEGER\n" +
                 "\t`encryptKeyUs`\tTEXT,\n" +
+                "\t`tagUs`\tTEXT,\n" +
                 "\t`nextSpotUs`\tINTEGER\n" +
                 ");";
         try (Connection conn = DriverManager.getConnection(url);
