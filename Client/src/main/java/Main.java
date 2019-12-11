@@ -1,4 +1,5 @@
 
+import com.sun.security.ntlm.Client;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -39,6 +40,10 @@ public class Main extends Application {
 
         Parent flowPane = loader.load();
 
+        ClientManager clientManager = new ClientManager();
+        mainWindowViewController.setClientManager(clientManager);
+        clientManager.setMainWindowViewController(mainWindowViewController);
+
         primaryStage.setTitle("Da Cripti");
         primaryStage.setScene(new Scene(flowPane, 1200, 860));
         primaryStage.setMinWidth(800);
@@ -48,9 +53,11 @@ public class Main extends Application {
         mainWindowViewController.scene = primaryStage.getScene();
         mainWindowViewController.stage = primaryStage;
 
-
         // endregion
         this.mainWindowViewController.setupComplete();
+
+
+
         /**
          *
          * RUN YOUR TESTS BELOW THIS

@@ -18,7 +18,8 @@ public class InboxListView extends ListView<HBox> {
 
     public InboxListView() {
         super();
-        configurePageTable();
+        //configurePageTable();
+
     }
 
 

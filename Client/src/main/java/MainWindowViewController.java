@@ -1,4 +1,6 @@
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -107,6 +109,35 @@ public class MainWindowViewController implements Initializable {
             }
         });
     }
+
+    public void loadMessages(int id) {
+
+
+
+    }
+
+    public void loadInbox() {
+
+        ObservableList<CustomThing> data = FXCollections.observableArrayList();
+        data.addAll(new CustomThing("Cheese", 123), new CustomThing("Horse", 456), new CustomThing("Jam", 789));
+
+        final ListView<CustomThing> listView = new ListView<CustomThing>(data);
+        listView.setCellFactory(new Callback<ListView<CustomThing>, ListCell<CustomThing>>() {
+            @Override
+            public ListCell<CustomThing> call(ListView<CustomThing> listView) {
+                return new CustomListCell();
+            }
+
+        });
+
+        this.getLeftPane().getChildren().add()
+
+    }
+
+
+
+
+
 
 
 
@@ -300,4 +331,164 @@ public class MainWindowViewController implements Initializable {
 
     }
 
+
+    public Scene getScene() {
+        return scene;
+    }
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public Button getNewConversationButton() {
+        return newConversationButton;
+    }
+
+    public void setNewConversationButton(Button newConversationButton) {
+        this.newConversationButton = newConversationButton;
+    }
+
+    public Label getPartnerNameLabel() {
+        return partnerNameLabel;
+    }
+
+    public void setPartnerNameLabel(Label partnerNameLabel) {
+        this.partnerNameLabel = partnerNameLabel;
+    }
+
+    public Label getRightStatusLabel() {
+        return rightStatusLabel;
+    }
+
+    public void setRightStatusLabel(Label rightStatusLabel) {
+        this.rightStatusLabel = rightStatusLabel;
+    }
+
+    public Label getLeftStatusLabel() {
+        return leftStatusLabel;
+    }
+
+    public void setLeftStatusLabel(Label leftStatusLabel) {
+        this.leftStatusLabel = leftStatusLabel;
+    }
+
+    public Button getEditButton() {
+        return editButton;
+    }
+
+    public void setEditButton(Button editButton) {
+        this.editButton = editButton;
+    }
+
+    public Button getGetKeyButton() {
+        return getKeyButton;
+    }
+
+    public void setGetKeyButton(Button getKeyButton) {
+        this.getKeyButton = getKeyButton;
+    }
+
+    public Button getSendButton() {
+        return sendButton;
+    }
+
+    public void setSendButton(Button sendButton) {
+        this.sendButton = sendButton;
+    }
+
+    public Button getDeleteButton() {
+        return deleteButton;
+    }
+
+    public void setDeleteButton(Button deleteButton) {
+        this.deleteButton = deleteButton;
+    }
+
+    public Button getLoginButton() {
+        return loginButton;
+    }
+
+    public void setLoginButton(Button loginButton) {
+        this.loginButton = loginButton;
+    }
+
+    public Button getCreateAccountButton() {
+        return createAccountButton;
+    }
+
+    public void setCreateAccountButton(Button createAccountButton) {
+        this.createAccountButton = createAccountButton;
+    }
+
+    public TextArea getMessageField() {
+        return messageField;
+    }
+
+    public void setMessageField(TextArea messageField) {
+        this.messageField = messageField;
+    }
+
+    public TextField getUsernameField() {
+        return usernameField;
+    }
+
+    public void setUsernameField(TextField usernameField) {
+        this.usernameField = usernameField;
+    }
+
+    public PasswordField getPasswordField() {
+        return passwordField;
+    }
+
+    public void setPasswordField(PasswordField passwordField) {
+        this.passwordField = passwordField;
+    }
+
+    public TextField getCreateAccountUsernameField() {
+        return createAccountUsernameField;
+    }
+
+    public void setCreateAccountUsernameField(TextField createAccountUsernameField) {
+        this.createAccountUsernameField = createAccountUsernameField;
+    }
+
+    public PasswordField getCreateAccountPasswordField() {
+        return createAccountPasswordField;
+    }
+
+    public void setCreateAccountPasswordField(PasswordField createAccountPasswordField) {
+        this.createAccountPasswordField = createAccountPasswordField;
+    }
+
+    public AnchorPane getLeftPane() {
+        return leftPane;
+    }
+
+    public void setLeftPane(AnchorPane leftPane) {
+        this.leftPane = leftPane;
+    }
+
+    public AnchorPane getInboxPane() {
+        return inboxPane;
+    }
+
+    public void setInboxPane(AnchorPane inboxPane) {
+        this.inboxPane = inboxPane;
+    }
+
+    public AnchorPane getMessagePane() {
+        return messagePane;
+    }
+
+    public void setMessagePane(AnchorPane messagePane) {
+        this.messagePane = messagePane;
+    }
+
+    public ClientManager getClientManager() {
+        return clientManager;
+    }
 }
