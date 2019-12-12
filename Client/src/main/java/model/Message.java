@@ -5,12 +5,23 @@ public class Message {
     private int userId;
     private long timeStamp;
     private boolean fromUser;
+    private boolean delivered;
 
-    public Message(String text, int userId, boolean fromUser, long timeStamp) {
+    public Message(String text, int userId, long timeStamp, boolean fromUser, boolean delivered) {
         this.text = text;
         this.userId = userId;
         this.timeStamp = timeStamp;
         this.fromUser = fromUser;
+        this.delivered = delivered;
+    }
+
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
     }
 
     public String getText() {
@@ -52,6 +63,8 @@ public class Message {
                 ", userId=" + userId +
                 ", timeStamp=" + timeStamp +
                 ", fromUser=" + fromUser +
+                ", delivered=" + delivered +
                 '}';
     }
+
 }

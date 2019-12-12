@@ -179,14 +179,14 @@ public class MainWindowViewController implements Initializable {
 
 
 
-    //prevent user from using History, commonly used while running algorithm
+    //prevent User from using History, commonly used while running algorithm
     public void freezeUI() {
 
 
 
     }
 
-    //allow user to use History again
+    //allow User to use History again
     public void unFreezeUI() {
 
     }
