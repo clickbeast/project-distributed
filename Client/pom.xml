@@ -35,11 +35,11 @@
             <version>3.28.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.controlsfx/controlsfx -->
-        <!--<dependency>
+        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>8.</version>
-        </dependency>-->
+            <version>8.40.15</version>
+        </dependency>
     </dependencies>
 
 </project>

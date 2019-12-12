@@ -1,5 +1,7 @@
 package model;
 
+import java.util.concurrent.TimeUnit;
+
 public class Message {
     private String text;
     private int userId;
@@ -54,6 +56,24 @@ public class Message {
 
     public void setFromUser(boolean fromUser) {
         this.fromUser = fromUser;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
+    }
+
+
+    public String getFormattedTimeStamp() {
+        String.format("%d:%d",
+                TimeUnit.MILLISECONDS.toMinutes(this.getTimeStamp()),
+                TimeUnit.MILLISECONDS.toSeconds(this.getTimeStamp()) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(this.getTimeStamp()))
+        );
+        return "";
     }
 
     @Override

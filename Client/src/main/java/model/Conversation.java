@@ -1,17 +1,27 @@
 package model;
 
+import javafx.collections.ObservableList;
+
 public class Conversation {
+
     private int userId;
-    private String contactname;
+    private String userName;
     private BoardKey boardKey;
     private BoardKey boardKeyUs;
+    private boolean read;
 
-    public Conversation(int userId, String contactname, BoardKey boardKey, BoardKey boardKeyUs) {
+    private ObservableList<Message> messages;
+
+    public Conversation(int userId, String userName, BoardKey boardKey, BoardKey boardKeyUs,
+                        ObservableList<Message> messages) {
         this.userId = userId;
-        this.contactname = contactname;
+        this.userName = userName;
         this.boardKey = boardKey;
         this.boardKeyUs = boardKeyUs;
+        this.messages = messages;
+        this.read = true;
     }
+
 
     public int getUserId() {
         return userId;
@@ -37,12 +47,21 @@ public class Conversation {
         this.boardKeyUs = boardKeyUs;
     }
 
-    @Override
-    public String toString() {
-        return "Conversation{" +
-                "userId=" + userId +
-                ", boardKey=" + boardKey +
-                ", boardKeyUs=" + boardKeyUs +
-                '}';
+    public ObservableList<Message> getMessages() {
+        return messages;
     }
+
+    public void setMessages(ObservableList<Message> messages) {
+        this.messages = messages;
+    }
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
 }
