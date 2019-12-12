@@ -3,5 +3,5 @@ import java.rmi.RemoteException;
 
 public interface SlaveToMasterCommunication extends Remote {
     int getPort() throws RemoteException;
-    boolean confirmPort(int portNumber) throws RemoteException;
+    boolean confirmConfiguration(int portNumber, String ip) throws RemoteException;
 }
