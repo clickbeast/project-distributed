@@ -1,4 +1,3 @@
-import com.sun.tools.javac.util.Convert;
 import exceptions.AccountAlreadyExistsException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,8 +23,8 @@ public class ClientManager {
 
         //example
 
-        Message message = new Message("Hello world", 0, true,1);
-        Message message1 = new Message("Whoop whoop", 0, false,1);
+        Message message = new Message("Hello world", 0,0, true,false,false);
+        Message message1 = new Message("Whoop whoop", 0, 0,false,false,false);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message);
@@ -78,7 +77,7 @@ public class ClientManager {
     }
 
     public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(),true, System.currentTimeMillis());
+        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(),true,true,true);
         conversation.getMessages().add(message);
     }
 

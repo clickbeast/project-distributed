@@ -1,4 +1,6 @@
 import exceptions.AccountAlreadyExistsException;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.BoardKey;
 import model.Conversation;
 import model.Message;
@@ -47,7 +49,8 @@ public class LocalStorageManager {
      */
     public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
-        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT NULL,password VARCHAR NOT NULL,salt" +
+        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
+                "NULL,password VARCHAR NOT NULL,salt" +
                 " VARCHAR DEFAULT '')";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
@@ -158,7 +161,7 @@ public class LocalStorageManager {
     }
 
     public List<Message> getMessagesFromUserID(int userId) {
-        List<Message> messages = new ArrayList<>();
+        List<Message> messages = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
         String sql = "SELECT userID,text,messageDate FROM messages WHERE userID = ?";
@@ -175,7 +178,8 @@ public class LocalStorageManager {
                         rs.getInt("userID"),
                         rs.getLong("messageDate"),
                         rs.getInt("fromUser") == 1,
-                        rs.getInt("delivered") == 1));
+                        rs.getInt("delivered") == 1,
+                        rs.getInt("read") == 1));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -184,17 +188,20 @@ public class LocalStorageManager {
 
     }
 
-    public void storeMessage(int userId, String message, long timeMillis, boolean fromUser) {
+    public void storeMessage(Message message) {
 
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO messages (userID,text,fromUser,messageDate) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setString(2, message);
-            pstmt.setInt(3, fromUser ? 1 : 0);
-            pstmt.setLong(4, timeMillis);
+
+            pstmt.setInt(1, message.getContactId());
+            pstmt.setString(2, message.getText());
+            pstmt.setInt(3, message.isFromUser() ? 1 : 0);
+            pstmt.setInt(3, message.isSeen() ? 1 : 0);
+            pstmt.setInt(3, message.isDelivered() ? 1 : 0);
+            pstmt.setLong(4, message.getTimeStamp());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
@@ -224,7 +231,8 @@ public class LocalStorageManager {
                                 rs.getInt("nextSpot")),
                         new BoardKey(rs.getString("encryptKeyUs"),
                                 rs.getString("tagUs"),
-                                rs.getInt("nextSpotUs"))));
+                                rs.getInt("nextSpotUs")),
+                        (ObservableList<Message>) getMessagesFromUserID(userId)));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -277,6 +285,8 @@ public class LocalStorageManager {
                     "\t`contactId`\tINTEGER,\n" +
                     "\t`text`\tTEXT,\n" +
                     "\t`fromUser`\tINTEGER,\n" +
+                    "\t`seen`\tINTEGER,\n" +
+                    "\t`delivered`\tINTEGER,\n" +
                     "\t`messageDate`\tTIMESTAMP  \n" +
                     ",FOREIGN KEY " +
                     "(contactId) REFERENCES conversations(contactId));";
