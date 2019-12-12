@@ -33,7 +33,7 @@
                               <TextField promptText="Search" />
                            </items>
                         </ToolBar>
-                        <AnchorPane fx:id="inboxPane" prefHeight="200.0" prefWidth="200.0" />
+                        <AnchorPane fx:id="inboxPane" style="-fx-background-color: blue;" VBox.vgrow="ALWAYS" />
                         <AnchorPane prefHeight="200.0" prefWidth="200.0">
                            <children>
                               <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
@@ -92,16 +92,9 @@
                <children>
                   <ToolBar fx:id="topToolBar1" prefHeight="39.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <items>
-                        <Pane />
-                        <Label fx:id="partnerNameLabel" text="sdjnsd">
-                           <font>
-                              <Font name="Helvetica" size="15.0" />
-                           </font>
-                        </Label>
+                        <HBox fx:id="leftToolBarConversation" />
                         <Pane HBox.hgrow="ALWAYS" />
-                        <Button fx:id="getKeyButton" mnemonicParsing="false" onAction="#getKeyForConversation" text="Get Key" />
-                        <Button fx:id="editButton" mnemonicParsing="false" onAction="#editConversation" text="Edit" />
-                        <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#deleteConversation" text="Delete" />
+                        <HBox fx:id="rightToolBarConversation" />
                      </items>
                   </ToolBar>
                   <VBox prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
