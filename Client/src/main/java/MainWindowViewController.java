@@ -1,4 +1,7 @@
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,15 +17,20 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import model.Conversation;
 import model.Message;
+import ui.ToolBarLabel;
 
 
+import javax.tools.Tool;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -45,6 +53,7 @@ public class MainWindowViewController implements Initializable {
     //Left Toolbar
     public Button newConversationButton;
 
+    public Button logoutButton;
 
     public Label partnerNameLabel;
 
@@ -75,12 +84,13 @@ public class MainWindowViewController implements Initializable {
     public AnchorPane messagePane;
     private ClientManager clientManager;
 
-
     public HBox leftToolBarConversation;
     public HBox rightToolBarConversation;
 
     public ListView<Message> messageListView;
     public ListView<Conversation> inboxListView;
+
+    public LoginViewController loginViewController;
 
 
     public void initialize(URL location, ResourceBundle resources) {
@@ -89,13 +99,81 @@ public class MainWindowViewController implements Initializable {
 
     }
 
-
     public void setupComplete() {
-        this.configureUIElements();
         //this.clientManager.loadUserContents();
         this.setupDefaultToolbarConversation();
-        this.clientManager.loadUserContents();
+        this.freezeUI();
+        //this.clientManager.loadUserContents();
+        //this.setupDefaultToolbarConversation();
+        this.loadLoginView();
+
     }
+
+    public void loadLoginView() {
+        this.inboxPane.getChildren().clear();
+        this.messagePane.getChildren().clear();
+
+
+        Parent parent = null;
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("loginView.fxml"));
+        loader.setControllerFactory(c -> {
+            if (c == LoginViewController.class) {
+                LoginViewController lv = new LoginViewController();
+                lv.setMainWindowViewController(this);
+                this.loginViewController = lv;
+                return lv;
+            } else {
+                try {
+                    return c.newInstance();
+                } catch (Exception exc) {
+                    throw new RuntimeException(exc);
+                }
+            }
+        });
+
+        //this.loginViewController.setMainWindowViewController(this);
+
+
+
+        try {
+             parent = loader.load();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
+        this.freezeUI();
+        if(parent != null) {
+            //configure bounds
+            inboxPane.getChildren().add(parent);
+
+            AnchorPane.setBottomAnchor(parent, 0.0);
+            AnchorPane.setTopAnchor(parent,0.0);
+            AnchorPane.setRightAnchor(parent,0.0);
+            AnchorPane.setLeftAnchor(parent,0.0);
+        }
+
+    }
+
+    public void loadApplicationView() {
+        this.newConversationButton.setDisable(false);
+        this.logoutButton.setDisable(false);
+    }
+
+    public void freezeUI() {
+        this.deleteButton.setDisable(true);
+        this.getKeyButton.setDisable(true);
+        this.editButton.setDisable(true);
+        this.sendButton.setDisable(true);
+        this.logoutButton.setDisable(true);
+        this.newConversationButton.setDisable(true);
+        this.partnerNameLabel.setText("");
+        this.inboxPane.getChildren().clear();
+        this.messagePane.getChildren().clear();
+        this.messageField.setDisable(true);
+    }
+
+
 
     public void setupDefaultToolbarConversation() {
         this.editButton = new Button();
@@ -113,14 +191,15 @@ public class MainWindowViewController implements Initializable {
         this.partnerNameLabel = new Label();
         this.partnerNameLabel.setText("loading");
         this.partnerNameLabel.setPadding(new Insets(4, 0, 0, 0));
-        this.partnerNameLabel.setStyle("-fx-font-weight: bold");
+        this.partnerNameLabel.setFont(Font.font("Helvetica", FontWeight.BLACK,13.0));
+
+
 
         this.leftToolBarConversation.getChildren().add(this.partnerNameLabel);
         this.rightToolBarConversation.getChildren().clear();
         this.rightToolBarConversation.getChildren().addAll(editButton, getKeyButton, deleteButton);
         this.rightToolBarConversation.setSpacing(5.0);
     }
-
 
     public void editPartnerName() {
         if(clientManager.getCurrentConversation() != null) {
@@ -132,16 +211,23 @@ public class MainWindowViewController implements Initializable {
             button.setOnAction(e->{
                 this.clientManager.editPartnerName(field.getText());
                 this.hideInlineDialog();
-
             });
             this.inlineDialog(field,button);
+
         }
+    }
+
+    public void reloadUI() {
+        this.loadConversation(this.clientManager.getCurrentConversation());
+        this.loadInbox();
     }
 
     public void deleteConversation() {
         if(clientManager.getCurrentConversation() != null) {
             Label label = new Label();
             label.setText("Are you sure you want to delete this conversation?");
+            label.setPadding(new Insets(4, 0, 0, 0));
+            label.setFont(Font.font("Helvetica", FontWeight.BLACK,13.0));
             Button deleteButton = new Button();
             deleteButton.setText("Delete");
             deleteButton.setDefaultButton(true);
@@ -150,66 +236,9 @@ public class MainWindowViewController implements Initializable {
                 this.hideInlineDialog();
                 this.showEmptyConversation();
             });
-
             this.inlineDialog(label, deleteButton);
         }
     }
-
-    public void inlineDialog(Node node, Button actionButton) {
-        this.leftToolBarConversation.getChildren().clear();
-        this.rightToolBarConversation.getChildren().clear();
-        this.leftToolBarConversation.getChildren().add(node);
-
-        Button cancelButton = new Button();
-        cancelButton.setText("Cancel");
-        cancelButton.setCancelButton(true);
-        cancelButton.setOnAction(e-> this.hideInlineDialog());
-
-        rightToolBarConversation.getChildren().add(cancelButton);
-        rightToolBarConversation.getChildren().add(actionButton);
-    }
-
-    public void hideInlineDialog() {
-        this.leftToolBarConversation.getChildren().clear();
-        this.rightToolBarConversation.getChildren().clear();
-        this.leftToolBarConversation.getChildren().add(partnerNameLabel);
-        rightToolBarConversation.getChildren().add(getKeyButton);
-        rightToolBarConversation.getChildren().add(editButton);
-        rightToolBarConversation.getChildren().add(deleteButton);
-    }
-
-
-
-
-
-
-    //Configures all Elements when starting the application_
-    public void configureUIElements() {
-        System.out.println("Configuring UI Elements");
-        leftPane.setOnDragEntered(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                // TODO : Show visual feedback in left side
-                System.out.println("feedback");
-            }
-        });
-        leftPane.setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                Dragboard db = event.getDragboard();
-                boolean success = false;
-                if (db.hasFiles()) {
-                    System.out.println(db.getFiles().toString());
-                    success = true;
-                }
-
-                event.setDropCompleted(success);
-
-                event.consume();
-            }
-        });
-    }
-
 
     public void loadInbox() {
         this.inboxPane.getChildren().removeAll();
@@ -223,9 +252,23 @@ public class MainWindowViewController implements Initializable {
         });
         
         this.inboxListView = listView;
-        
+        this.newConversationButton.setDisable(false);
+        this.logoutButton.setDisable(false);
+
         
         this.getInboxPane().getChildren().add(listView);
+
+        //listView.getOnMouseClicked(e -> {});
+
+        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Conversation>()
+        {
+            public void changed(ObservableValue<? extends Conversation> ov,
+                                final Conversation oldvalue, final Conversation newvalue)
+            {
+                System.out.println("cgende");
+
+            }});
+
 
 
         //configure bounds
@@ -236,14 +279,20 @@ public class MainWindowViewController implements Initializable {
 
     }
 
-
     public void loadConversation(Conversation conversation) {
+
+        if(conversation == null) {
+            System.out.println("No current conversation");
+            this.showEmptyConversation();
+        }
+
         this.clientManager.setCurrentConversation(conversation);
         this.messagePane.getChildren().removeAll();
 
         this.deleteButton.setDisable(false);
         this.getKeyButton.setDisable(false);
         this.editButton.setDisable(false);
+
 
 
         this.partnerNameLabel.setText(this.clientManager.getCurrentConversation().getUserName());
@@ -260,6 +309,9 @@ public class MainWindowViewController implements Initializable {
 
 
         this.getMessagePane().getChildren().add(messageView);
+
+
+
         AnchorPane.setBottomAnchor(messageListView, 0.0);
         AnchorPane.setTopAnchor(messageListView,0.0);
         AnchorPane.setRightAnchor(messageListView,0.0);
@@ -270,7 +322,7 @@ public class MainWindowViewController implements Initializable {
 
     public void showEmptyConversation() {
         this.clientManager.setCurrentConversation(null);
-        this.messagePane.getChildren().removeAll();
+        this.messagePane.getChildren().clear();
         this.partnerNameLabel.setText("");
         this.deleteButton.setDisable(true);
         this.getKeyButton.setDisable(true);
@@ -278,6 +330,79 @@ public class MainWindowViewController implements Initializable {
         this.getMessageField().setDisable(true);
         this.sendButton.setDisable(true);
     }
+
+
+    public void newConversationAction() {
+        this.showEmptyConversation();
+        ToolBarLabel label = new ToolBarLabel("Choose option");
+        Button addNewConversation = new Button();
+        addNewConversation.setText("Import Conversation");
+        addNewConversation.setOnAction(e-> {
+            this.addNewConversation();
+            this.hideInlineDialog();
+        });
+        Button createNewConversation = new Button();
+        createNewConversation.setDefaultButton(true);
+        createNewConversation.setText("Create Conversation");
+        createNewConversation.setOnAction(e->{
+            this.hideInlineDialog();
+            createNewConversation();
+        });
+
+        HBox hBox = new HBox();
+        hBox.getChildren().addAll(createNewConversation,addNewConversation);
+        hBox.setSpacing(10);
+
+        this.inlineDialog(label,hBox);
+    }
+
+    public void logoutAction() {
+        this.clientManager.logout();
+    }
+
+    public void addNewConversation() {
+        File fileLocation = this.chooseFileLocation();
+        if(fileLocation == null) {
+            this.hideInlineDialog();
+        }
+
+        TextField field = new TextField();
+        field.setPromptText("Choose Parnter Name");
+        Button create = new Button();
+        create.setText("Import");
+        create.setDefaultButton(true);
+        create.setOnAction(e-> {
+            this.hideInlineDialog();
+            this.clientManager.addNewConversation(field.getText(),fileLocation);
+        });
+
+    }
+
+    public void createNewConversation() {
+        this.showEmptyConversation();
+        TextField field = new TextField();
+        field.setPromptText("Choose Parnter Name");
+        Button create = new Button();
+        create.setText("Create");
+        create.setDefaultButton(true);
+        create.setOnAction(e-> {
+            this.hideInlineDialog();
+            this.clientManager.createNewConversation(field.getText());
+            ToolBarLabel label = new ToolBarLabel("Do you want to save the key for your partner?");
+            Button getKey = new Button("Save key");
+            getKey.setDefaultButton(true);
+            getKey.setOnAction(a->{
+                this.getKeyForConversation();
+            });
+            this.inlineDialog(label,getKey);
+        });
+
+        this.inlineDialog(field,create);
+    }
+
+
+
+
 
 
     private class ConversationListViewCell extends ListCell<Conversation> {
@@ -314,8 +439,29 @@ public class MainWindowViewController implements Initializable {
         }
     }
 
+    public void inlineDialog(Node node, Node actionButton) {
+        this.leftToolBarConversation.getChildren().clear();
+        this.rightToolBarConversation.getChildren().clear();
+        this.leftToolBarConversation.getChildren().add(node);
+
+        Button cancelButton = new Button();
+        cancelButton.setText("Cancel");
+        cancelButton.setCancelButton(true);
+        cancelButton.setOnAction(e-> this.hideInlineDialog());
+
+        rightToolBarConversation.getChildren().add(actionButton);
+        rightToolBarConversation.getChildren().add(cancelButton);
+    }
 
 
+    public void hideInlineDialog() {
+        this.leftToolBarConversation.getChildren().clear();
+        this.rightToolBarConversation.getChildren().clear();
+        this.leftToolBarConversation.getChildren().add(partnerNameLabel);
+        rightToolBarConversation.getChildren().add(getKeyButton);
+        rightToolBarConversation.getChildren().add(editButton);
+        rightToolBarConversation.getChildren().add(deleteButton);
+    }
 
     private class MessageListViewCell extends ListCell<Message> {
         private HBox content;
@@ -328,7 +474,7 @@ public class MainWindowViewController implements Initializable {
             message = new Text();
             VBox vBox = new VBox(name, message);
             content = new HBox(new Label("[Graphic]"), vBox);
-            content.setSpacing(10);
+            content.setSpacing(5);
         }
 
         //TODO: implement this;
@@ -350,9 +496,6 @@ public class MainWindowViewController implements Initializable {
         }
     }
 
-
-
-
     //get called when Main is finshed with doing its things
     public void startFinished() {
         System.out.println("Finished setup of program");
@@ -369,35 +512,10 @@ public class MainWindowViewController implements Initializable {
 
 
 
-    /**
-     * UI ACTIONS
-     *
-     */
 
 
 
 
-    public void addNewConversation() {
-        TextInputDialog dialog = new TextInputDialog("walter");
-        dialog.setTitle("New conversation");
-        dialog.setHeaderText("Enter a name for your partner. After creation choose a location for the key and send it" +
-                "deliver it to your partner");
-        dialog.setContentText("Please enter a name for your partner:");
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()){
-            System.out.println("Your name: " + result.get());
-        }
-
-        // The Java 8 way to get the response value (with lambda expression).
-        result.ifPresent(name -> {
-            File location = this.chooseDirectoryLocation();
-            this.clientManager.addNewConversation(name, location);
-            this.setLeftStatus("Creating conversation");
-
-        });
-
-    }
 
 
     public void editConversation() {
@@ -434,78 +552,25 @@ public class MainWindowViewController implements Initializable {
         return selectedDirectory;
     }
 
-
-    //Temp
-    @FXML
-    void onOpenDialog(ActionEvent event) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("newMessageDialog.fxml"));
-        Parent parent = fxmlLoader.load();
-        NewMessageDialogController dialogController = fxmlLoader.<NewMessageDialogController>getController();
-        //ialogController.setAppMainObservableList(tvObservableList);
-
-        Scene scene = new Scene(parent, 300, 200);
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setScene(scene);
-        stage.showAndWait();
+    public File chooseFileLocation() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                new FileChooser.ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        File selectedFile = fileChooser.showOpenDialog(this.scene.getWindow());
+        return selectedFile;
     }
-
-    public void createAccount() {
-        File directoryLocation = this.chooseDirectoryLocation();
-        this.clientManager.createAccount(createAccountUsernameField.getText(), createAccountPasswordField.getText(), directoryLocation);
-    }
-
-/*
-    public void deleteConversation() {
-        int id = 0;
-
-
-        Optional<ButtonType> result = new Alert(
-                Alert.AlertType.INFORMATION,
-                "No more instuctions Left. Do you wish to restart?",
-                ButtonType.NO, ButtonType.YES
-        ).showAndWait();
-
-
-
-        if(result.get() == ButtonType.YES) {
-            System.out.println("Resetting everything" + "");
-
-            //delete conversation
-
-        }else{
-            //do nothing
-            System.out.println("NO CALLED");
-        }
-    }
-*/
 
     public void setLeftStatus(String status) {
         this.leftStatusLabel.setText(status);
     }
 
-    /**
-     *
-     * UI CONFIG
-     *
-     */
-
-
-
-
-
-
-
-    //prevent user from using History, commonly used while running algorithm
-    public void freezeUI() {
-
+    public void showMessage(String  message) {
+        System.out.println(message);
     }
-
-    //allow user to use History again
-    public void unFreezeUI() {
-
-    }
-
 
     public Scene getScene() {
         return scene;

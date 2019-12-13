@@ -2,6 +2,8 @@ package model;
 
 import javafx.collections.ObservableList;
 
+import java.util.Objects;
+
 public class Conversation {
 
     private int userId;
@@ -64,4 +66,17 @@ public class Conversation {
         this.userName = userName;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Conversation that = (Conversation) o;
+        return userId == that.userId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId);
+    }
 }
