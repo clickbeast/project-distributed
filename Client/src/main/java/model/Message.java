@@ -4,17 +4,26 @@ import java.util.concurrent.TimeUnit;
 
 public class Message {
     private String text;
-    private int userId;
+    private int contactId;
     private long timeStamp;
     private boolean fromUser;
     private boolean delivered;
+    private boolean seen;
 
-    public Message(String text, int userId, boolean fromUser, long timeStamp) {
+    public Message(String text, int contactId, long timeStamp, boolean fromUser, boolean delivered,boolean seen) {
         this.text = text;
-        this.userId = userId;
+        this.contactId = contactId;
         this.timeStamp = timeStamp;
         this.fromUser = fromUser;
+        this.delivered = delivered;
+        this.seen = seen;
     }
+
+
+    //TODO: remove this, currently just some temp for merge...
+    public Message(String hello_world, int i, boolean b, int i1) {
+    }
+
 
     public String getText() {
         return text;
@@ -24,12 +33,12 @@ public class Message {
         this.text = text;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getContactId() {
+        return contactId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setContactId(int contactId) {
+        this.contactId = contactId;
     }
 
     public long getTimeStamp() {
@@ -56,6 +65,13 @@ public class Message {
         this.delivered = delivered;
     }
 
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
 
     public String getFormattedTimeStamp() {
         String.format("%d:%d",
@@ -70,9 +86,11 @@ public class Message {
     public String toString() {
         return "Message{" +
                 "text='" + text + '\'' +
-                ", userId=" + userId +
+                ", contactId=" + contactId +
                 ", timeStamp=" + timeStamp +
                 ", fromUser=" + fromUser +
+                ", delivered=" + delivered +
                 '}';
     }
+
 }

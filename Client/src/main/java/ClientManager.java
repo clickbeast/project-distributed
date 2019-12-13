@@ -1,3 +1,6 @@
+
+import exceptions.AccountAlreadyExistsException;
+import interfaces.ThreadListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Conversation;
@@ -14,6 +17,7 @@ public class ClientManager {
     ObservableList<Conversation> conversations;
 
     private LocalStorageManager localStorageManager;
+    private MessageManager messageManager;
 
 
     /**
@@ -22,8 +26,11 @@ public class ClientManager {
      * @return
      */
     public Conversation conversationDummy(String name) {
+        //TODO: not working now
+
         Message message = new Message("Hello world", 0, true, 1);
         Message message1 = new Message("Whoop whoop", 0, false, 1);
+
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message);
@@ -31,13 +38,28 @@ public class ClientManager {
         Conversation conversation = new Conversation(this.conversations.size() + 1, name, null, null, messages);
 
         return conversation;
+
     }
+
+
+
 
 
     public ClientManager() {
         conversations = FXCollections.observableArrayList();
+        messageManager = new MessageManager();
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
+
+        //Auto login
+        /*localStorageManager.createDatabase();
+        localStorageManager.initializeAccountsDatabase();
+        try {
+            localStorageManager.addAccount("simon","root","dkfj");
+        } catch (AccountAlreadyExistsException e) {
+            e.printStackTrace();
+        }
+        localStorageManager.initializeConversationsDatabase();*/
 
     }
 
@@ -57,7 +79,6 @@ public class ClientManager {
         System.out.println("Logging in");
 
 
-
         //TODO: @arne login routine
         boolean fail = false;
 
@@ -68,10 +89,12 @@ public class ClientManager {
         }
 
 
-
-
         this.loadUserContents();
+
+
     }
+
+
 
     public void logout() {
         System.out.println("Logging out");
@@ -123,6 +146,25 @@ public class ClientManager {
     }
 
 
+    //TODO @simon changeover to this
+    public void sendMessage1(Conversation conversation, String text) {
+        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
+        conversation.getMessages().add(message);
+        ThreadListener listener = new ThreadListener() {
+
+            @Override
+            public void threadFinished() {
+                messageDelivered(conversation);
+            }
+        };
+        messageManager.sendMessage(conversation, message, listener);
+    }
+
+    public void messageDelivered(Conversation conversation) {
+        //TODO:something
+    }
+
+
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
         //TODO: @arne remove from client manager subroutine
@@ -148,9 +190,9 @@ public class ClientManager {
 
 
     public void sendMessage(Conversation conversation, String text) {
-
+        //TODO: REVISIT ... some things are currenly wrong beceause of merge
         //TODO: do for real
-        Message message = new Message(text, conversation.getUserId(), true, System.currentTimeMillis());
+        Message message = new Message(text, conversation.getUserId(), true, Math.toIntExact(System.currentTimeMillis()));
         conversation.getMessages().add(message);
 
         this.mainWindowViewController.messageField.setText("");

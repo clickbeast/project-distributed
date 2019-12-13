@@ -1,9 +1,14 @@
 package model;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -17,18 +22,10 @@ public class BoardKey {
     private int nextSpot;
 
     public BoardKey(int range) {
-        String AB = "0123456789abcdef";
         Random rnd = new Random();
-        StringBuilder sb = new StringBuilder(32);
-        for (int i = 0; i < 32; i++) {
-            sb.append(AB.charAt(rnd.nextInt(AB.length())));
-        }
-        key = sb.toString();
-        StringBuilder sb2 = new StringBuilder(32);
-        for (int i = 0; i < 32; i++) {
-            sb2.append(AB.charAt(rnd.nextInt(AB.length())));
-        }
-        tag = sb.toString();
+
+        key = generateRandomString();
+        tag = generateRandomString();
         nextSpot = rnd.nextInt(range);
     }
 
@@ -36,6 +33,30 @@ public class BoardKey {
         this.key = key;
         this.tag = tag;
         this.nextSpot = nextSpot;
+    }
+
+    public String encrypt(Message message, int bound) throws NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeySpecException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Random rnd = new Random();
+
+        String stringToEncrypt = message.getText() + ":" + generateRandomString() + ":" + rnd.nextInt(bound);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, getEncryptKey());
+        return bytesToHex(cipher.doFinal(stringToEncrypt.getBytes()));
+
+
+    }
+
+    public String generateRandomString() {
+        String AB = "0123456789abcdef";
+        Random rnd = new Random();
+
+        StringBuilder sb2 = new StringBuilder(32);
+        for (int i = 0; i < 32; i++) {
+            sb2.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
+        return sb2.toString();
+
     }
 
     public Key getEncryptKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -100,4 +121,5 @@ public class BoardKey {
                 ", nextSpot=" + nextSpot +
                 '}';
     }
+
 }

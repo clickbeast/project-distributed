@@ -1,4 +1,7 @@
 import java.io.File;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -7,33 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BulletinBoard extends UnicastRemoteObject implements Chat {
-    /**
-     * Iedere cel in het messageBoard houdt een set (hier een
-     * HashMap) bij van entries, elke entry bestaat uit een
-     * tag (waarmee de ontvanger het bericht kan vinden) en
-     * een value (deze value bevat het bericht en de index+tag
-     * van het volgende bericht).
-     * De key in deze HashMaps is de tag en de waarde is de value.
-     */
-    private HashMap<String, String>[] messageBoard;
-
-    /**
-     * Ieder mailbox mag door meerdere threads gelezen worden
-     * en mag door maximum 1 thread gewrite worden; Daarom
-     * houden we een ReadWriteLock bij per cell in de mailbox
-     */
-    private ReadWriteLock[] readWriteLocks;
 
 
     private String path;
 
-    public BulletinBoard() {
+    public BulletinBoard() throws RemoteException {
+        super();
         path = System.getProperty("user.dir") + File.separator + "board.db";
         createDatabase();
         initializeMessageTable();
@@ -92,7 +76,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
 
     public String getMessage(int boxNumber, String tag) {
         String url = "jdbc:sqlite:" + path;
-
+        try {
+            tag = bytesToHex(hash(tag));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         String sql = "SELECT message FROM messages WHERE boxNumber = ? AND tag = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -123,8 +111,33 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
     }
 
 
-    //TODO: implement
-    public static String globalHashFunction(String s) {
-        return null;
+    /**
+     * hashes given string
+     *
+     * @param string string
+     * @return hash of given string
+     * @throws NoSuchAlgorithmException
+     */
+    private static byte[] hash(String string) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] passwordByte = string.getBytes();
+        return digest.digest(passwordByte);
+
+    }
+
+    /**
+     * converts bytearray to string
+     *
+     * @param hash bytearray
+     * @return
+     */
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

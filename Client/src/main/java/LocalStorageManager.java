@@ -1,5 +1,8 @@
 import exceptions.AccountAlreadyExistsException;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.BoardKey;
+import model.Conversation;
 import model.Message;
 
 import java.io.File;
@@ -21,7 +24,7 @@ public class LocalStorageManager {
     private String path;
 
     public LocalStorageManager(String databaseName) {
-        this.path = System.getProperty("user.dir") + File.separator + databaseName;
+        this.path = System.getProperty("User.dir") + File.separator + databaseName;
     }
 
     /**
@@ -46,8 +49,9 @@ public class LocalStorageManager {
      */
     public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
-        String sql = "CREATE TABLE IF NOT EXISTS accounts ( loginname VARCHAR NOT NULL,password VARCHAR NOT NULL,salt" +
-                " VARCHAR DEFAULT '',PRIMARY KEY (loginname));";
+        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
+                "NULL,password VARCHAR NOT NULL,salt" +
+                " VARCHAR DEFAULT '')";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             // create a new table
@@ -61,8 +65,8 @@ public class LocalStorageManager {
     /**
      * Saves an account, password gets salted+hashed here
      *
-     * @param loginname loginname of the user
-     * @param pass      unedited password of the user
+     * @param loginname loginname of the User
+     * @param pass      unedited password of the User
      * @param salt      salt for the password, can be empty string
      */
     public void addAccount(String loginname, String pass, String salt) throws AccountAlreadyExistsException {
@@ -99,10 +103,10 @@ public class LocalStorageManager {
      * @param pass      password
      * @return true if good login, false if bad login
      */
-    public boolean login(String loginname, String pass) {
+    public int login(String loginname, String pass) {
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT loginname,password,salt FROM accounts WHERE loginname = ?";
+        String sql = "SELECT userId,loginname,password,salt FROM accounts WHERE loginname = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -114,16 +118,16 @@ public class LocalStorageManager {
             while (rs.next()) {
 
                 if (rs.getString("password").equals(bytesToHex(hash(pass + rs.getString("salt"))))) {
-                    return true;
+                    return rs.getInt("userId");
                 }
             }
-            return false;
+            return -1;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        return false;
+        return -1;
     }
 
     /**
@@ -157,7 +161,7 @@ public class LocalStorageManager {
     }
 
     public List<Message> getMessagesFromUserID(int userId) {
-        List<Message> messages = new ArrayList<>();
+        List<Message> messages = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
         String sql = "SELECT userID,text,messageDate FROM messages WHERE userID = ?";
@@ -170,8 +174,12 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                messages.add(new Message(rs.getString("text"), rs.getInt("userID"), rs.getInt("fromUser") == 1,
-                        rs.getLong("messageDate")));
+                messages.add(new Message(rs.getString("text"),
+                        rs.getInt("userID"),
+                        rs.getLong("messageDate"),
+                        rs.getInt("fromUser") == 1,
+                        rs.getInt("delivered") == 1,
+                        rs.getInt("read") == 1));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -180,23 +188,56 @@ public class LocalStorageManager {
 
     }
 
-    public void storeMessage(int userId, String message, long timeMillis, boolean fromUser) {
+    public void storeMessage(Message message) {
 
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO messages (userID,text,fromUser,messageDate) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setString(2, message);
-            pstmt.setInt(3, fromUser ? 1 : 0);
-            pstmt.setLong(4, timeMillis);
+
+            pstmt.setInt(1, message.getContactId());
+            pstmt.setString(2, message.getText());
+            pstmt.setInt(3, message.isFromUser() ? 1 : 0);
+            pstmt.setInt(3, message.isSeen() ? 1 : 0);
+            pstmt.setInt(3, message.isDelivered() ? 1 : 0);
+            pstmt.setLong(4, message.getTimeStamp());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
         }
 
+    }
+
+    public List<Conversation> getConversations(int userId) {
+        List<Conversation> conversations = new ArrayList<>();
+        String url = "jdbc:sqlite:" + path;
+
+        String sql = "SELECT contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
+                "WHERE userID = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            // There should only be one person with that loginname, but just to be sure.
+            while (rs.next()) {
+                conversations.add(new Conversation(userId, rs.getString("contactname"),
+                        new BoardKey(rs.getString("encryptKey"),
+                                rs.getString("tag"),
+                                rs.getInt("nextSpot")),
+                        new BoardKey(rs.getString("encryptKeyUs"),
+                                rs.getString("tagUs"),
+                                rs.getInt("nextSpotUs")),
+                        (ObservableList<Message>) getMessagesFromUserID(userId)));
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return conversations;
     }
 
     public void saveConversation(String contactname, BoardKey boardKey, BoardKey boardKeyUs) {
@@ -223,7 +264,8 @@ public class LocalStorageManager {
     public void initializeConversationsDatabase() {
         String url = "jdbc:sqlite:" + path;
         String sql = "CREATE TABLE IF NOT EXISTS`conversations` (\n" +
-                "\t`userId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "\t`contactId`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "\t`userId`\tINTEGER,\n" +
                 "\t`contactname`\tTEXT,\n" +
                 "\t`encryptKey`\tTEXT,\n" +
                 "\t`tag`\tTEXT,\n" +
@@ -231,19 +273,23 @@ public class LocalStorageManager {
                 "\t`encryptKeyUs`\tTEXT,\n" +
                 "\t`tagUs`\tTEXT,\n" +
                 "\t`nextSpotUs`\tINTEGER\n" +
-                ");";
+                ",FOREIGN KEY " +
+                "(userId) REFERENCES accounts(userId));";
+
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
             sql = "CREATE TABLE IF NOT EXISTS `messages` (\n" +
                     "\t`messageID`\tINTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-                    "\t`userID`\tINTEGER,\n" +
+                    "\t`contactId`\tINTEGER,\n" +
                     "\t`text`\tTEXT,\n" +
                     "\t`fromUser`\tINTEGER,\n" +
+                    "\t`seen`\tINTEGER,\n" +
+                    "\t`delivered`\tINTEGER,\n" +
                     "\t`messageDate`\tTIMESTAMP  \n" +
                     ",FOREIGN KEY " +
-                    "(userID) REFERENCES conversations(userID));";
+                    "(contactId) REFERENCES conversations(contactId));";
             stmt.execute(sql);
         } catch (SQLException e) {
             System.out.println(e.getErrorCode() + " " + e.getMessage());
