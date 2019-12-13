@@ -16,23 +16,24 @@ public class ClientManager {
     ObservableList<Conversation> conversations;
 
     private LocalStorageManager localStorageManager;
+    private MessageManager messageManager;
 
 
     public ClientManager() {
 
         conversations = FXCollections.observableArrayList();
 
+        messageManager = new MessageManager();
         //example
 
-        Message message = new Message("Hello world", 0,0, true,false,false);
-        Message message1 = new Message("Whoop whoop", 0, 0,false,false,false);
+        Message message = new Message("Hello world", 0, 0, true, false, false);
+        Message message1 = new Message("Whoop whoop", 0, 0, false, false, false);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message);
         messages.add(message1);
         Conversation conversation = new Conversation(0, "partner", null, null, messages);
         this.conversations.add(conversation);
-
 
         //Auto login
         /*localStorageManager.createDatabase();
@@ -76,7 +77,7 @@ public class ClientManager {
     }
 
     public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(),true,true,true);
+        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
         conversation.getMessages().add(message);
         ThreadListener listener = new ThreadListener() {
 
@@ -85,6 +86,7 @@ public class ClientManager {
                 messageDelivered(conversation);
             }
         };
+        messageManager.sendMessage(conversation, message, listener);
 
     }
 
