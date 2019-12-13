@@ -14,6 +14,9 @@ import java.util.function.Consumer;
 public class LoginViewController implements Initializable {
 
 
+    /* VARIABLES ------------------------------------------------------------------ */
+
+
     public TextField usernameField;
     public PasswordField passwordField;
     public TextField createUsernameField;
@@ -33,6 +36,8 @@ public class LoginViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Initialize Login View");
 
+        this.loginButton.setDefaultButton(true);
+        this.createAccountButton.setDefaultButton(true);
 
         //configure bounds
         AnchorPane.setBottomAnchor(container, 0.0);
@@ -41,29 +46,50 @@ public class LoginViewController implements Initializable {
         AnchorPane.setLeftAnchor(container, 0.0);
     }
 
+    /* UI ACTIONS ------------------------------------------------------------------ */
+
+
     public void createUserAction() {
-        File directoryLocation = this.mainWindowViewController.chooseDirectoryLocation();
+
+        if (this.createPasswordField.getText().isEmpty() || this.createPasswordField2.getText().isEmpty()
+                || this.createUsernameField.getText().isEmpty()) {
+            this.loginAccountInfoLabel.setText("Please fill in all fields.");
+            return;
+
+        }
+
         if (!this.createPasswordField.equals(this.createPasswordField2)) {
             this.createAccountInfoLabel.setText("Please use matching passwords");
             return;
         }
+        File directoryLocation = this.mainWindowViewController.chooseDirectoryLocation();
         this.mainWindowViewController.getClientManager().createAccount(createUsernameField.getText(),
                 createPasswordField.getText(), directoryLocation);
     }
 
     public void loginUserAction() {
-        System.out.println(this.usernameField.getText());
-        System.out.println(this.passwordField.getText());
 
+        if (this.usernameField.getText().isEmpty() || this.passwordField.getText().isEmpty()) {
+            this.loginAccountInfoLabel.setText("Please fill in all fields.");
+            return;
+
+        }
 
         this.mainWindowViewController.getClientManager().login(this.usernameField.getText(),
                 this.passwordField.getText(),
                 (b) -> {
-                    if(b==false) {
-                        this.
+                    if (b == false) {
+                        this.loginAccountInfoLabel.setText("Login failed. Try again");
                     }
                 });
     }
+
+
+    /*
+     * GETTERS & SETTERS
+     * -----------------------------------------------------------------------------
+     *
+     */
 
 
     public TextField getUsernameField() {

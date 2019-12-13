@@ -25,6 +25,7 @@ public class Conversation {
     }
 
 
+
     public int getUserId() {
         return userId;
     }
@@ -66,6 +67,18 @@ public class Conversation {
         this.userName = userName;
     }
 
+
+    @Override
+    public String toString() {
+        return "Conversation{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", boardKey=" + boardKey +
+                ", boardKeyUs=" + boardKeyUs +
+                ", read=" + read +
+                ", messages=" + messages +
+                '}';
+    }
 
     @Override
     public boolean equals(Object o) {

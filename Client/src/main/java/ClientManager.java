@@ -1,8 +1,5 @@
-import com.sun.tools.javac.util.Convert;
-import exceptions.AccountAlreadyExistsException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import jdk.internal.dynalink.linker.MethodTypeConversionStrategy;
 import model.Conversation;
 import model.Message;
 
@@ -18,6 +15,12 @@ public class ClientManager {
 
     private LocalStorageManager localStorageManager;
 
+
+    /**
+     * Creates a dummy conversation used for UI testing
+     * @param name
+     * @return
+     */
     public Conversation conversationDummy(String name) {
         Message message = new Message("Hello world", 0, true, 1);
         Message message1 = new Message("Whoop whoop", 0, false, 1);
@@ -30,32 +33,15 @@ public class ClientManager {
         return conversation;
     }
 
+
     public ClientManager() {
-
         conversations = FXCollections.observableArrayList();
-
-        Message message = new Message("Hello world", 0, true, 1);
-        Message message1 = new Message("Whoop whoop", 0, false, 1);
-
-        ObservableList<Message> messages = FXCollections.observableArrayList();
-        messages.add(message);
-        messages.add(message1);
-        Conversation conversation = new Conversation(0, "Partner", null, null, messages);
+        Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
 
-
-        //Auto login
-        /*localStorageManager.createDatabase();
-        localStorageManager.initializeAccountsDatabase();
-        try {
-            localStorageManager.addAccount("simon","root","dkfj");
-        } catch (AccountAlreadyExistsException e) {
-            e.printStackTrace();
-        }
-        localStorageManager.initializeConversationsDatabase();*/
-
-
     }
+
+
 
     public void loadUserContents() {
         //get current conversation
@@ -69,6 +55,9 @@ public class ClientManager {
 
     public void login(String username, String password, Consumer<Boolean> callback) {
         System.out.println("Logging in");
+
+
+
         //TODO: @arne login routine
         boolean fail = false;
 
@@ -79,12 +68,14 @@ public class ClientManager {
         }
 
 
+
+
         this.loadUserContents();
     }
 
     public void logout() {
         System.out.println("Logging out");
-        this.mainWindowViewController.showEmptyConversation();
+        this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
         //TODO: @arne  logout routine
 
@@ -94,7 +85,7 @@ public class ClientManager {
     public void createAccount(String username, String password, File directoryLocation) {
         System.out.println("Creating account");
         //TODO: @arne createAccount routine
-        //TODO:@Simon handle callback fail please :)
+        //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
         this.login(username, password, b -> {
             if (!b) {
                 this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
@@ -136,7 +127,7 @@ public class ClientManager {
         this.conversations.remove(conversation);
         //TODO: @arne remove from client manager subroutine
         //TODO: @arne remove from server subroutine?
-        this.mainWindowViewController.showEmptyConversation();
+        this.mainWindowViewController.loadEmptyConversation();
     }
 
 
@@ -154,10 +145,18 @@ public class ClientManager {
         this.mainWindowViewController.reloadUI();
     }
 
-    public void setMainWindowViewController(MainWindowViewController mainWindowViewController) {
-        this.mainWindowViewController = mainWindowViewController;
-    }
 
+
+    public void sendMessage(Conversation conversation, String text) {
+
+        //TODO: do for real
+        Message message = new Message(text, conversation.getUserId(), true, System.currentTimeMillis());
+        conversation.getMessages().add(message);
+
+        this.mainWindowViewController.messageField.setText("");
+        //TODO:@simon CALLABCK MECHANISM
+        this.mainWindowViewController.reloadUI();
+    }
 
     /*
      * GETTERS & SETTERS
@@ -165,14 +164,12 @@ public class ClientManager {
      *
      */
 
+    public void setMainWindowViewController(MainWindowViewController mainWindowViewController) {
+        this.mainWindowViewController = mainWindowViewController;
+    }
 
     public ObservableList<Conversation> getConversations() {
         return conversations;
-    }
-
-    public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(), true, System.currentTimeMillis());
-        conversation.getMessages().add(message);
     }
 
 

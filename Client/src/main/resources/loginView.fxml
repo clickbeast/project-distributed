@@ -15,7 +15,7 @@
    <children>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <tabs>
-            <Tab fx:id="loginAccountInfoLabel" text="Login">
+            <Tab  text="Login">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -25,7 +25,7 @@
                                  <children>
                                     <HBox fx:id="alertInfoView" alignment="CENTER" style="-fx-background-color:  #DBEDF7; -fx-border-color: #C0E8F1; -fx-border-radius: 5;">
                                        <children>
-                                          <Label fx:id="alertInfoLabel1" prefHeight="17.0" prefWidth="250.0" text=" Info: Ready" textAlignment="CENTER" textFill="#438aa3" HBox.hgrow="ALWAYS">
+                                          <Label fx:id="loginAccountInfoLabel" prefHeight="17.0" prefWidth="250.0" text=" Info: Ready" textAlignment="CENTER" textFill="#438aa3" HBox.hgrow="ALWAYS">
                                              <HBox.margin>
                                                 <Insets left="5.0" />
                                              </HBox.margin>
