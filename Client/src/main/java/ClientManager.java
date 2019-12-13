@@ -1,5 +1,6 @@
 import com.sun.tools.javac.util.Convert;
 import exceptions.AccountAlreadyExistsException;
+import interfaces.ThreadListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import jdk.internal.dynalink.linker.MethodTypeConversionStrategy;
@@ -24,15 +25,14 @@ public class ClientManager {
 
         //example
 
-        Message message = new Message("Hello world", 0, true,1);
-        Message message1 = new Message("Whoop whoop", 0, false,1);
+        Message message = new Message("Hello world", 0, true, 1);
+        Message message1 = new Message("Whoop whoop", 0, false, 1);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message);
         messages.add(message1);
-        Conversation conversation = new Conversation(0,"partner",null,null,messages);
+        Conversation conversation = new Conversation(0, "partner", null, null, messages);
         this.conversations.add(conversation);
-
 
 
         //Auto login
@@ -56,7 +56,6 @@ public class ClientManager {
     }
 
 
-
     public MainWindowViewController getMainWindowViewController() {
         return mainWindowViewController;
     }
@@ -78,8 +77,20 @@ public class ClientManager {
     }
 
     public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(),true, System.currentTimeMillis());
+        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, false);
         conversation.getMessages().add(message);
+        ThreadListener listener = new ThreadListener() {
+
+            @Override
+            public void threadFinished() {
+                messageDelivered(conversation);
+            }
+        };
+
+    }
+
+    public void messageDelivered(Conversation conversation) {
+        //TODO:something
     }
 
 
