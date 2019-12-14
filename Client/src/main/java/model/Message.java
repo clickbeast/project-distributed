@@ -20,10 +20,6 @@ public class Message {
     }
 
 
-    //TODO: remove this, currently just some temp for merge...
-    public Message(String hello_world, int i, boolean b, int i1) {
-    }
-
 
     public String getText() {
         return text;

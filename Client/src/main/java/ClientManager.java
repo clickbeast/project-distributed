@@ -5,8 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Conversation;
 import model.Message;
+import ui.Feedback;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.function.Consumer;
 
 public class ClientManager {
@@ -28,21 +30,33 @@ public class ClientManager {
     public Conversation conversationDummy(String name) {
         //TODO: not working now
 
-        Message message = new Message("Hello world", 0, true, 1);
-        Message message1 = new Message("Whoop whoop", 0, false, 1);
+        Message message1 = new Message(
+                "Message 1",
+                0
+                , System.currentTimeMillis(),
+                true
+                ,true
+                ,true);
 
+        Message message2 = new Message(
+                "Message 2",
+                0
+                , System.currentTimeMillis(),
+                true
+                ,true
+                ,true);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
-        messages.add(message);
         messages.add(message1);
+        messages.add(message2);
+
         Conversation conversation = new Conversation(this.conversations.size() + 1, name, null, null, messages);
 
         return conversation;
 
     }
 
-
-
+    /* LOADING ------------------------------------------------------------------ */
 
 
     public ClientManager() {
@@ -50,20 +64,7 @@ public class ClientManager {
         messageManager = new MessageManager();
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
-
-        //Auto login
-        /*localStorageManager.createDatabase();
-        localStorageManager.initializeAccountsDatabase();
-        try {
-            localStorageManager.addAccount("simon","root","dkfj");
-        } catch (AccountAlreadyExistsException e) {
-            e.printStackTrace();
-        }
-        localStorageManager.initializeConversationsDatabase();*/
-
     }
-
-
 
     public void loadUserContents() {
         //get current conversation
@@ -75,17 +76,31 @@ public class ClientManager {
     }
 
 
-    public void login(String username, String password, Consumer<Boolean> callback) {
+    public void sortConversationsAccordingToPolicy() {
+        //TODO:
+
+    }
+    /* ACTIONS ------------------------------------------------------------------ */
+
+
+    public void createAccount(String username, String password, File directoryLocation) {
+        System.out.println("Creating account");
+        //TODO: @arne createAccount routine
+        this.login(username, password, b -> {
+            if (!b.isSucces()) {
+                this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
+                        " to login");
+            }
+        });
+    }
+
+    public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
-
-
         //TODO: @arne login routine
         boolean fail = false;
 
         if (fail) {
-            callback.accept(false);
-        } else {
-            callback.accept(true);
+            callback.accept(new Feedback(false,"Login failed please try again"));
         }
 
 
@@ -93,8 +108,6 @@ public class ClientManager {
 
 
     }
-
-
 
     public void logout() {
         System.out.println("Logging out");
@@ -105,37 +118,11 @@ public class ClientManager {
         this.mainWindowViewController.loadLoginView();
     }
 
-    public void createAccount(String username, String password, File directoryLocation) {
-        System.out.println("Creating account");
-        //TODO: @arne createAccount routine
-        //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
-        this.login(username, password, b -> {
-            if (!b) {
-                this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
-                        " to login");
-            }
-        });
-    }
-
-
-    /**
-     * Adding one  that doesn't exist
-     *
-     * @param name
-     * @param location
-     */
     public void addNewConversation(String name, File location) {
-        //create conversation
-
         //TODO: @arne addNewConversation Routine
         this.mainWindowViewController.loadConversation(this.getCurrentConversation());
     }
 
-    /**
-     * Creating one that doesn't exist yet
-     *
-     * @param name
-     */
     public void createNewConversation(String name) {
 
         //TODO: @arnecreateNewConversation Routine
@@ -145,9 +132,8 @@ public class ClientManager {
 
     }
 
+    public void sendMessage(Conversation conversation, String text) {
 
-    //TODO @simon changeover to this
-    public void sendMessage1(Conversation conversation, String text) {
         Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
         conversation.getMessages().add(message);
         ThreadListener listener = new ThreadListener() {
@@ -158,12 +144,13 @@ public class ClientManager {
             }
         };
         messageManager.sendMessage(conversation, message, listener);
+
+        this.mainWindowViewController.messageField.setText("");
+        //TODO:@simon CALLABCK MECHANISM
+        this.mainWindowViewController.reloadUI();
     }
 
-    public void messageDelivered(Conversation conversation) {
-        //TODO:something
-    }
-
+    public void messageDelivered(Conversation conversation) { }
 
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
@@ -172,33 +159,15 @@ public class ClientManager {
         this.mainWindowViewController.loadEmptyConversation();
     }
 
-
-    public MainWindowViewController getMainWindowViewController() {
-        return mainWindowViewController;
-    }
-
     public void editPartnerName(String text) {
         System.out.println("edit partner name");
         if (this.currentConversation != null) {
             //TODO: @arne method for also updating it in the database
-
             this.currentConversation.setUserName(text);
         }
         this.mainWindowViewController.reloadUI();
     }
 
-
-
-    public void sendMessage(Conversation conversation, String text) {
-        //TODO: REVISIT ... some things are currenly wrong beceause of merge
-        //TODO: do for real
-        Message message = new Message(text, conversation.getUserId(), true, Math.toIntExact(System.currentTimeMillis()));
-        conversation.getMessages().add(message);
-
-        this.mainWindowViewController.messageField.setText("");
-        //TODO:@simon CALLABCK MECHANISM
-        this.mainWindowViewController.reloadUI();
-    }
 
     /*
      * GETTERS & SETTERS
@@ -206,17 +175,15 @@ public class ClientManager {
      *
      */
 
+    public MainWindowViewController getMainWindowViewController() {
+        return mainWindowViewController;
+    }
     public void setMainWindowViewController(MainWindowViewController mainWindowViewController) {
         this.mainWindowViewController = mainWindowViewController;
     }
 
     public ObservableList<Conversation> getConversations() {
         return conversations;
-    }
-
-
-    public void delivered() {
-
     }
 
     public void getKeyForConversation(int id, File directoryLocation) {

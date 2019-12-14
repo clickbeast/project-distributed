@@ -78,7 +78,7 @@ public class LoginViewController implements Initializable {
         this.mainWindowViewController.getClientManager().login(this.usernameField.getText(),
                 this.passwordField.getText(),
                 (b) -> {
-                    if (b == false) {
+                    if (!b.isSucces()) {
                         this.loginAccountInfoLabel.setText("Login failed. Try again");
                     }
                 });

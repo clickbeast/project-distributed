@@ -198,6 +198,7 @@ public class MainWindowViewController implements Initializable {
 
     public void loadInbox() {
         this.inboxPane.getChildren().removeAll();
+        this.clientManager.sortConversationsAccordingToPolicy();
         final ListView<Conversation> listView = new ListView<Conversation>(this.clientManager.getConversations());
         listView.setCellFactory(new Callback<ListView<Conversation>, ListCell<Conversation>>() {
             @Override
@@ -232,6 +233,8 @@ public class MainWindowViewController implements Initializable {
         AnchorPane.setRightAnchor(inboxListView,0.0);
         AnchorPane.setLeftAnchor(inboxListView,0.0);
 
+
+
     }
 
     public void loadConversation(Conversation conversation) {
@@ -249,6 +252,8 @@ public class MainWindowViewController implements Initializable {
         this.editButton.setDisable(false);
         this.sendButton.setDisable(false);
         this.messageField.setDisable(false);
+
+        this.inboxListView.getSelectionModel().select(conversation);
 
         this.partnerNameLabel.setText(this.clientManager.getCurrentConversation().getUserName());
         final ListView<Message> messageView = new ListView<Message>(this.clientManager.getCurrentConversation().getMessages());
