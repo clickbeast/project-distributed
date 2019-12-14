@@ -37,7 +37,7 @@ public class ClientManager {
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message);
         messages.add(message1);
-        Conversation conversation = new Conversation(this.conversations.size() + 1, name, null, null, messages);
+        Conversation conversation = new Conversation(0,this.conversations.size() + 1, name, null, null, messages);
 
         return conversation;
 
@@ -107,7 +107,8 @@ public class ClientManager {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
-        //TODO: @arne  logout routine
+        //TODO: Dunno if there si more to do for logout?
+        messageManager.clearConversations();
 
         this.mainWindowViewController.loadLoginView();
     }
@@ -160,8 +161,11 @@ public class ClientManager {
     public void createNewConversation(String name) {
 
 
-        Conversation c = new Conversation(name);
-        localStorageManager.saveConversation(c);
+        Conversation c = new Conversation(name,messageManager.getLastBound());
+        int id = localStorageManager.saveConversation(c);
+        if (id != -1) {
+            c.setContactId(id);
+        }
         conversations.add(c);
         this.mainWindowViewController.loadConversation(c);
 
@@ -192,7 +196,6 @@ public class ClientManager {
     }
 
 
-
     public synchronized void messageRecieved(Conversation conversation, Message message) {
 //TODO: Should get called from thread.
     }
@@ -201,9 +204,10 @@ public class ClientManager {
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
         localStorageManager.deleteConversation(conversation);
-        //TODO: @arne remove from client manager subroutine
-        //TODO: @arne remove from server subroutine?
-        messageManager.removeConversation(conversation);//NOTE: This will make the thread not check anymore for new
+        //DONE: @arne remove from client manager subroutine
+        //DONE: @arne remove from server subroutine?
+        //NOTE: This will make the thread not check anymore for new, I assume that's enough
+        messageManager.removeConversation(conversation);
         this.mainWindowViewController.loadEmptyConversation();
     }
 
@@ -215,8 +219,7 @@ public class ClientManager {
     public void editPartnerName(String text) {
         System.out.println("edit partner name");
         if (this.currentConversation != null) {
-            //TODO: @arne method for also updating it in the database
-
+            localStorageManager.updateConversation(text, this.currentConversation.getContactId());
             this.currentConversation.setUserName(text);
         }
         this.mainWindowViewController.reloadUI();

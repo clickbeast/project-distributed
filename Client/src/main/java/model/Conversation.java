@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Conversation {
-
+    private int contactId;
     private int userId;
     private String userName;
     private BoardKey boardKey;
@@ -21,8 +21,9 @@ public class Conversation {
 
     private ObservableList<Message> messages;
 
-    public Conversation(int userId, String userName, BoardKey boardKey, BoardKey boardKeyUs,
+    public Conversation(int contactId, int userId, String userName, BoardKey boardKey, BoardKey boardKeyUs,
                         ObservableList<Message> messages) {
+        this.contactId = contactId;
         this.userId = userId;
         this.userName = userName;
         this.boardKey = boardKey;
@@ -31,12 +32,12 @@ public class Conversation {
         this.read = true;
     }
 
-    public Conversation(String name) {
+    public Conversation(String name, int bound) {
         //TODO: Check if getting bound wouldn't add to much delay
         this.userName = name;
         Random random = new Random();
-        this.boardKey = new BoardKey(random.nextInt(20));
-        this.boardKeyUs = new BoardKey(random.nextInt(20));
+        this.boardKey = new BoardKey(random.nextInt(bound));
+        this.boardKeyUs = new BoardKey(random.nextInt(bound));
     }
 
     public Conversation(String name, File location) throws FileNotFoundException {
@@ -61,11 +62,10 @@ public class Conversation {
 
     public void writeBoardKeysToFile(File file) throws IOException {
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-        bufferedWriter.write(this.boardKey.toFileString()+System.lineSeparator());
+        bufferedWriter.write(this.boardKey.toFileString() + System.lineSeparator());
         bufferedWriter.flush();
-        bufferedWriter.write(this.boardKeyUs.toFileString()+System.lineSeparator());
+        bufferedWriter.write(this.boardKeyUs.toFileString() + System.lineSeparator());
         bufferedWriter.flush();
-
 
 
     }
@@ -136,5 +136,13 @@ public class Conversation {
     @Override
     public int hashCode() {
         return Objects.hash(userId);
+    }
+
+    public void setContactId(int contactId) {
+        this.contactId = contactId;
+    }
+
+    public int getContactId() {
+        return this.contactId;
     }
 }

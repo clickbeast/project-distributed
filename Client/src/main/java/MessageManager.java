@@ -5,6 +5,7 @@ import model.Message;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.File;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -19,6 +20,7 @@ public class MessageManager {
     private static List<String> serverList = new ArrayList<>();
     private static List<Conversation> conversationList = new ArrayList<>();
     private static final String MASTER_SERVER_IP = "localhost:5000";
+    private int bound = 1;
 
     public void sendMessage(Conversation conversation, Message message, final ThreadListener threadListener) {
         new Thread(new Runnable() {
@@ -38,6 +40,7 @@ public class MessageManager {
                     int slotLimit = 0;
                     try {
                         slotLimit = messageChat.getLimit();
+                        bound = slotLimit;
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -123,6 +126,15 @@ public class MessageManager {
 
     public synchronized void removeConversation(Conversation conversation) {
         conversationList.remove(conversation);
+    }
+
+    public synchronized void clearConversations() {
+        conversationList = new ArrayList<>();
+    }
+
+    public synchronized int getLastBound() {
+        return bound;
+
     }
 
     private class ConnectionObject {
