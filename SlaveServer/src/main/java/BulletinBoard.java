@@ -25,7 +25,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             }
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println("[SLAVE] " + e.getMessage());
         }
     }
 
@@ -43,7 +43,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             // create a new table
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println("[SLAVE] " + e.getMessage());
         }
 
     }
@@ -59,8 +59,8 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             pstmt.setString(3, message);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.print(e.getErrorCode() + "\t");
-            System.err.println(e.getMessage());
+            System.err.print("[SLAVE] " + e.getErrorCode() + "\t");
+            System.err.println("[SLAVE] " + e.getMessage());
             return false;
         }
 
@@ -95,7 +95,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             }
 
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            System.err.println("[SLAVE] " + e.getMessage());
         }
         return null;
     }

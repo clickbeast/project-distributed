@@ -13,7 +13,7 @@ public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCom
         registry.rebind("Chat", bulletinBoard);
         this.toMaster = toMaster;
 
-        System.out.println("Bulletin board server created on port " + (portNumber+1));
+        System.out.println("[SLAVE] Bulletin board server created on port " + (portNumber+1));
     }
 
     @Override

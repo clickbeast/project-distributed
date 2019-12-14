@@ -7,7 +7,7 @@ import java.rmi.registry.Registry;
 
 public class Main {
     public static Registry REGISTRY;
-    public static String IP = "host.docker.internal";
+    public static String IP = "localhost";
 
     public static void main(String[] args) throws RemoteException, NotBoundException, UnknownHostException {
         Registry registryToServer = LocateRegistry.getRegistry(IP, 9000);

@@ -5,36 +5,27 @@ import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
+import java.util.Scanner;
 
 public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication {
     private int currentPort;
-    private int currentIp;
     //used to execute commands
     private Runtime command;
     private LinkedList<SlaveServer> slaves;
-    private static String dockerImageName = "slave-server";
 
     public MasterServer() throws IOException {
+        System.out.println("[MASTER] Master server started");
         currentPort = 9001;
-        currentIp = 1;
         slaves = new LinkedList<>();
         command = Runtime.getRuntime();
-        System.out.println("Master server started");
 
-        BuildDockerImageOfSlave();
         makeNewSlave(0);
     }
 
     private void makeNewSlave(int numberOfMailBoxes){
-        System.out.println("Spawning new docker image.");
-        executeCommand("docker run --add-host slave-server:10.0.0." + currentIp++ + " slave-server", false);
-        System.out.println("New Docker image active.");
-    }
-
-    private void BuildDockerImageOfSlave() throws IOException {
-        System.out.println("Starting to build new Docker image.");
-        executeCommand("docker build -t " + dockerImageName + " .", true);
-        System.out.println("Docker image built succesfully.");
+        System.out.println("[MASTER] Spawning new server.");
+        executeCommand("java -jar SlaveServer\\SlaveServer.jar", true);
+        System.out.println("[MASTER] New server active.");
     }
 
     //executes a command and prints the results in the console
@@ -43,7 +34,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
         final Process process;
         try {
-            process = this.command.exec(command, null, new File(Main.ROOT_PATH + "\\Docker"));
+            process = this.command.exec(command);
             watch(process);
 
             if(waitUntilFinished)
@@ -62,7 +53,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
                 String line = null;
                 try {
                     while ((line = input.readLine()) != null) {
-                        System.out.println(line);
+                        System.out.println("[MASTER] " + line);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -84,13 +75,18 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     public int getPort() throws RemoteException{
         int ret = currentPort;
         currentPort += 2;
-        System.out.println("Port number " + ret + " handed out.");
+        System.out.println("[MASTER] Port number " + ret + " handed out.");
         return ret;
     }
 
     @Override
     public boolean confirmConfiguration(int portNumber, String ip) throws RemoteException {
-        System.out.println("Confirmation received for port: " + portNumber + " and IP-address: " + ip);
+        Scanner sc = new Scanner(ip);
+        sc.useDelimiter("/");
+        sc.next();
+        ip = sc.next();
+
+        System.out.println("[MASTER] Confirmation received for port: " + portNumber + " and IP-address: " + ip);
         try{
             slaves.add(new SlaveServer(portNumber, ip));
         }
