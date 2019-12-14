@@ -17,8 +17,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-//TODO: MAKE ALL FUNCTIONS NOT STATIC, now static for testing
 @SuppressWarnings("Duplicates")
 public class LocalStorageManager {
     private String path;
@@ -72,6 +72,16 @@ public class LocalStorageManager {
     public void addAccount(String loginname, String pass, String salt) throws AccountAlreadyExistsException {
         if (salt == null) {
             salt = "";
+        }
+        if(salt.equals("")){
+            String AB = "0123456789abcdefghijklmnopqrstuvwxyz";
+            Random rnd = new Random();
+
+            StringBuilder sb2 = new StringBuilder(32);
+            for (int i = 0; i < 32; i++) {
+                sb2.append(AB.charAt(rnd.nextInt(AB.length())));
+            }
+            salt= sb2.toString();
         }
         initializeAccountsDatabase();
 
@@ -240,20 +250,20 @@ public class LocalStorageManager {
         return conversations;
     }
 
-    public void saveConversation(String contactname, BoardKey boardKey, BoardKey boardKeyUs) {
+    public void saveConversation(Conversation conversation) {
         String url = "jdbc:sqlite:" + path;
         String sql = "INSERT INTO conversations (contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs) " +
                 "VALUES(?,?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, contactname);
-            pstmt.setString(2, boardKey.getKey());
-            pstmt.setString(3, boardKey.getTag());
-            pstmt.setInt(4, boardKey.getNextSpot());
-            pstmt.setString(5, boardKeyUs.getKey());
-            pstmt.setString(6, boardKeyUs.getTag());
-            pstmt.setInt(7, boardKeyUs.getNextSpot());
+            pstmt.setString(1, conversation.getUserName());
+            pstmt.setString(2, conversation.getBoardKey().getKey());
+            pstmt.setString(3,  conversation.getBoardKey().getTag());
+            pstmt.setInt(4,  conversation.getBoardKey().getNextSpot());
+            pstmt.setString(5,  conversation.getBoardKeyUs().getKey());
+            pstmt.setString(6, conversation.getBoardKeyUs().getTag());
+            pstmt.setInt(7, conversation.getBoardKeyUs().getNextSpot());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
@@ -296,5 +306,15 @@ public class LocalStorageManager {
         }
     }
 
+    public String getPath() {
+        return path;
+    }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void deleteConversation(Conversation conversation) {
+        //TODO: @Arne implement
+    }
 }

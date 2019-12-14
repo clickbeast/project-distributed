@@ -33,6 +33,6 @@ public class Server {
 
     public static void main(String[] args) throws MalformedURLException, RemoteException {
         Registry registry = LocateRegistry.createRegistry(5000);
-        registry.rebind("Chat", new BulletinBoard(CELLS_PER_BOARD,CAPACITY_PER_CELL));
+        registry.rebind("Chat", new BulletinBoard());
     }
 }

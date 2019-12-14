@@ -7,6 +7,7 @@ import model.Conversation;
 import model.Message;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.function.Consumer;
 
 public class ClientManager {
@@ -22,6 +23,7 @@ public class ClientManager {
 
     /**
      * Creates a dummy conversation used for UI testing
+     *
      * @param name
      * @return
      */
@@ -42,12 +44,22 @@ public class ClientManager {
     }
 
 
-
-
-
     public ClientManager() {
         conversations = FXCollections.observableArrayList();
         messageManager = new MessageManager();
+        ThreadListener listener = new ThreadListener() {
+
+            @Override
+            public void threadFinished() {
+                System.err.println("You shouldn't be here");
+            }
+
+            @Override
+            public void newMessage(Message message, Conversation conversation) {
+                messageRecieved(conversation, message);
+            }
+        };
+        messageManager.getMessages(listener);
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
 
@@ -64,7 +76,6 @@ public class ClientManager {
     }
 
 
-
     public void loadUserContents() {
         //get current conversation
         this.currentConversation = this.getConversations().get(0);
@@ -79,21 +90,17 @@ public class ClientManager {
         System.out.println("Logging in");
 
 
-        //TODO: @arne login routine
-        boolean fail = false;
-
-        if (fail) {
-            callback.accept(false);
-        } else {
+        int userID = localStorageManager.login(username, password);
+        if (userID != 1) {
             callback.accept(true);
+        } else {
+            callback.accept(false);
         }
-
 
         this.loadUserContents();
 
 
     }
-
 
 
     public void logout() {
@@ -107,7 +114,12 @@ public class ClientManager {
 
     public void createAccount(String username, String password, File directoryLocation) {
         System.out.println("Creating account");
-        //TODO: @arne createAccount routine
+        localStorageManager.setPath(directoryLocation.getPath());
+        try {
+            localStorageManager.addAccount(username, password, "");
+        } catch (AccountAlreadyExistsException e) {
+            this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Account with login " + username + " already exists.");
+        }
         //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
         this.login(username, password, b -> {
             if (!b) {
@@ -127,8 +139,17 @@ public class ClientManager {
     public void addNewConversation(String name, File location) {
         //create conversation
 
-        //TODO: @arne addNewConversation Routine
-        this.mainWindowViewController.loadConversation(this.getCurrentConversation());
+        Conversation conversation = null;
+        try {
+            conversation = new Conversation(name, location);
+        } catch (FileNotFoundException e) {
+            //TODO: @simon give notification if wrong file?
+        }
+        if (conversation != null) {
+            localStorageManager.saveConversation(conversation);
+
+            this.mainWindowViewController.loadConversation(conversation);
+        }
     }
 
     /**
@@ -138,8 +159,9 @@ public class ClientManager {
      */
     public void createNewConversation(String name) {
 
-        //TODO: @arnecreateNewConversation Routine
-        Conversation c = this.conversationDummy(name);
+
+        Conversation c = new Conversation(name);
+        localStorageManager.saveConversation(c);
         conversations.add(c);
         this.mainWindowViewController.loadConversation(c);
 
@@ -156,19 +178,32 @@ public class ClientManager {
             public void threadFinished() {
                 messageDelivered(conversation);
             }
+
+            @Override
+            public void newMessage(Message message, Conversation conversation) {
+                System.err.println("You shouldn't be here");
+            }
         };
         messageManager.sendMessage(conversation, message, listener);
     }
 
-    public void messageDelivered(Conversation conversation) {
+    public synchronized void messageDelivered(Conversation conversation) {
         //TODO:something
+    }
+
+
+
+    public synchronized void messageRecieved(Conversation conversation, Message message) {
+//TODO: Should get called from thread.
     }
 
 
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
+        localStorageManager.deleteConversation(conversation);
         //TODO: @arne remove from client manager subroutine
         //TODO: @arne remove from server subroutine?
+        messageManager.removeConversation(conversation);//NOTE: This will make the thread not check anymore for new
         this.mainWindowViewController.loadEmptyConversation();
     }
 
@@ -188,11 +223,11 @@ public class ClientManager {
     }
 
 
-
     public void sendMessage(Conversation conversation, String text) {
         //TODO: REVISIT ... some things are currenly wrong beceause of merge
         //TODO: do for real
-        Message message = new Message(text, conversation.getUserId(), true, Math.toIntExact(System.currentTimeMillis()));
+        Message message = new Message(text, conversation.getUserId(), true,
+                Math.toIntExact(System.currentTimeMillis()));
         conversation.getMessages().add(message);
 
         this.mainWindowViewController.messageField.setText("");
