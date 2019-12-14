@@ -8,8 +8,13 @@ import java.rmi.registry.Registry;
 public class Main {
     public static Registry REGISTRY;
     public static String IP = "localhost";
+    public static int NUMBER_OF_MAILBOXES;
+    public static int BASE_MAILBOX;
 
     public static void main(String[] args) throws RemoteException, NotBoundException, UnknownHostException {
+        NUMBER_OF_MAILBOXES = Integer.parseInt(args[0]);
+        BASE_MAILBOX = Integer.parseInt(args[1]);
+
         Registry registryToServer = LocateRegistry.getRegistry(IP, 9000);
         SlaveToMasterCommunication toServer = (SlaveToMasterCommunication) registryToServer.lookup("SlaveToMasterCommunication");
 
