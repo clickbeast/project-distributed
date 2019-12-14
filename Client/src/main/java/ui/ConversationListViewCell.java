@@ -11,6 +11,7 @@ import javafx.scene.text.TextAlignment;
 import model.Conversation;
 
 public class ConversationListViewCell extends ListCell<Conversation> {
+
     private HBox content;
     private Text name;
     private Text message;
@@ -39,7 +40,6 @@ public class ConversationListViewCell extends ListCell<Conversation> {
             name.setText(conversation.getUserName());
             message.setText(conversation.getMessages().get(0).getText());
             timestamp.setText(conversation.getMessages().get(0).getFormattedTimeStamp());
-
             //TODO: adjust
             if(!conversation.getMessages().get(0).isSeen()) {
                 this.setStyle("-fx-background-color: #187592");

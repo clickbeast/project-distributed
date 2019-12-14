@@ -94,12 +94,13 @@ public class MainWindowViewController implements Initializable {
 
     public void setupComplete() {
         //this.clientManager.loadUserContents();
+//        this.leftStatusLabel.setText("");
+  //      this.rightStatusLabel.setText("");
         this.setupDefaultToolbarConversation();
         this.freezeUI();
         //this.clientManager.loadUserContents();
         //this.setupDefaultToolbarConversation();
         this.loadLoginView();
-
     }
 
     public void setupDefaultToolbarConversation() {
@@ -238,7 +239,6 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void loadConversation(Conversation conversation) {
-
         if(conversation == null) {
             System.out.println("No current conversation");
             this.loadEmptyConversation();

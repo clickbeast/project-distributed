@@ -1,5 +1,7 @@
 package ui;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -7,18 +9,21 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import model.Message;
 
+import java.io.IOException;
+
 public class MessageListViewCell extends ListCell<Message> {
-    private HBox content;
-    private Text message;
-    private Text date;
+
+    Text  partnerMessage;
+    Label partnerTimeStamp;
+    Label userMessage;
+    Label userTimeStamp;
+
+
 
     public MessageListViewCell() {
         super();
-        message = new Text();
-        date = new Text();
-        VBox vBox = new VBox(message, date);
-        content = new HBox(new Label(""), vBox);
-        content.setSpacing(5);
+
+
     }
 
     //TODO: implement this;
@@ -28,14 +33,36 @@ public class MessageListViewCell extends ListCell<Message> {
          */
 
     @Override
-    protected void updateItem(Message item, boolean empty) {
-        super.updateItem(item, empty);
-        if (item != null && !empty) { // <== test for null item and empty parameter
-            message.setText(item.getText());
+    protected void updateItem(Message message, boolean empty) {
+        super.updateItem(message, empty);
+        if (message != null && !empty) { // <== test for null item and empty parameter
+
+            Node itemRoot = null;
+
+            try {
+                itemRoot = FXMLLoader.load(getClass().getResource(("message.fxml")));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            //partnerMessage = (Label) itemRoot.lookup("#item_Label_AppName");
+
+
             //get last message
-            setGraphic(content);
+            this.setStyle("-fx-background-color: black;");
+
         } else {
             setGraphic(null);
         }
     }
+
+    public Node loadPartnerMessage() {
+        return null;
+    }
+
+    public Node loadUserMessage() {
+        return null;
+    }
+
+
 }

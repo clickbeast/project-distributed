@@ -53,6 +53,8 @@ public class Main extends Application {
         mainWindowViewController.scene = primaryStage.getScene();
         mainWindowViewController.stage = primaryStage;
 
+        primaryStage.getScene().getStylesheets().add(getClass().getResource("listViewStyle.css").toExternalForm());
+
         // endregion
         this.mainWindowViewController.setupComplete();
 
