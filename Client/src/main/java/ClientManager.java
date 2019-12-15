@@ -78,17 +78,6 @@ public class ClientManager {
         messageManager.getMessages(listener);
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
-
-        //Auto login
-        /*localStorageManager.createDatabase();
-        localStorageManager.initializeAccountsDatabase();
-        try {
-            localStorageManager.addAccount("simon","root","dkfj");
-        } catch (AccountAlreadyExistsException e) {
-            e.printStackTrace();
-        }
-        localStorageManager.initializeConversationsDatabase();*/
-
     }
 
 
@@ -99,7 +88,6 @@ public class ClientManager {
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
         this.mainWindowViewController.loadConversation(getCurrentConversation());
-        //this.mainWindowViewController.showEmptyConversation();
     }
 
 
@@ -109,21 +97,15 @@ public class ClientManager {
 
     }
 
-    public void login(String username, String password, Consumer<Boolean> callback) {
+    public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
-
-
         int userID = localStorageManager.login(username, password);
         if (userID != 1) {
-            callback.accept(true);
+            callback.accept(new Feedback(true,"Login failed please try again"));
         } else {
-            callback.accept(false);
+            callback.accept(new Feedback(false,"Login success"));
         }
-
-
         this.loadUserContents();
-
-
     }
 
 
@@ -148,7 +130,7 @@ public class ClientManager {
         }
         //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
         this.login(username, password, b -> {
-            if (!b) {
+            if (!b.isSucces()) {
                 this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
                         " to login");
             }
