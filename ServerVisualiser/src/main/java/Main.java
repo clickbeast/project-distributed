@@ -4,8 +4,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import model.StateManager;
-import ui.MainWindowViewController;
 
 public class Main extends Application {
 
@@ -15,7 +13,6 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         // region UI SETUP
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("layout.fxml"));
 
         // provide the controller with a reference of the simulationManager
@@ -47,14 +44,16 @@ public class Main extends Application {
         mainWindowViewController.scene = primaryStage.getScene();
         mainWindowViewController.stage = primaryStage;
 
+        primaryStage.getScene().getStylesheets().add(getClass().getResource("listViewStyle.css").toExternalForm());
+
         // endregion
         this.mainWindowViewController.setupComplete();
-
-
 
         /**
          * RUN YOUR TESTS BELOW THIS
          */
+
+
 
 
     }

@@ -9,7 +9,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import model.Conversation;
-
 public class ConversationListViewCell extends ListCell<Conversation> {
 
     private HBox content;
@@ -50,3 +49,4 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         }
     }
 }
+

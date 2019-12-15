@@ -1,19 +1,20 @@
-package model;
-
-import ui.MainWindowViewController;
+import javafx.collections.ObservableList;
+import model.Master;
+import model.MasterWatcher;
+import model.Slave;
 
 import java.util.List;
 
 public class StateManager {
 
-    private MainWindowViewController mainWindowViewController;
+    private  MainWindowViewController mainWindowViewController;
 
 
     /* MODEL ------------------------------------------------------------------ */
 
     private Master master;
     private MasterWatcher masterWatcher;
-    private List<Slave> slaves;
+    private ObservableList<Slave> slaves;
 
 
     /* SETUP ------------------------------------------------------------------ */
@@ -48,5 +49,27 @@ public class StateManager {
     }
 
 
+    public Master getMaster() {
+        return master;
+    }
 
+    public void setMaster(Master master) {
+        this.master = master;
+    }
+
+    public MasterWatcher getMasterWatcher() {
+        return masterWatcher;
+    }
+
+    public void setMasterWatcher(MasterWatcher masterWatcher) {
+        this.masterWatcher = masterWatcher;
+    }
+
+    public ObservableList<Slave> getSlaves() {
+        return slaves;
+    }
+
+    public void setSlaves(ObservableList<Slave> slaves) {
+        this.slaves = slaves;
+    }
 }
