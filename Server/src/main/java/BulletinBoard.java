@@ -110,6 +110,16 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
         return null;
     }
 
+    @Override
+    public String getIpAndPortNumber(int boxnumber) throws RemoteException {
+        return "localhost:5000";
+    }
+
+    @Override
+    public int getLimit()throws RemoteException {
+        return 100;
+    }
+
 
     /**
      * hashes given string

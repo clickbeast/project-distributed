@@ -23,7 +23,7 @@ public class BoardKey {
 
     public BoardKey(int range) {
         Random rnd = new Random();
-
+        System.out.println(range);
         key = generateRandomString();
         tag = generateRandomString();
         nextSpot = rnd.nextInt(range);
@@ -122,4 +122,7 @@ public class BoardKey {
                 '}';
     }
 
+    public String toFileString() {
+        return this.key + "," + this.tag + "," + this.nextSpot;
+    }
 }

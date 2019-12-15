@@ -8,6 +8,7 @@ import model.Message;
 import ui.Feedback;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
@@ -50,7 +51,7 @@ public class ClientManager {
         messages.add(message1);
         messages.add(message2);
 
-        Conversation conversation = new Conversation(this.conversations.size() + 1, name, null, null, messages);
+        Conversation conversation = new Conversation(0,this.conversations.size() + 1, name, null, null, messages);
 
         return conversation;
 
@@ -62,9 +63,35 @@ public class ClientManager {
     public ClientManager() {
         conversations = FXCollections.observableArrayList();
         messageManager = new MessageManager();
+        ThreadListener listener = new ThreadListener() {
+
+            @Override
+            public void threadFinished() {
+                System.err.println("You shouldn't be here");
+            }
+
+            @Override
+            public void newMessage(Message message, Conversation conversation) {
+                messageRecieved(conversation, message);
+            }
+        };
+        messageManager.getMessages(listener);
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
+
+        //Auto login
+        /*localStorageManager.createDatabase();
+        localStorageManager.initializeAccountsDatabase();
+        try {
+            localStorageManager.addAccount("simon","root","dkfj");
+        } catch (AccountAlreadyExistsException e) {
+            e.printStackTrace();
+        }
+        localStorageManager.initializeConversationsDatabase();*/
+
     }
+
+
 
     public void loadUserContents() {
         //get current conversation
@@ -76,31 +103,21 @@ public class ClientManager {
     }
 
 
+
     public void sortConversationsAccordingToPolicy() {
         //TODO:
 
     }
-    /* ACTIONS ------------------------------------------------------------------ */
 
-
-    public void createAccount(String username, String password, File directoryLocation) {
-        System.out.println("Creating account");
-        //TODO: @arne createAccount routine
-        this.login(username, password, b -> {
-            if (!b.isSucces()) {
-                this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
-                        " to login");
-            }
-        });
-    }
-
-    public void login(String username, String password, Consumer<Feedback> callback) {
+    public void login(String username, String password, Consumer<Boolean> callback) {
         System.out.println("Logging in");
-        //TODO: @arne login routine
-        boolean fail = false;
 
-        if (fail) {
-            callback.accept(new Feedback(false,"Login failed please try again"));
+
+        int userID = localStorageManager.login(username, password);
+        if (userID != 1) {
+            callback.accept(true);
+        } else {
+            callback.accept(false);
         }
 
 
@@ -109,31 +126,74 @@ public class ClientManager {
 
     }
 
+
+
     public void logout() {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
-        //TODO: @arne  logout routine
+        //TODO: Dunno if there si more to do for logout?
+        messageManager.clearConversations();
 
         this.mainWindowViewController.loadLoginView();
     }
 
+    public void createAccount(String username, String password, File directoryLocation) {
+        System.out.println("Creating account");
+        localStorageManager.setPath(directoryLocation.getPath());
+        try {
+            localStorageManager.addAccount(username, password, "");
+        } catch (AccountAlreadyExistsException e) {
+            this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Account with login " + username + " already exists.");
+        }
+        //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
+        this.login(username, password, b -> {
+            if (!b) {
+                this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
+                        " to login");
+            }
+        });
+    }
+
+
+    /**
+     * Adding one  that doesn't exist
+     *
+     * @param name
+     * @param location
+     */
     public void addNewConversation(String name, File location) {
-        //TODO: @arne addNewConversation Routine
-        this.mainWindowViewController.loadConversation(this.getCurrentConversation());
+        //create conversation
+
+        Conversation conversation = null;
+        try {
+            conversation = new Conversation(name, location);
+        } catch (FileNotFoundException e) {
+            //TODO: @simon give notification if wrong file?
+        }
+        if (conversation != null) {
+            localStorageManager.saveConversation(conversation);
+
+            this.mainWindowViewController.loadConversation(conversation);
+        }
     }
 
     public void createNewConversation(String name) {
 
-        //TODO: @arnecreateNewConversation Routine
-        Conversation c = this.conversationDummy(name);
+
+        Conversation c = new Conversation(name,messageManager.getLastBound());
+        int id = localStorageManager.saveConversation(c);
+        if (id != -1) {
+            c.setContactId(id);
+        }
         conversations.add(c);
         this.mainWindowViewController.loadConversation(c);
 
     }
 
-    public void sendMessage(Conversation conversation, String text) {
 
+    //TODO @simon changeover to this
+    public void sendMessage(Conversation conversation, String text) {
         Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
         conversation.getMessages().add(message);
         ThreadListener listener = new ThreadListener() {
@@ -142,27 +202,47 @@ public class ClientManager {
             public void threadFinished() {
                 messageDelivered(conversation);
             }
+
+            @Override
+            public void newMessage(Message message, Conversation conversation) {
+                System.err.println("You shouldn't be here");
+            }
         };
         messageManager.sendMessage(conversation, message, listener);
 
         this.mainWindowViewController.messageField.setText("");
         //TODO:@simon CALLABCK MECHANISM
         this.mainWindowViewController.reloadUI();
+
     }
 
-    public void messageDelivered(Conversation conversation) { }
+    public synchronized void messageDelivered(Conversation conversation) {
+        //TODO:something
+    }
+
+
+
+    public synchronized void messageRecieved(Conversation conversation, Message message) {
+//TODO: Should get called from thread.
+    }
+
 
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
-        //TODO: @arne remove from client manager subroutine
-        //TODO: @arne remove from server subroutine?
+        localStorageManager.deleteConversation(conversation);
+        //DONE: @arne remove from client manager subroutine
+        //DONE: @arne remove from server subroutine?
+        //NOTE: This will make the thread not check anymore for new, I assume that's enough
+        messageManager.removeConversation(conversation);
         this.mainWindowViewController.loadEmptyConversation();
     }
+
+
 
     public void editPartnerName(String text) {
         System.out.println("edit partner name");
         if (this.currentConversation != null) {
-            //TODO: @arne method for also updating it in the database
+            localStorageManager.updateConversation(text, this.currentConversation.getContactId());
             this.currentConversation.setUserName(text);
         }
         this.mainWindowViewController.reloadUI();
@@ -185,6 +265,7 @@ public class ClientManager {
     public ObservableList<Conversation> getConversations() {
         return conversations;
     }
+
 
     public void getKeyForConversation(int id, File directoryLocation) {
 

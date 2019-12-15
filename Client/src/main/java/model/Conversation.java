@@ -2,10 +2,17 @@ package model;
 
 import javafx.collections.ObservableList;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Objects;
+import java.util.Random;
+import java.util.Scanner;
 
 public class Conversation {
-
+    private int contactId;
     private int userId;
     private String userName;
     private BoardKey boardKey;
@@ -14,8 +21,9 @@ public class Conversation {
 
     private ObservableList<Message> messages;
 
-    public Conversation(int userId, String userName, BoardKey boardKey, BoardKey boardKeyUs,
+    public Conversation(int contactId, int userId, String userName, BoardKey boardKey, BoardKey boardKeyUs,
                         ObservableList<Message> messages) {
+        this.contactId = contactId;
         this.userId = userId;
         this.userName = userName;
         this.boardKey = boardKey;
@@ -24,6 +32,43 @@ public class Conversation {
         this.read = true;
     }
 
+    public Conversation(String name, int bound) {
+        //TODO: Check if getting bound wouldn't add to much delay
+        this.userName = name;
+        Random random = new Random();
+        this.boardKey = new BoardKey(random.nextInt(bound));
+        this.boardKeyUs = new BoardKey(random.nextInt(bound));
+    }
+
+    public Conversation(String name, File location) throws FileNotFoundException {
+        this.userName = name;
+        this.initializeBoardKeysFromFile(location);
+    }
+
+    public void initializeBoardKeysFromFile(File file) throws FileNotFoundException {
+        Scanner sc = new Scanner(file);
+        String line = null;
+        for (int i = 0; i < 2; i++) {
+            line = sc.nextLine();
+            String[] linesplit = line.split(",");
+            if (i == 0) {
+                this.boardKey = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
+            } else {
+                this.boardKeyUs = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
+            }
+        }
+
+    }
+
+    public void writeBoardKeysToFile(File file) throws IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+        bufferedWriter.write(this.boardKey.toFileString() + System.lineSeparator());
+        bufferedWriter.flush();
+        bufferedWriter.write(this.boardKeyUs.toFileString() + System.lineSeparator());
+        bufferedWriter.flush();
+
+
+    }
 
 
     public int getUserId() {
@@ -91,5 +136,13 @@ public class Conversation {
     @Override
     public int hashCode() {
         return Objects.hash(userId);
+    }
+
+    public void setContactId(int contactId) {
+        this.contactId = contactId;
+    }
+
+    public int getContactId() {
+        return this.contactId;
     }
 }

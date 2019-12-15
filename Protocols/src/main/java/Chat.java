@@ -8,5 +8,5 @@ public interface Chat extends Remote {
 
     String getIpAndPortNumber(int boxnumber) throws RemoteException;
 
-    int getLimit();
+    int getLimit() throws RemoteException;
 }

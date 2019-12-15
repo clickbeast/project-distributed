@@ -12,7 +12,6 @@ public class Main {
         Registry registry = LocateRegistry.getRegistry("localhost", 5000);
         chat = (Chat) registry.lookup("Chat");
 
-        System.out.println(chat.sendMessage(0, "abc", "123"));
-        System.out.println(chat.getMessage(0, "abc"));
+        System.out.println(chat.sendMessage(9, "bb9ca82ad59e7d9cf951bbd1f73974a2", "ABC"));
     }
 }

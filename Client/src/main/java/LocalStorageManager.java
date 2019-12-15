@@ -17,14 +17,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-//TODO: MAKE ALL FUNCTIONS NOT STATIC, now static for testing
 @SuppressWarnings("Duplicates")
 public class LocalStorageManager {
     private String path;
 
-    public LocalStorageManager(String databaseName) {
-        this.path = System.getProperty("User.dir") + File.separator + databaseName;
+    public LocalStorageManager(String filepath) {
+        this.path = /*System.getProperty("User.dir") + File.separator + */filepath;
     }
 
     /**
@@ -69,9 +69,19 @@ public class LocalStorageManager {
      * @param pass      unedited password of the User
      * @param salt      salt for the password, can be empty string
      */
-    public void addAccount(String loginname, String pass, String salt) throws AccountAlreadyExistsException {
+    public int addAccount(String loginname, String pass, String salt) throws AccountAlreadyExistsException {
         if (salt == null) {
             salt = "";
+        }
+        if (salt.equals("")) {
+            String AB = "0123456789abcdefghijklmnopqrstuvwxyz";
+            Random rnd = new Random();
+
+            StringBuilder sb2 = new StringBuilder(32);
+            for (int i = 0; i < 32; i++) {
+                sb2.append(AB.charAt(rnd.nextInt(AB.length())));
+            }
+            salt = sb2.toString();
         }
         initializeAccountsDatabase();
 
@@ -84,6 +94,10 @@ public class LocalStorageManager {
             pstmt.setString(2, bytesToHex(hash(pass + salt)));
             pstmt.setString(3, salt);
             pstmt.executeUpdate();
+            sql = "SELECT last_insert_rowid()";
+            ResultSet rs = conn.prepareStatement(sql).executeQuery();
+
+            return rs.getInt("last_insert_rowid()");
         } catch (SQLException e) {
             if (e.getErrorCode() == 19) {
                 throw new AccountAlreadyExistsException("Account " + loginname + " exists already.");
@@ -93,7 +107,7 @@ public class LocalStorageManager {
         } catch (NoSuchAlgorithmException e) {
             System.err.println(e.getMessage());
         }
-
+        return -1;
     }
 
     /**
@@ -121,6 +135,7 @@ public class LocalStorageManager {
                     return rs.getInt("userId");
                 }
             }
+
             return -1;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -188,7 +203,7 @@ public class LocalStorageManager {
 
     }
 
-    public void storeMessage(Message message) {
+    public int storeMessage(Message message) {
 
         String url = "jdbc:sqlite:" + path;
         String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?)";
@@ -203,10 +218,15 @@ public class LocalStorageManager {
             pstmt.setInt(3, message.isDelivered() ? 1 : 0);
             pstmt.setLong(4, message.getTimeStamp());
             pstmt.executeUpdate();
+            sql = "SELECT last_insert_rowid()";
+            ResultSet rs = conn.prepareStatement(sql).executeQuery();
+
+            return rs.getInt("last_insert_rowid()");
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
         }
+        return -1;
 
     }
 
@@ -225,11 +245,15 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                conversations.add(new Conversation(userId, rs.getString("contactname"),
-                        new BoardKey(rs.getString("encryptKey"),
+                conversations.add(new Conversation(rs.getInt("contactId"),
+                        userId,
+                        rs.getString("contactname"),
+                        new BoardKey(
+                                rs.getString("encryptKey"),
                                 rs.getString("tag"),
                                 rs.getInt("nextSpot")),
-                        new BoardKey(rs.getString("encryptKeyUs"),
+                        new BoardKey(
+                                rs.getString("encryptKeyUs"),
                                 rs.getString("tagUs"),
                                 rs.getInt("nextSpotUs")),
                         (ObservableList<Message>) getMessagesFromUserID(userId)));
@@ -240,25 +264,30 @@ public class LocalStorageManager {
         return conversations;
     }
 
-    public void saveConversation(String contactname, BoardKey boardKey, BoardKey boardKeyUs) {
+    public int saveConversation(Conversation conversation) {
         String url = "jdbc:sqlite:" + path;
         String sql = "INSERT INTO conversations (contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs) " +
-                "VALUES(?,?,?,?,?,?,?)";
+                "VALUES(?,?,?,?,?,?,?); ";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, contactname);
-            pstmt.setString(2, boardKey.getKey());
-            pstmt.setString(3, boardKey.getTag());
-            pstmt.setInt(4, boardKey.getNextSpot());
-            pstmt.setString(5, boardKeyUs.getKey());
-            pstmt.setString(6, boardKeyUs.getTag());
-            pstmt.setInt(7, boardKeyUs.getNextSpot());
+            pstmt.setString(1, conversation.getUserName());
+            pstmt.setString(2, conversation.getBoardKey().getKey());
+            pstmt.setString(3, conversation.getBoardKey().getTag());
+            pstmt.setInt(4, conversation.getBoardKey().getNextSpot());
+            pstmt.setString(5, conversation.getBoardKeyUs().getKey());
+            pstmt.setString(6, conversation.getBoardKeyUs().getTag());
+            pstmt.setInt(7, conversation.getBoardKeyUs().getNextSpot());
             pstmt.executeUpdate();
+            sql = "SELECT last_insert_rowid()";
+            ResultSet rs = conn.prepareStatement(sql).executeQuery();
+
+            return rs.getInt("last_insert_rowid()");
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
         }
+        return -1;
     }
 
     public void initializeConversationsDatabase() {
@@ -269,7 +298,7 @@ public class LocalStorageManager {
                 "\t`contactname`\tTEXT,\n" +
                 "\t`encryptKey`\tTEXT,\n" +
                 "\t`tag`\tTEXT,\n" +
-                "\t`nextSpot`\tINTEGER\n" +
+                "\t`nextSpot`\tINTEGER,\n" +
                 "\t`encryptKeyUs`\tTEXT,\n" +
                 "\t`tagUs`\tTEXT,\n" +
                 "\t`nextSpotUs`\tINTEGER\n" +
@@ -296,5 +325,40 @@ public class LocalStorageManager {
         }
     }
 
+    public String getPath() {
+        return path;
+    }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void deleteConversation(Conversation conversation) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "DELETE FROM conversations  WHERE contactId = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, conversation.getContactId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void updateConversation(String text, int contactId) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "UPDATE conversations SET contactname = ? WHERE contactId = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, text);
+            pstmt.setInt(2, contactId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
 }
