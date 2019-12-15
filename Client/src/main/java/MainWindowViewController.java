@@ -266,8 +266,6 @@ public class MainWindowViewController implements Initializable {
 
         this.messageListView = messageView;
 
-
-
         this.getMessagePane().getChildren().add(messageView);
 
         AnchorPane.setBottomAnchor(messageListView, 0.0);

@@ -39,6 +39,7 @@ public class LocalStorageManager {
             }
 
         } catch (SQLException e) {
+            System.out.println("what");
             System.out.println(e.getMessage());
         }
     }

@@ -22,6 +22,7 @@ public class ClientManager {
 
     /**
      * Creates a dummy conversation used for UI testing
+     *
      * @param name
      * @return
      */
@@ -33,22 +34,22 @@ public class ClientManager {
                 0
                 , System.currentTimeMillis(),
                 true
-                ,true
-                ,true);
+                , true
+                , true);
 
         Message message2 = new Message(
                 "Message 2",
                 0
                 , System.currentTimeMillis(),
                 true
-                ,true
-                ,true);
+                , true
+                , true);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message1);
         messages.add(message2);
 
-        Conversation conversation = new Conversation(0,this.conversations.size() + 1, name, null, null, messages);
+        Conversation conversation = new Conversation(0, this.conversations.size() + 1, name, null, null, messages);
 
         return conversation;
 
@@ -56,7 +57,16 @@ public class ClientManager {
 
     /* LOADING ------------------------------------------------------------------ */
 
+    public LocalStorageManager prepareLocalStorage() {
+        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems" +
+                "/project-distributed";
+        return new LocalStorageManager(path);
+    }
+
     public ClientManager() {
+        this.setLocalStorageManager(prepareLocalStorage());
+        this.localStorageManager.createDatabase();
+
         conversations = FXCollections.observableArrayList();
         messageManager = new MessageManager();
         ThreadListener listener = new ThreadListener() {
@@ -71,6 +81,7 @@ public class ClientManager {
                 messageReceived(conversation, message);
             }
         };
+
         messageManager.getMessages(listener);
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
@@ -96,9 +107,9 @@ public class ClientManager {
         System.out.println("Logging in");
         int userID = localStorageManager.login(username, password);
         if (userID != 1) {
-            callback.accept(new Feedback(true,"Login failed please try again"));
+            callback.accept(new Feedback(true, "Login failed please try again"));
         } else {
-            callback.accept(new Feedback(false,"Login success"));
+            callback.accept(new Feedback(false, "Login success"));
         }
         this.loadUserContents();
     }
@@ -107,7 +118,7 @@ public class ClientManager {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
-        //TODO: Dunno if there si more to do for logout?
+
         messageManager.clearConversations();
 
         this.mainWindowViewController.loadLoginView();
@@ -120,8 +131,10 @@ public class ClientManager {
             localStorageManager.addAccount(username, password, "");
         } catch (AccountAlreadyExistsException e) {
             this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Account with login " + username + " already exists.");
+            return;
         }
-        //TODO:@Simon handle callback fail please :) -> will be replaced by feedback callback
+
+
         this.login(username, password, b -> {
             if (!b.isSucces()) {
                 this.mainWindowViewController.loginViewController.createAccountInfoLabel.setText("Login failed -> try" +
@@ -149,7 +162,7 @@ public class ClientManager {
     public void createNewConversation(String name) {
 
 
-        Conversation c = new Conversation(name,messageManager.getLastBound());
+        Conversation c = new Conversation(name, messageManager.getLastBound());
         int id = localStorageManager.saveConversation(c);
         if (id != -1) {
             c.setContactId(id);
@@ -202,11 +215,12 @@ public class ClientManager {
     /* RESPONSES ------------------------------------------------------------------ */
 
     public synchronized void messageDelivered(Conversation conversation) {
+        System.out.println("MESSAGE DELIVERED");
 
     }
 
     public synchronized void messageReceived(Conversation conversation, Message message) {
-
+        System.out.println("MESSAGE RECEIVED");
     }
 
     /*
@@ -218,6 +232,7 @@ public class ClientManager {
     public MainWindowViewController getMainWindowViewController() {
         return mainWindowViewController;
     }
+
     public void setMainWindowViewController(MainWindowViewController mainWindowViewController) {
         this.mainWindowViewController = mainWindowViewController;
     }

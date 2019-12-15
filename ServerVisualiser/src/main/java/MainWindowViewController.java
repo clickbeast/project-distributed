@@ -44,7 +44,7 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void loadServerView() {
-        //TODO
+        //TODO: @simon
         loadMasterView();
         loadMasterWatcherView();
         loadSlaveListView();
@@ -52,12 +52,12 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void loadMasterView() {
-        //TODO
+        //TODO: @simon
 
     }
 
     public void loadMasterWatcherView() {
-        //TODO
+        //TODO: @simon
     }
 
     public void loadSlaveListView() {

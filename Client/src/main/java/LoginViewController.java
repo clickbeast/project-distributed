@@ -79,12 +79,15 @@ public class LoginViewController implements Initializable {
                 this.passwordField.getText(),
                 (b) -> {
                     if (!b.isSucces()) {
-                        this.loginAccountInfoLabel.setText("Login failed. Try again");
+                        this.loginAccountInfoLabel.setText(b.getMessage());
                     }
                 });
     }
 
+    public void changeDBAction() {
+        System.out.println("Changing DB");
 
+    }
     /*
      * GETTERS & SETTERS
      * -----------------------------------------------------------------------------

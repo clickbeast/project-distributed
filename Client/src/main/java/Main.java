@@ -18,9 +18,6 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) throws Exception {
 
-        // region UI SETUP
-
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("layout.fxml"));
 
         // provide the controller with a reference of the simulationManager
