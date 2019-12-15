@@ -9,7 +9,6 @@ import ui.Feedback;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Comparator;
 import java.util.function.Consumer;
 
 public class ClientManager {
@@ -59,7 +58,6 @@ public class ClientManager {
 
     /* LOADING ------------------------------------------------------------------ */
 
-
     public ClientManager() {
         conversations = FXCollections.observableArrayList();
         messageManager = new MessageManager();
@@ -72,15 +70,13 @@ public class ClientManager {
 
             @Override
             public void newMessage(Message message, Conversation conversation) {
-                messageRecieved(conversation, message);
+                messageReceived(conversation, message);
             }
         };
         messageManager.getMessages(listener);
         Conversation conversation = conversationDummy("Vincent");
         this.conversations.add(conversation);
     }
-
-
 
     public void loadUserContents() {
         //get current conversation
@@ -90,12 +86,15 @@ public class ClientManager {
         this.mainWindowViewController.loadConversation(getCurrentConversation());
     }
 
-
-
     public void sortConversationsAccordingToPolicy() {
         //TODO:
 
     }
+
+
+    /* ACTIONS ------------------------------------------------------------------ */
+
+
 
     public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
@@ -108,8 +107,6 @@ public class ClientManager {
         this.loadUserContents();
     }
 
-
-
     public void logout() {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
@@ -119,6 +116,7 @@ public class ClientManager {
 
         this.mainWindowViewController.loadLoginView();
     }
+
 
     public void createAccount(String username, String password, File directoryLocation) {
         System.out.println("Creating account");
@@ -193,27 +191,27 @@ public class ClientManager {
         messageManager.sendMessage(conversation, message, listener);
 
         this.mainWindowViewController.messageField.setText("");
-        //TODO:@simon CALLABCK MECHANISM
+        //TODO:@simon CALLBACK MECHANISM
         this.mainWindowViewController.reloadUI();
 
     }
 
     public synchronized void messageDelivered(Conversation conversation) {
         //TODO:something
+
+
     }
 
 
 
-    public synchronized void messageRecieved(Conversation conversation, Message message) {
-//TODO: Should get called from thread.
+    public synchronized void messageReceived(Conversation conversation, Message message) {
+        //
     }
 
 
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
         localStorageManager.deleteConversation(conversation);
-        //DONE: @arne remove from client manager subroutine
-        //DONE: @arne remove from server subroutine?
         //NOTE: This will make the thread not check anymore for new, I assume that's enough
         messageManager.removeConversation(conversation);
         this.mainWindowViewController.loadEmptyConversation();
