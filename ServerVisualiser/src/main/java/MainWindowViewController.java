@@ -1,5 +1,3 @@
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,17 +19,19 @@ public class MainWindowViewController implements Initializable {
 
     public StateManager stateManager;
 
-
-
     /* VARIABLES ------------------------------------------------------------------ */
 
     public AnchorPane slavePane;
     public ListView<Slave> slaveListView;
-    public Label generalInfo;
+    public Label generalInfoLabel;
     public Button button;
 
     /* UI SETUP ------------------------------------------------------------------ */
 
+    public MainWindowViewController() {
+
+
+    }
 
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Initializing...");
@@ -39,11 +39,15 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void setupComplete() {
-        //TODO
+
+        loadServerView();
     }
 
     public void loadServerView() {
         //TODO
+        loadMasterView();
+        loadMasterWatcherView();
+        loadSlaveListView();
 
     }
 
@@ -66,9 +70,12 @@ public class MainWindowViewController implements Initializable {
             }
         });
 
+        listView.setFocusTraversable( false );
+
         this.setSlaveListView(listView);
         this.getSlavePane().getChildren().add(this.getSlaveListView());
 
+        this.slaveListView.setStyle("-fx-border-color: #F4F4F4;");
 
         //configure bounds
         AnchorPane.setBottomAnchor(listView, 0.0);
@@ -135,11 +142,11 @@ public class MainWindowViewController implements Initializable {
         this.slaveListView = slaveListView;
     }
 
-    public Label getGeneralInfo() {
-        return generalInfo;
+    public Label getGeneralInfoLabel() {
+        return generalInfoLabel;
     }
 
-    public void setGeneralInfo(Label generalInfo) {
-        this.generalInfo = generalInfo;
+    public void setGeneralInfoLabel(Label generalInfoLabel) {
+        this.generalInfoLabel = generalInfoLabel;
     }
 }

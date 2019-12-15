@@ -17,10 +17,8 @@ public class ClientManager {
     private MainWindowViewController mainWindowViewController;
     Conversation currentConversation;
     ObservableList<Conversation> conversations;
-
     private LocalStorageManager localStorageManager;
     private MessageManager messageManager;
-
 
     /**
      * Creates a dummy conversation used for UI testing
@@ -94,8 +92,6 @@ public class ClientManager {
 
     /* ACTIONS ------------------------------------------------------------------ */
 
-
-
     public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
         int userID = localStorageManager.login(username, password);
@@ -117,7 +113,6 @@ public class ClientManager {
         this.mainWindowViewController.loadLoginView();
     }
 
-
     public void createAccount(String username, String password, File directoryLocation) {
         System.out.println("Creating account");
         localStorageManager.setPath(directoryLocation.getPath());
@@ -135,13 +130,6 @@ public class ClientManager {
         });
     }
 
-
-    /**
-     * Adding one  that doesn't exist
-     *
-     * @param name
-     * @param location
-     */
     public void addNewConversation(String name, File location) {
         //create conversation
 
@@ -171,8 +159,6 @@ public class ClientManager {
 
     }
 
-
-    //TODO @simon changeover to this
     public void sendMessage(Conversation conversation, String text) {
         Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
         conversation.getMessages().add(message);
@@ -196,19 +182,6 @@ public class ClientManager {
 
     }
 
-    public synchronized void messageDelivered(Conversation conversation) {
-        //TODO:something
-
-
-    }
-
-
-
-    public synchronized void messageReceived(Conversation conversation, Message message) {
-        //
-    }
-
-
     public void deleteConversation(Conversation conversation) {
         this.conversations.remove(conversation);
         localStorageManager.deleteConversation(conversation);
@@ -216,8 +189,6 @@ public class ClientManager {
         messageManager.removeConversation(conversation);
         this.mainWindowViewController.loadEmptyConversation();
     }
-
-
 
     public void editPartnerName(String text) {
         System.out.println("edit partner name");
@@ -228,6 +199,15 @@ public class ClientManager {
         this.mainWindowViewController.reloadUI();
     }
 
+    /* RESPONSES ------------------------------------------------------------------ */
+
+    public synchronized void messageDelivered(Conversation conversation) {
+
+    }
+
+    public synchronized void messageReceived(Conversation conversation, Message message) {
+
+    }
 
     /*
      * GETTERS & SETTERS

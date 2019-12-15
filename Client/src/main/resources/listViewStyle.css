@@ -1,8 +1,8 @@
 .list-view .list-cell:even {
-    -fx-background-color: translucent;
+    -fx-background-color: none;
     -fx-text-fill: black;
 }
 .list-view .list-cell:odd {
-    -fx-background-color: translucent;
+    -fx-background-color: none;
     -fx-text-fill: black;
 }

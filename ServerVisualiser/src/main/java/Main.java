@@ -33,6 +33,7 @@ public class Main extends Application {
         Parent flowPane = loader.load();
 
         StateManager stateManager = new StateManager();
+        this.mainWindowViewController.setStateManager(stateManager);
         stateManager.setMainWindowViewController(mainWindowViewController);
 
         primaryStage.setTitle("Da Cripti: Server State Visualiser");
@@ -52,8 +53,6 @@ public class Main extends Application {
         /**
          * RUN YOUR TESTS BELOW THIS
          */
-
-
 
 
     }
