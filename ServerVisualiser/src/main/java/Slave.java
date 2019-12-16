@@ -33,7 +33,7 @@ public class Slave {
     }
 
     public void setMailBox(int i, Object  mailBoxEntry) {
-        MailBoxEntry
+        //MailBoxEntry
        // mailboxes[i] = new Mailbox(i + startBox);
     }
 

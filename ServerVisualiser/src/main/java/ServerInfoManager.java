@@ -33,7 +33,7 @@ public class ServerInfoManager {
                                         (VisualizerToSlaveCommunication) registry.lookup(
                                                 "VisualizerToSlaveCommunication");
                                 List<MailBoxEntry> mailBoxEntries = slaveCommunication.getAllMailBoxEntries();
-                                MailBoxEntry
+                                //MailBoxEntry
                              //   slave.setMailBoxes(mailBoxEntries);
                                 for (int i = 0; i < (mailBoxEntries.size()) && i < slave.getMailboxes().length; i++) {
                                     /*slave.setMailBox(i, mailBoxEntries.get(i));
