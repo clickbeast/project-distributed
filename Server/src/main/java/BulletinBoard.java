@@ -69,6 +69,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
+            return false;
         }
 
         return true;
