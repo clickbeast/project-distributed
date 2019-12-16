@@ -28,7 +28,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
             createNewServer();
     }
 
-    public MasterServer() throws IOException {
+    public MasterServer() throws IOException,RemoteException {
         Main.print("[MASTER] Master server started");
         currentPort = 9001;
         slaves = new LinkedList<>();

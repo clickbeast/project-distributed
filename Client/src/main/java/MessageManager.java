@@ -18,7 +18,7 @@ import java.util.List;
 public class MessageManager {
     private static List<String> serverList = new ArrayList<>();
     private static List<Conversation> conversationList = new ArrayList<>();
-    private static final String MASTER_SERVER_IP = "localhost:5000";
+    private static final String MASTER_SERVER_IP = "localhost:8999";
     private int bound = 1;
 
     public void sendMessage(Conversation conversation, Message message, final ThreadListener threadListener) {

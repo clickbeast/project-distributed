@@ -27,7 +27,7 @@ public class MasterCommunication extends UnicastRemoteObject implements Runnable
             }
             catch(Exception e){
                 Main.printError("[WATCHER] error setting up connection to master, trying again...");
-            }
+e.printStackTrace();            }
         }
         Main.print("[WATCHER] ping to master succeeded.");
     }

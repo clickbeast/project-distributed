@@ -43,7 +43,7 @@ public class Main{
         else
             pb = new ProcessBuilder("/bin/bash", "MasterServer.sh", "restart");
 
-        pb.directory(new File("/home/andres/Documents/project-distributed/Watcher/MasterServer"));
+        pb.directory(new File("/home/adegeter/Documents/school/project-distributed/Watcher/MasterServer"));
         try {
             Process p = pb.start();
             watch(p);
