@@ -43,7 +43,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             // create a new table
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("[SLAVE] " + e.getMessage());
+            System.err.println("[SLAVE] " + e.toString());
         }
 
     }

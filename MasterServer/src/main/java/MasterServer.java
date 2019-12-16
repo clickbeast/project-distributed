@@ -9,7 +9,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping{
+import static java.lang.Thread.sleep;
+
+public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping,VisualizerToMasterCommunication{
     private int currentPort;
     //used to execute commands
     private Runtime command;
@@ -46,15 +48,19 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     private void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
 //        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         startSlave(true, numberOfMailBoxes, baseMailbox);
 //        print("[MASTER] New server active.");
     }
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox) {
         ProcessBuilder pb = new ProcessBuilder(
-                "java",
-                "-jar",
-                "SlaveServer.jar",
+                "/bin/bash",
+                "SlaveServer.sh",
                 Integer.toString(numberOfMailboxes),
                 Integer.toString(baseMailbox));
 
@@ -108,34 +114,57 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     @Override
     public LinkedList<ServerEntry> confirmConfiguration(int port, String ip, int startMailbox, int endMailbox) throws RemoteException {
-        Scanner sc = new Scanner(ip);
-        sc.useDelimiter("/");
-        sc.next();
-        ip = sc.next();
+            Scanner sc = new Scanner(ip);
+            sc.useDelimiter("/");
+            sc.next();
+            ip = sc.next();
 
-        Main.print("[MASTER] Confirmation received for port: " + port + " and IP-address: " + ip + " for range [" + startMailbox + "," + endMailbox + "]");
-        try{
-            synchronized (slaves) {
-                slaves.removeIf(slaveServer -> slaveServer.getPortNumber() == port);
-                entries.removeIf(serverEntry -> serverEntry.getPortNumber() == port);
-                slaves.add(new SlaveServer(port, ip, startMailbox, endMailbox));
-
-                synchronized (entries) {
-                    for (SlaveServer server : slaves) {
-                        server.communication().sendServerList(entries);
-                    }
+            Main.print("[MASTER] Confirmation received for port: " + port + " and IP-address: " + ip + " for range [" + startMailbox + "," + endMailbox + "]");
+            try {
+                synchronized (slaves) {
+                    slaves.removeIf(slaveServer -> slaveServer.getPortNumber() == port);
+                    entries.removeIf(serverEntry -> serverEntry.getPortNumber() == port);
+                    slaves.add(new SlaveServer(port, ip, startMailbox, endMailbox));
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Main.printError(e.toString());
+                return null;
             }
-        }
-        catch (Exception e){
-            Main.printError(e.toString());
-            return null;
-        }
+        printMailboxes();
         return entries;
+    }
+
+    private static void printMailboxes() {
+        Main.print("[MASTER]\t ============= ENTRIES =============");
+        for (ServerEntry entry : entries) {
+            Main.print("[MASTER]\t [" + entry.getStartMailbox() + "," + entry.getEndMailbox() + "] on " + entry.getIp() + ":" + entry.getPortNumber());
+        }
+        Main.print("[MASTER]\t ===================================");
     }
 
     @Override
     public boolean ping() throws RemoteException {
         return true;
+    }
+
+    @Override
+    public int getLimit() throws RemoteException {
+        int maxMailbox = 0;
+
+        synchronized (entries){
+            for(ServerEntry entry : entries){
+                if(entry.getEndMailbox() > maxMailbox)
+                    maxMailbox = entry.getEndMailbox();
+            }
+        }
+        return maxMailbox;
+    }
+
+    @Override
+    public LinkedList<ServerEntry> getSlaveList() throws RemoteException {
+        synchronized (entries) {
+            return entries;
+        }
     }
 }

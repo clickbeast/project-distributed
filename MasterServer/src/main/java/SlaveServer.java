@@ -48,7 +48,7 @@ public class SlaveServer {
     public String getAddress(){
         String address = "";
 
-        address += ip;
+        address += (ip+1);
         address += ":";
         address += portNumber;
 
