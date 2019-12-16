@@ -4,7 +4,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReadWriteLock;
-
+getLimit
 public class BulletinBoard extends UnicastRemoteObject implements Chat {
    private String path;
    int amountOfMessages;
@@ -101,7 +101,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
     }
 
     @Override
-    public String getIpAndPortNumber(int boxnumber) throws RemoteException {
+    public String getServerWithMailbox(int boxnumber) throws RemoteException {
         synchronized (Main.entries){
             for(ServerEntry entry : Main.entries){
                 if(entry.contains(boxnumber))

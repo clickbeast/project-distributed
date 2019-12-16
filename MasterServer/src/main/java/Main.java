@@ -29,6 +29,7 @@ public class Main {
     public static Ping CONNECTION_TO_WATCHER;
 
     public static final String IP_OF_WATCHER = "localhost";
+    public static final int PORT_FOR_VISUALIZER = 7001;
     public static final int PORT_OF_WATCHER = 7000;
     public static final int PORT_FOR_SLAVE_TO_MASTER_COMMUNICATION = 9000;
     public static final int PORT_FOR_CLIENT_TO_MASTER_COMMUNICATION = 8999;
@@ -36,6 +37,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException, NotBoundException {
         MasterServer server = new MasterServer();
+
+        Registry visualizerToMaster = LocateRegistry.createRegistry(PORT_FOR_VISUALIZER);
+        visualizerToMaster.rebind("VisualizerToMasterCommunication", server);
 
         Registry slaveToMaster = LocateRegistry.createRegistry(PORT_FOR_SLAVE_TO_MASTER_COMMUNICATION);
         slaveToMaster.rebind("SlaveToMasterCommunication", server);

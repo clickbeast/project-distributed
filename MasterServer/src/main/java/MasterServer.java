@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping{
+public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping,VisualizerToMasterCommunication{
     private int currentPort;
     //used to execute commands
     private Runtime command;
@@ -52,9 +52,8 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox) {
         ProcessBuilder pb = new ProcessBuilder(
-                "java",
-                "-jar",
-                "SlaveServer.jar",
+                "/bin/bash",
+                "SlaveServer.sh",
                 Integer.toString(numberOfMailboxes),
                 Integer.toString(baseMailbox));
 
@@ -137,5 +136,23 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     @Override
     public boolean ping() throws RemoteException {
         return true;
+    }
+
+    @Override
+    public int getLimit() throws RemoteException {
+        int maxMailbox = 0;
+
+        synchronized (entries){
+            for(ServerEntry entry : entries){
+                if(entry.getEndMailbox() > maxMailbox)
+                    maxMailbox = entry.getEndMailbox();
+            }
+        }
+        return maxMailbox;
+    }
+
+    @Override
+    public LinkedList<ServerEntry> getSlaveList() throws RemoteException {
+        return entries;
     }
 }
