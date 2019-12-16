@@ -58,7 +58,7 @@ public class LoginViewController implements Initializable {
 
         }
 
-        if (!this.createPasswordField.equals(this.createPasswordField2)) {
+        if (!this.createPasswordField.getText().equals(this.createPasswordField2.getText())) {
             this.createAccountInfoLabel.setText("Please use matching passwords");
             return;
         }

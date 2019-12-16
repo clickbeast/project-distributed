@@ -24,7 +24,7 @@ public class LocalStorageManager {
     private String path;
 
     public LocalStorageManager(String filepath) {
-        this.path = /*System.getProperty("User.dir") + File.separator + */filepath;
+        this.path = filepath;
     }
 
     /**
@@ -39,7 +39,6 @@ public class LocalStorageManager {
             }
 
         } catch (SQLException e) {
-            System.out.println("what");
             System.out.println(e.getMessage());
         }
     }

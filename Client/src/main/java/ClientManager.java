@@ -28,7 +28,6 @@ public class ClientManager {
      */
     public Conversation conversationDummy(String name) {
         //TODO: not working now
-
         Message message1 = new Message(
                 "Message 1",
                 0
@@ -58,19 +57,18 @@ public class ClientManager {
     /* LOADING ------------------------------------------------------------------ */
 
     public LocalStorageManager prepareLocalStorage() {
-        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems" +
-                "/project-distributed";
+        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db";
         return new LocalStorageManager(path);
     }
 
     public ClientManager() {
         this.setLocalStorageManager(prepareLocalStorage());
         this.localStorageManager.createDatabase();
+        this.localStorageManager.initializeAccountsDatabase();
 
         conversations = FXCollections.observableArrayList();
         messageManager = new MessageManager();
         ThreadListener listener = new ThreadListener() {
-
             @Override
             public void threadFinished() {
                 System.err.println("You shouldn't be here");
