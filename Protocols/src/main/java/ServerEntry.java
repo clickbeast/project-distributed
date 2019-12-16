@@ -1,4 +1,6 @@
-public class ServerEntry {
+import java.io.Serializable;
+
+public class ServerEntry implements Serializable {
     int startMailbox,endMailbox;
     String ip;
     int portNumber;

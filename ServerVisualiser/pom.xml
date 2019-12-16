@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>be.kuleuven</groupId>
-    <artifactId>Server visualiser</artifactId>
+    <artifactId>Server_visualiser</artifactId>
     <version>1.0-SNAPSHOT</version>
 
 
