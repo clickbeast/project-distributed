@@ -1,3 +1,5 @@
+import sun.awt.image.ImageWatched;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -7,23 +9,30 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication{
+public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping{
     private int currentPort;
     //used to execute commands
     private Runtime command;
-    private LinkedList<SlaveServer> slaves;
+    public static LinkedList<SlaveServer> slaves;
+    public static LinkedList<ServerEntry> entries;
     private int currentNumberOfMailboxes;
 
-    public void run(){
-        createNewServer();
-        createNewServer();
-        createNewServer();
+    public void run(int numberOfSlaves){
+        initiateSlaves(numberOfSlaves);
+        SlaveWatcher slaveWatcher = new SlaveWatcher();
+        slaveWatcher.run();
+    }
+
+    private void initiateSlaves(int numberOfSlaves){
+        for(int i=0;i<numberOfSlaves;i++)
+            createNewServer();
     }
 
     public MasterServer() throws IOException {
-        System.out.println("[MASTER] Master server started");
+        Main.print("[MASTER] Master server started");
         currentPort = 9001;
         slaves = new LinkedList<>();
+        entries = new LinkedList<>();
         command = Runtime.getRuntime();
         currentNumberOfMailboxes = 0;
     }
@@ -36,9 +45,9 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     }
 
     private void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
-//        System.out.println("[MASTER] Spawning new server.");
+//        print("[MASTER] Spawning new server.");
         startSlave(true, numberOfMailBoxes, baseMailbox);
-//        System.out.println("[MASTER] New server active.");
+//        print("[MASTER] New server active.");
     }
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox) {
@@ -49,39 +58,30 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
                 Integer.toString(numberOfMailboxes),
                 Integer.toString(baseMailbox));
 
-        pb.directory(new File(System.getProperty("user.dir") + "/MasterServer/SlaveServer"));
+        pb.directory(new File(Main.PATH_TO_SLAVE_JAR));
         try {
             Process p = pb.start();
             if(watch)
                 watch(p);
         } catch (IOException e) {
-            e.printStackTrace();
+            Main.printError(e.toString());
         }
     }
 
-    private static void watch(final Process process) {
+    public static void watch(final Process process) {
         new Thread() {
             public void run() {
                 BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line = null;
                 try {
                     while ((line = input.readLine()) != null) {
-                        System.out.println("\t" + line);
+                        Main.print("\t" + line);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Main.printError(e.toString());
                 }
             }
         }.start();
-    }
-
-    private static String makeCommand(String command){
-        String cmd = "";
-        if(Main.ON_WINDOWS){
-            cmd += "cmd.exe /c ";
-        }
-        cmd += command;
-        return cmd;
     }
 
     @Override
@@ -102,25 +102,40 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     public int getPort() throws RemoteException{
         int ret = currentPort;
         currentPort += 2;
-        System.out.println("[MASTER] Port number " + ret + " handed out.");
+        Main.print("[MASTER] Port number " + ret + " handed out.");
         return ret;
     }
 
     @Override
-    public boolean confirmConfiguration(int portNumber, String ip, int startMailbox, int endMailbox) throws RemoteException {
+    public LinkedList<ServerEntry> confirmConfiguration(int port, String ip, int startMailbox, int endMailbox) throws RemoteException {
         Scanner sc = new Scanner(ip);
         sc.useDelimiter("/");
         sc.next();
         ip = sc.next();
 
-        System.out.println("[MASTER] Confirmation received for port: " + portNumber + " and IP-address: " + ip);
+        Main.print("[MASTER] Confirmation received for port: " + port + " and IP-address: " + ip + " for range [" + startMailbox + "," + endMailbox + "]");
         try{
-            slaves.add(new SlaveServer(portNumber, ip, startMailbox, endMailbox));
+            synchronized (slaves) {
+                slaves.removeIf(slaveServer -> slaveServer.getPortNumber() == port);
+                entries.removeIf(serverEntry -> serverEntry.getPortNumber() == port);
+                slaves.add(new SlaveServer(port, ip, startMailbox, endMailbox));
+
+                synchronized (entries) {
+                    for (SlaveServer server : slaves) {
+                        server.communication().sendServerList(entries);
+                    }
+                }
+            }
         }
         catch (Exception e){
-            e.printStackTrace();
-            return false;
+            Main.printError(e.toString());
+            return null;
         }
+        return entries;
+    }
+
+    @Override
+    public boolean ping() throws RemoteException {
         return true;
     }
 }

@@ -1,5 +1,6 @@
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface Ping {
-    void ping() throws RemoteException;
+public interface Ping extends Remote {
+    boolean ping() throws RemoteException;
 }

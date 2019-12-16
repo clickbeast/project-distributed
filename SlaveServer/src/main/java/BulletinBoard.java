@@ -9,8 +9,8 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
    private String path;
    int amountOfMessages;
 
-    public BulletinBoard() throws RemoteException {
-        path = System.getProperty("user.dir") + File.separator + "board.db";
+    public BulletinBoard(boolean backup) throws RemoteException {
+        path = System.getProperty("user.dir") + File.separator + "board" + (backup ? "bak" : "" )+ ".db";
         createDatabase();
         initializeMessageTable();
         amountOfMessages=0;
@@ -98,5 +98,29 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             System.err.println("[SLAVE] " + e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public String getIpAndPortNumber(int boxnumber) throws RemoteException {
+        synchronized (Main.entries){
+            for(ServerEntry entry : Main.entries){
+                if(entry.contains(boxnumber))
+                    return entry.address();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int getLimit() throws RemoteException {
+        int maxMailbox = 0;
+
+        synchronized (Main.entries){
+            for(ServerEntry entry : Main.entries){
+                if(entry.getEndMailbox() > maxMailbox)
+                    maxMailbox = entry.getEndMailbox();
+            }
+        }
+        return maxMailbox;
     }
 }

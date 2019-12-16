@@ -6,4 +6,7 @@ public interface Chat extends Remote {
 
     String getMessage(int boxNumber, String tag) throws RemoteException;
 
+    String getIpAndPortNumber(int boxnumber) throws RemoteException;
+
+    int getLimit() throws RemoteException;
 }

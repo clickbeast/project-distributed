@@ -15,15 +15,28 @@ public class SlaveServer {
         this.startMailbox = startMailbox;
         this.endMailbox = endMailbox;
 
-//        System.out.println("[MASTER] Trying to make RMI connection to " + ip + ":" + portNumber);
+        ServerEntry entry = new ServerEntry(startMailbox,endMailbox,ip,portNumber);
+        synchronized (MasterServer.entries) {
+            MasterServer.entries.add(entry);
+        }
+
+//        Main.print("[MASTER] Trying to make RMI connection to " + ip + ":" + portNumber);
         Registry registry = LocateRegistry.getRegistry(ip, portNumber);
         this.toSlave = (MasterToSlaveCommunication) registry.lookup("MasterToSlaveCommunication");
-        System.out.println("[MASTER] New slave connected on port " + portNumber);
+        Main.print("[MASTER] New slave connected on port " + portNumber);
 
         if(this.toSlave.ping())
-            System.out.println("[MASTER] ping to " + portNumber + " succesfull.");
+            Main.print("[MASTER] ping to " + portNumber + " succesfull.");
         else
-            System.out.println("[MASTER] ping to " + portNumber + " failed.");
+            Main.print("[MASTER] ping to " + portNumber + " failed.");
+    }
+
+    public void reconnect(){
+
+    }
+
+    public int getPortNumber() {
+        return portNumber;
     }
 
     public boolean containtsMailbox(int mailbox){
