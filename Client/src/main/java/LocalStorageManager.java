@@ -52,7 +52,7 @@ public class LocalStorageManager {
      */
     public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
-        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
+        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId INTEGER PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
                 "NULL,password VARCHAR NOT NULL,salt" +
                 " VARCHAR DEFAULT '')";
         try (Connection conn = DriverManager.getConnection(url);

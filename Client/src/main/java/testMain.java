@@ -1,3 +1,4 @@
+import exceptions.AccountAlreadyExistsException;
 import interfaces.ThreadListener;
 import model.BoardKey;
 import model.Conversation;
@@ -8,7 +9,7 @@ import java.security.spec.InvalidKeySpecException;
 
 public class testMain {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        BoardKey boardKey = new BoardKey("abc", "abc123", 123123);
+      /*  BoardKey boardKey = new BoardKey("abc", "abc123", 123123);
         System.out.println(boardKey.getKey().equals("abc"));
         boardKey.generateNextKey();
         System.out.println(boardKey.getKey().equals(
@@ -41,9 +42,20 @@ public class testMain {
             }
         };
         messageManager.getMessages(listener);
-        messageManager.addConversation(new Conversation("abc", 123));
-        LocalStorageManager localStorageManager = new LocalStorageManager("/home/adegeter/testdb.db");
-        localStorageManager.initializeConversationsDatabase();
+        messageManager.addConversation(new Conversation("abc", 123));*/
+        LocalStorageManager localStorageManager = new LocalStorageManager("/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db");
+        //localStorageManager.initializeConversationsDatabase();
+        localStorageManager.createDatabase();
+        localStorageManager.initializeAccountsDatabase();
+        try {
+            localStorageManager.addAccount("root","root","");
+        } catch (AccountAlreadyExistsException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(localStorageManager.login("root","root"));
+
+
 
         //TODO:@arne was da ier onder...
         //localStorageManager.saveConversation(new Conversation("abc"));

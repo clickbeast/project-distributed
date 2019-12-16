@@ -53,7 +53,7 @@ public class ClientManager {
 
     public LocalStorageManager prepareLocalStorage() {
         String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems" +
-                "/project-distributed";
+                "/project-distributed/test.db";
         return new LocalStorageManager(path);
     }
 
@@ -120,7 +120,7 @@ public class ClientManager {
 
     public void createAccount(String username, String password, File directoryLocation) {
         System.out.println("Creating account");
-        localStorageManager.setPath(directoryLocation.getPath());
+        //localStorageManager.setPath(directoryLocation.getPath());
         try {
             localStorageManager.addAccount(username, password, "");
         } catch (AccountAlreadyExistsException e) {
