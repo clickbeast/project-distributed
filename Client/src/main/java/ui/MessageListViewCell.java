@@ -37,6 +37,7 @@ public class MessageListViewCell extends ListCell<Message> {
         super.updateItem(message, empty);
         if (message != null && !empty) { // <== test for null item and empty parameter
 
+/*
             Node itemRoot = null;
 
             try {
@@ -44,13 +45,16 @@ public class MessageListViewCell extends ListCell<Message> {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+*/
 
             //partnerMessage = (Label) itemRoot.lookup("#item_Label_AppName");
 
 
             //get last message
-            this.setStyle("-fx-background-color: black;");
+            //this.setStyle("-fx-background-color: black;");
 
+
+            this.setGraphic(null);
         } else {
             setGraphic(null);
         }
