@@ -17,7 +17,7 @@ public class Main {
 
     static {
         try {
-            writer = new PrintWriter("/home/andres/Desktop/MasterLOG.txt", "UTF-8");
+            writer = new PrintWriter("/home/andres/Desktop/LOG FILES/MasterLOG.txt", "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -27,6 +27,7 @@ public class Main {
     public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 100;
     public static int NUMBER_OF_SLAVES = 10;
     public static Ping CONNECTION_TO_WATCHER;
+    public static int WAIT_TIME_BETWEEN_SERVER_SPAWNS = 2000;
 
     public static final String IP_OF_WATCHER = "localhost";
     public static final int PORT_FOR_VISUALIZER = 7001;
@@ -50,8 +51,12 @@ public class Main {
         Registry ping = LocateRegistry.createRegistry(PORT_FOR_PINGING_TO_MASTER);
         ping.rebind("Ping", server);
 
-        Registry pingToWatcher = LocateRegistry.getRegistry(IP_OF_WATCHER, PORT_OF_WATCHER);
-        CONNECTION_TO_WATCHER = (Ping) pingToWatcher.lookup("Ping");
+        try {
+            Registry pingToWatcher = LocateRegistry.getRegistry(IP_OF_WATCHER, PORT_OF_WATCHER);
+            CONNECTION_TO_WATCHER = (Ping) pingToWatcher.lookup("Ping");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
         if (args.length == 0)
             server.run(NUMBER_OF_SLAVES);

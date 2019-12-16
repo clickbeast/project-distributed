@@ -4,7 +4,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReadWriteLock;
-getLimit
+
 public class BulletinBoard extends UnicastRemoteObject implements Chat {
    private String path;
    int amountOfMessages;
@@ -43,7 +43,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
             // create a new table
             stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("[SLAVE] " + e.getMessage());
+            System.err.println("[SLAVE] " + e.toString());
         }
 
     }

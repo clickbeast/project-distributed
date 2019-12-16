@@ -1,4 +1,6 @@
-public class ServerEntry {
+import java.io.Serializable;
+
+public class ServerEntry implements Serializable {
     int startMailbox,endMailbox;
     String ip;
     int portNumber;
@@ -43,7 +45,7 @@ public class ServerEntry {
     }
 
     public String address(){
-        return ip + ":" + portNumber;
+        return ip + ":" + (portNumber+1);
     }
 
     public boolean contains(int mailbox){

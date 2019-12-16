@@ -9,6 +9,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import static java.lang.Thread.sleep;
+
 public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCommunication,ClientToMasterCommunication,Ping,VisualizerToMasterCommunication{
     private int currentPort;
     //used to execute commands
@@ -46,6 +48,11 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     private void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
 //        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         startSlave(true, numberOfMailBoxes, baseMailbox);
 //        print("[MASTER] New server active.");
     }
@@ -107,30 +114,33 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     @Override
     public LinkedList<ServerEntry> confirmConfiguration(int port, String ip, int startMailbox, int endMailbox) throws RemoteException {
-        Scanner sc = new Scanner(ip);
-        sc.useDelimiter("/");
-        sc.next();
-        ip = sc.next();
+            Scanner sc = new Scanner(ip);
+            sc.useDelimiter("/");
+            sc.next();
+            ip = sc.next();
 
-        Main.print("[MASTER] Confirmation received for port: " + port + " and IP-address: " + ip + " for range [" + startMailbox + "," + endMailbox + "]");
-        try{
-            synchronized (slaves) {
-                slaves.removeIf(slaveServer -> slaveServer.getPortNumber() == port);
-                entries.removeIf(serverEntry -> serverEntry.getPortNumber() == port);
-                slaves.add(new SlaveServer(port, ip, startMailbox, endMailbox));
-
-                synchronized (entries) {
-                    for (SlaveServer server : slaves) {
-                        server.communication().sendServerList(entries);
-                    }
+            Main.print("[MASTER] Confirmation received for port: " + port + " and IP-address: " + ip + " for range [" + startMailbox + "," + endMailbox + "]");
+            try {
+                synchronized (slaves) {
+                    slaves.removeIf(slaveServer -> slaveServer.getPortNumber() == port);
+                    entries.removeIf(serverEntry -> serverEntry.getPortNumber() == port);
+                    slaves.add(new SlaveServer(port, ip, startMailbox, endMailbox));
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Main.printError(e.toString());
+                return null;
             }
-        }
-        catch (Exception e){
-            Main.printError(e.toString());
-            return null;
-        }
+        printMailboxes();
         return entries;
+    }
+
+    private static void printMailboxes() {
+        Main.print("[MASTER]\t ============= ENTRIES =============");
+        for (ServerEntry entry : entries) {
+            Main.print("[MASTER]\t [" + entry.getStartMailbox() + "," + entry.getEndMailbox() + "] on " + entry.getIp() + ":" + entry.getPortNumber());
+        }
+        Main.print("[MASTER]\t ===================================");
     }
 
     @Override
@@ -153,6 +163,8 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     @Override
     public LinkedList<ServerEntry> getSlaveList() throws RemoteException {
-        return entries;
+        synchronized (entries) {
+            return entries;
+        }
     }
 }
