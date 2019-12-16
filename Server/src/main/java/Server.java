@@ -9,6 +9,7 @@ import java.util.Locale;
 public class Server {
     private static final int CELLS_PER_BOARD = 512;
     private static final int CAPACITY_PER_CELL = 5;
+    public static int aantalMessages = 0;
     /**
      * twee bulletin boards, dit is voor als
      * er moet worden overgeschakeld naar een
@@ -16,7 +17,7 @@ public class Server {
      * Dit is de werkwijze in het paper maar kan
      * mss beter?
      */
-    private static BulletinBoard boardA, boardB;
+    private static BulletinBoard board;
     /**
      * Een lijst van threads, een per user
      * waarmee de server is aan het praten

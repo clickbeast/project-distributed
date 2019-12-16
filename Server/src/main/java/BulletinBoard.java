@@ -69,6 +69,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
+            return false;
         }
 
         return true;
@@ -111,7 +112,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
     }
 
     @Override
-    public String getIpAndPortNumber(int boxnumber) throws RemoteException {
+    public String getServerWithMailbox(int boxnumber) throws RemoteException {
         return "localhost:5000";
     }
 
