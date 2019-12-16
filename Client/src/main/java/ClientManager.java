@@ -29,21 +29,9 @@ public class ClientManager {
     public Conversation conversationDummy(String name) {
         //TODO: not working now
 
-        Message message1 = new Message(
-                "Message 1",
-                0
-                , System.currentTimeMillis(),
-                true
-                , true
-                , true);
+        Message message1 = new Message("Message 1", 0, System.currentTimeMillis(), true, true, true);
 
-        Message message2 = new Message(
-                "Message 2",
-                0
-                , System.currentTimeMillis(),
-                true
-                , true
-                , true);
+        Message message2 = new Message("Message 2", 0, System.currentTimeMillis(), true, true, true);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message1);
@@ -220,6 +208,7 @@ public class ClientManager {
     }
 
     public synchronized void messageReceived(Conversation conversation, Message message) {
+
         System.out.println("MESSAGE RECEIVED");
     }
 

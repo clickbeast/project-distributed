@@ -47,6 +47,20 @@ public class BoardKey {
 
     }
 
+    public Message decrypt(String text, int id) throws NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeySpecException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
+        cipher.init(Cipher.DECRYPT_MODE, getEncryptKey());
+        String[] decrypted = bytesToHex(cipher.doFinal(text.getBytes())).split(":");
+        this.tag = decrypted[1];
+        this.nextSpot = Integer.parseInt(decrypted[2]);
+       return new Message(decrypted[0], id, System.currentTimeMillis(), false, true, false);
+
+
+    }
+
+
     public String generateRandomString() {
         String AB = "0123456789abcdef";
         Random rnd = new Random();

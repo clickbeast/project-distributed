@@ -32,7 +32,10 @@ public class LocalStorageManager {
      */
     public void createDatabase() {
         String url = "jdbc:sqlite:" + path;
-
+        File f = new File(path);
+        if (f.getParentFile() != null) {
+            f.getParentFile().mkdirs();
+        }
         try (Connection conn = DriverManager.getConnection(url)) {
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
