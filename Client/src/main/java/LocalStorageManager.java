@@ -6,6 +6,7 @@ import model.Conversation;
 import model.Message;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -157,7 +158,7 @@ public class LocalStorageManager {
      */
     private static byte[] hash(String string) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] passwordByte = string.getBytes();
+        byte[] passwordByte = string.getBytes(StandardCharsets.UTF_8);
         return digest.digest(passwordByte);
 
     }
@@ -169,13 +170,14 @@ public class LocalStorageManager {
      * @return
      */
     private static String bytesToHex(byte[] hash) {
-        StringBuffer hexString = new StringBuffer();
+        return new String(hash, StandardCharsets.UTF_8);
+        /*StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
             if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
-        return hexString.toString();
+        return hexString.toString();*/
     }
 
     public List<Message> getMessagesFromUserID(int userId) {

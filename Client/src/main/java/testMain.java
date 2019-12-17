@@ -4,8 +4,18 @@ import model.BoardKey;
 import model.Conversation;
 import model.Message;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+import java.util.Base64;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class testMain {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -28,21 +38,43 @@ public class testMain {
 
         System.out.println(boardKey.getKey().equals(
                 "5fe1b61c96a699f6bad42137a26324b5c09acb158b8f0a822151d5db34c0af8c23faf037ebee5960d05b608783174e711d7a45288fd0f90d75f202d016fdc9a2b506ac41b9f818bb5d9b386eaadde5d59506a63bee5719c92873098f58c980f94c3fc828075549b1f68657c70fcd6cd426426d18c1418b2f9e6dd6fc1ba0ce6a"));
-      */  MessageManager messageManager = new MessageManager();
-        ThreadListener listener = new ThreadListener() {
+      */
+//      MessageManager messageManager = new MessageManager();
+//        ThreadListener listener = new ThreadListener() {
+//
+//            @Override
+//            public void threadFinished() {
+//                System.err.println("You shouldn't be here");
+//            }
+//
+//            @Override
+//            public void newMessage(Message message, Conversation conversation) {
+//                System.out.println(message.getText());
+//            }
+//        };
+//        messageManager.getMessages(listener);
+//        messageManager.addConversation(new Conversation("abc", 123));
+//
 
-            @Override
-            public void threadFinished() {
-                System.err.println("You shouldn't be here");
-            }
 
-            @Override
-            public void newMessage(Message message, Conversation conversation) {
-                System.out.println(message.getText());
-            }
-        };
-        messageManager.getMessages(listener);
-        messageManager.addConversation(new Conversation("abc", 123));
+        BoardKey boardKey = new BoardKey("abc", "abc123", 123123);
+//        try {
+////            boardKey.test();
+//           // System.out.println(boardKey.encrypt(new Message("abc",0,0,false,false,false),10));
+//           // System.out.println(boardKey.decrypt(boardKey.encrypt(new Message("abc",0,0,false,false,false),10),0).getText());
+//        } catch (NoSuchPaddingException e) {
+//            e.printStackTrace();
+//        } catch (InvalidKeyException e) {
+//            e.printStackTrace();
+//        } catch (BadPaddingException e) {
+//            e.printStackTrace();
+//        } catch (IllegalBlockSizeException e) {
+//            e.printStackTrace();
+//        } catch (InvalidAlgorithmParameterException e) {
+//            e.printStackTrace();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         /*LocalStorageManager localStorageManager = new LocalStorageManager("/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db");
         //localStorageManager.initializeConversationsDatabase();
         localStorageManager.createDatabase();

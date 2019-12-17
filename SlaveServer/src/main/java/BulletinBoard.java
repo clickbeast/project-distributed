@@ -1,6 +1,9 @@
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +73,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
 
     public String getMessage(int boxNumber, String tag) {
         String url = "jdbc:sqlite:" + path;
-
+        try {
+            tag = new String(hash(tag), StandardCharsets.ISO_8859_1);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         String sql = "SELECT message FROM messages WHERE boxNumber = ? AND tag = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -144,6 +151,13 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
             }
         }
         return maxMailbox;
+    }
+
+    private static byte[] hash(String string) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] passwordByte = string.getBytes(StandardCharsets.ISO_8859_1);
+        return digest.digest(passwordByte);
+
     }
 
 }

@@ -62,9 +62,9 @@ public class Conversation {
             line = sc.nextLine();
             String[] linesplit = line.split(",");
             if (i == 0) {
-                this.boardKey = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
-            } else {
                 this.boardKeyUs = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
+            } else {
+                this.boardKey = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
             }
         }
 

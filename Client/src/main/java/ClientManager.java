@@ -1,6 +1,7 @@
 
 import exceptions.AccountAlreadyExistsException;
 import interfaces.ThreadListener;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextArea;
@@ -78,7 +79,9 @@ public class ClientManager {
 
             @Override
             public void newMessage(Message message, Conversation conversation) {
-                messageReceived(conversation, message);
+                Platform.runLater(() -> messageReceived(conversation, message));
+
+
             }
         };
 
@@ -155,6 +158,7 @@ public class ClientManager {
         if (conversation != null) {
             localStorageManager.saveConversation(conversation);
             conversations.add(conversation);
+            messageManager.addConversation(conversation);
 
             this.mainWindowViewController.loadConversation(conversation);
         }
@@ -170,6 +174,8 @@ public class ClientManager {
             c.setContactId(id);
         }
         conversations.add(c);
+        messageManager.addConversation(c);
+
         this.mainWindowViewController.loadConversation(c);
 
     }
@@ -181,7 +187,8 @@ public class ClientManager {
 
             @Override
             public void threadFinished() {
-                messageDelivered(conversation);
+                Platform.runLater(() -> messageDelivered(conversation));
+
             }
 
             @Override

@@ -51,4 +51,7 @@ public class Mailbox {
     public void setMessageList(ObservableList<Message> messageList) {
         this.messageList = messageList;
     }
+
+    public boolean containsMessage(Message m) {return messageList.contains(m);
+    }
 }

@@ -8,14 +8,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Main {
-    public static ClientToMasterCommunication chat;
+    public static Chat chat;
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException,
             NoSuchAlgorithmException {
-        Registry registry = LocateRegistry.getRegistry("localhost", 8999);
-        chat = (ClientToMasterCommunication) registry.lookup("ClientToMasterCommunication");
+        Registry registry = LocateRegistry.getRegistry("localhost", 9002);
+        chat = (Chat) registry.lookup("Chat");
 
-        System.out.println(chat.getServerWithMailbox(2));
+        System.out.println(chat.getMessage(0,"b4d465d59b2dd7510d9d6420c86f85d2"));
     }
     /**
      * hashes given string
