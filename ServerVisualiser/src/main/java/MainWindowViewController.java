@@ -7,7 +7,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import model.Slave;
 
 import java.net.URL;
 import java.util.ResourceBundle;

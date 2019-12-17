@@ -11,6 +11,10 @@ public class MasterListener implements Runnable{
         while(true){
             try {
                 sleep(500);
+                synchronized (Main.entries){
+                    Main.entries = SlaveServer.toMaster.getSlaveList();
+                    Main.printMailboxes();
+                }
                 SlaveServer.toMaster.ping();
             } catch (InterruptedException e) {
                 e.printStackTrace();

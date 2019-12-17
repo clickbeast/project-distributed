@@ -3,7 +3,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeView;
-import model.Slave;
 
 import java.io.IOException;
 

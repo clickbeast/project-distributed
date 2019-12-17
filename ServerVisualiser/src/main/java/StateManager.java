@@ -1,10 +1,5 @@
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.Master;
-import model.MasterWatcher;
-import model.Slave;
-
-import java.util.List;
 
 public class StateManager {
 

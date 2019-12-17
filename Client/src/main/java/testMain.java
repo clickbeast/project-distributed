@@ -28,7 +28,7 @@ public class testMain {
 
         System.out.println(boardKey.getKey().equals(
                 "5fe1b61c96a699f6bad42137a26324b5c09acb158b8f0a822151d5db34c0af8c23faf037ebee5960d05b608783174e711d7a45288fd0f90d75f202d016fdc9a2b506ac41b9f818bb5d9b386eaadde5d59506a63bee5719c92873098f58c980f94c3fc828075549b1f68657c70fcd6cd426426d18c1418b2f9e6dd6fc1ba0ce6a"));
-        MessageManager messageManager = new MessageManager();
+      */  MessageManager messageManager = new MessageManager();
         ThreadListener listener = new ThreadListener() {
 
             @Override
@@ -42,8 +42,8 @@ public class testMain {
             }
         };
         messageManager.getMessages(listener);
-        messageManager.addConversation(new Conversation("abc", 123));*/
-        LocalStorageManager localStorageManager = new LocalStorageManager("/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db");
+        messageManager.addConversation(new Conversation("abc", 123));
+        /*LocalStorageManager localStorageManager = new LocalStorageManager("/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db");
         //localStorageManager.initializeConversationsDatabase();
         localStorageManager.createDatabase();
         localStorageManager.initializeAccountsDatabase();
@@ -56,7 +56,7 @@ public class testMain {
         System.out.println(localStorageManager.login("root","root"));
 
 
-
+*/
         //TODO:@arne was da ier onder...
         //localStorageManager.saveConversation(new Conversation("abc"));
     }
