@@ -4,7 +4,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 
-public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCommunication {
+public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCommunication,Ping {
     private BulletinBoard bulletinBoard;
     public static SlaveToMasterCommunication toMaster;
     public static int portNumber;

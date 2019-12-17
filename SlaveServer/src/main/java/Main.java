@@ -15,6 +15,7 @@ public class Main {
 
     public static Registry REGISTRY;
     public static String IP = "localhost";
+    public static int PORT_FOR_PINGING;
     public static int PORT_NUMBER;
     public static int NUMBER_OF_MAILBOXES;
     public static int BASE_MAILBOX;
@@ -29,6 +30,7 @@ public class Main {
             SlaveToMasterCommunication toMaster = (SlaveToMasterCommunication) registryToServer.lookup("SlaveToMasterCommunication");
 
             PORT_NUMBER = toMaster.getPort();
+            PORT_FOR_PINGING = PORT_NUMBER + 2000;
 
 
             try {
@@ -39,8 +41,13 @@ public class Main {
                 e.printStackTrace();
             }
 
+            SlaveServer slaveServer = new SlaveServer(PORT_NUMBER, toMaster);
+
             Registry registryFromServer = LocateRegistry.createRegistry(PORT_NUMBER);
-            registryFromServer.rebind("MasterToSlaveCommunication", new SlaveServer(PORT_NUMBER, toMaster));
+            registryFromServer.rebind("MasterToSlaveCommunication", slaveServer);
+
+            Registry pingRegistry = LocateRegistry.createRegistry(PORT_FOR_PINGING);
+            pingRegistry.rebind("Ping", slaveServer);
 
             entries = new LinkedList<>();
 
