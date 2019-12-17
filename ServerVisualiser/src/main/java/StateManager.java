@@ -42,7 +42,6 @@ public class StateManager {
             public void onUpdate(Master m) {
                 System.out.println("yes");
                 Platform.runLater(() -> mainWindowViewController.loadServerView());
-//                mainWindowViewController.loadServerView();
             }
         };
         serverInfoManage.checkBoxes(master, lister);
@@ -50,17 +49,8 @@ public class StateManager {
 
     }
 
-
-    //TODO: QUESTION SERVERS AND ADJUST MODEL : FOR EXAMPLE: EVERY 10 SECONDS
-
-
-
     /* UI ACTIONS ------------------------------------------------------------------ */
 
-
-/*    public void askForUpdate() {
-        this.mainWindowViewController.reloadUI();
-    }*/
 
     /*
      * GETTERS & SETTERS
