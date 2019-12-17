@@ -51,7 +51,7 @@ public class SlaveListViewCell extends ListCell<Slave> {
             box.getChildren().add(new Separator());
             box.getChildren().add(this.getSlaveTreeView());
             TitledPane titledPane = new TitledPane();
-            titledPane.setText("Slave 1");
+            titledPane.setText("Slave: " +  slave.getName());
             titledPane.setContent(box);
 
             AnchorPane.setBottomAnchor(titledPane, 0.0);
@@ -73,42 +73,51 @@ public class SlaveListViewCell extends ListCell<Slave> {
 
     public void loadSlaveTreeView(Slave slave) {
 
-        TreeItem<String> root = new TreeItem<>("root");
+        TreeItem<String> root = new TreeItem<>("Slave: " +  slave.getName());
 
-
-        TreeItem<String> title = new TreeItem<>("Slave");
-        TreeItem<Button> kill = new TreeItem<Button>(new Button("Kill Slave"));
-
-
-        TreeItem<String> t_b = new TreeItem<String>("Mailboxes");
+        TreeItem<String> t_s = new TreeItem<>("Size" + slave.getSize());
+        TreeItem<String> t_start = new TreeItem<>("Start Box" + slave.getStartBox());
+        TreeItem<String> t_b = new TreeItem<String>("Mailboxes: " + slave.getMailboxes().size());
         t_b.setExpanded(true);
 
-        TreeItem<String> b_1 = new TreeItem<String>("Mailbox: 1");
-        b_1.setExpanded(true);
 
-        TreeItem<String> t_m = new TreeItem<String>("Messages");
-        t_m.setExpanded(true);
-
-        TreeItem<String> m = new TreeItem<String>("Message: 102");
-        m.setExpanded(true);
-
-        TreeItem<String> m_c_1 = new TreeItem<String>("text: hello");
-        m_c_1.setExpanded(true);
-
-        TreeItem<String> m_c_2 = new TreeItem<String>("tag: 12");
-        m_c_2.setExpanded(true);
-
-        t_b.getChildren().add(b_1);
-        b_1.getChildren().add(t_m);
-        t_m.getChildren().add(m);
-        m.getChildren().add(m_c_1);
-        m.getChildren().add(m_c_2);
+        root.getChildren().add(t_s);
+        root.getChildren().add(t_start);
+        root.getChildren().add(t_b);
 
 
-        //TODO: read out slave
+        for(Mailbox mailbox: slave.getMailboxes()) {
 
-        this.slaveTreeView.setRoot(t_b);
-        this.slaveTreeView.setShowRoot(true);
+            TreeItem<String> b_1 = new TreeItem<String>("Mailbox: " + mailbox.getBoxnumber());
+            b_1.setExpanded(true);
+            TreeItem<String> t_m = new TreeItem<String>("Messages");
+            t_m.setExpanded(true);
+
+            int i = 0;
+            for(Message message: mailbox.getMessageList()) {
+
+                TreeItem<String> m = new TreeItem<String>("Message: " + i);
+                m.setExpanded(true);
+
+                TreeItem<String> m_c_1 = new TreeItem<String>("text: " +  message.getText());
+                m_c_1.setExpanded(true);
+
+                TreeItem<String> m_c_2 = new TreeItem<String>("tag: " + message.getTag());
+                m_c_2.setExpanded(true);
+
+                t_m.getChildren().add(m);
+                m.getChildren().add(m_c_1);
+                m.getChildren().add(m_c_2);
+
+                i+=1;
+            }
+
+            t_b.getChildren().add(b_1);
+            b_1.getChildren().add(t_m);
+        }
+
+        this.slaveTreeView.setRoot(root);
+        this.slaveTreeView.setShowRoot(false);
 
     }
 

@@ -58,4 +58,28 @@ this.name=name;
                 ", mailboxes=" + mailboxes +
                 '}';
     }
+
+    public int getStartBox() {
+        return startBox;
+    }
+
+    public void setStartBox(int startBox) {
+        this.startBox = startBox;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public ObservableList<Mailbox> getMailboxes() {
+        return mailboxes;
+    }
+
+    public void setMailboxes(ObservableList<Mailbox> mailboxes) {
+        this.mailboxes = mailboxes;
+    }
 }
