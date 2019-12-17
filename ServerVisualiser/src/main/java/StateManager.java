@@ -1,6 +1,9 @@
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StateManager {
 
     private  MainWindowViewController mainWindowViewController;
@@ -16,7 +19,7 @@ public class StateManager {
     /* SETUP ------------------------------------------------------------------ */
 
     public Slave slaveDummy(String name) {
-        return new Slave(name,null);
+        return new Slave(3,1);
     }
 
     public StateManager() {
@@ -25,6 +28,13 @@ public class StateManager {
         slaves.add(this.slaveDummy("Slave 1"));
         slaves.add(this.slaveDummy("Slave 2"));
         slaves.add(this.slaveDummy("Slave 3"));
+
+       /* Message message = new Message("1","hello");
+        List<Message> messages = new ArrayList<>();
+        messages.add(message);
+        Mailbox mailbox = new Mailbox(1,messages);
+        Mailbox[] mailboxes =
+        slaves.get(0).setMailboxes();*/
     }
 
 

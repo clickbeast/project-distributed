@@ -11,9 +11,11 @@ public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCom
     public static boolean backup;
 
     public SlaveServer(int portNumber, SlaveToMasterCommunication toMaster) throws RemoteException {
-        bulletinBoard = new BulletinBoard(backup);
+        bulletinBoard = new BulletinBoard(backup,portNumber);
         Registry registry = LocateRegistry.createRegistry(portNumber+1);
         registry.rebind("Chat", bulletinBoard);
+        Registry registry2 = LocateRegistry.createRegistry(portNumber+10000);
+        registry2.rebind("VisualizerToSlaveCommunication", bulletinBoard);
         this.toMaster = toMaster;
         SlaveServer.portNumber = portNumber;
 

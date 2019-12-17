@@ -26,7 +26,7 @@ public class BoardKey {
         System.out.println(range);
         key = generateRandomString();
         tag = generateRandomString();
-        nextSpot = rnd.nextInt(range);
+        nextSpot = rnd.nextInt(range)+1;
     }
 
     public BoardKey(String key, String tag, int nextSpot) {

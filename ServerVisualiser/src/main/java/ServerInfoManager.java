@@ -25,16 +25,16 @@ public class ServerInfoManager {
                         LinkedList<ServerEntry> a=visualizer.getSlaveList();
                         for (ServerEntry serverEntry : visualizer.getSlaveList()) {
                             Slave slave =
-                                    slaves.stream().filter(x -> x.getName().equals(serverEntry.getIp() + ":" + serverEntry.getPortNumber()))
+                                    slaves.stream().filter(x -> x.getName().equals(serverEntry.getIp() + ":" + (serverEntry.getPortNumber())))
                                             .findAny().orElse(new Slave(serverEntry.endMailbox - serverEntry.startMailbox,
-                                            serverEntry.startMailbox));
-                            slave.checkBounds(serverEntry);
+                                            serverEntry.startMailbox,serverEntry.ip+":"+serverEntry.portNumber));
+                            master.addSlave(slave);
                             try {
 
                                 Registry slaveRegistery = LocateRegistry.getRegistry(serverEntry.getIp(),
-                                        serverEntry.portNumber);
+                                        serverEntry.portNumber+10000);
                                 VisualizerToSlaveCommunication slaveCommunication =
-                                        (VisualizerToSlaveCommunication) registry.lookup(
+                                        (VisualizerToSlaveCommunication) slaveRegistery.lookup(
                                                 "VisualizerToSlaveCommunication");
                                 List<MailBoxEntry> mailBoxEntries = slaveCommunication.getAllMailBoxEntries();
                                 //MailBoxEntry

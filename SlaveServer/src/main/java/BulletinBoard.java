@@ -2,18 +2,18 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.concurrent.locks.ReadWriteLock;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BulletinBoard extends UnicastRemoteObject implements Chat {
-   private String path;
-   int amountOfMessages;
+public class BulletinBoard extends UnicastRemoteObject implements Chat,VisualizerToSlaveCommunication {
+    private String path;
+    int amountOfMessages;
 
-    public BulletinBoard(boolean backup) throws RemoteException {
-        path = System.getProperty("user.dir") + File.separator + "board" + (backup ? "bak" : "" )+ ".db";
+    public BulletinBoard(boolean backup, int portNumber) throws RemoteException {
+        path = System.getProperty("user.dir") + File.separator + "board" +portNumber+ (backup ? "bak" : "") + ".db";
         createDatabase();
         initializeMessageTable();
-        amountOfMessages=0;
+        amountOfMessages = 0;
     }
 
     public void createDatabase() {
@@ -100,11 +100,33 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
         return null;
     }
 
+    public List<MailBoxEntry> getAllMailBoxEntries() {
+        String url = "jdbc:sqlite:" + path;
+        List<MailBoxEntry> mailBoxEntries = new ArrayList<>();
+        String sql = "SELECT boxNumber,tag,message FROM messages /*WHERE boxNumber BETWEEN ? AND ?*/";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            // There should only be one person with that loginname, but just to be sure.
+            while (rs.next()) {
+                mailBoxEntries.add(new MailBoxEntry(rs.getInt("boxNumber"), rs.getString("tag"), rs.getString(
+                        "message")));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[SLAVE] " + e.getMessage());
+        }
+        return mailBoxEntries;
+    }
+
     @Override
     public String getServerWithMailbox(int boxnumber) throws RemoteException {
-        synchronized (Main.entries){
-            for(ServerEntry entry : Main.entries){
-                if(entry.contains(boxnumber))
+        synchronized (Main.entries) {
+            for (ServerEntry entry : Main.entries) {
+                if (entry.contains(boxnumber))
                     return entry.address();
             }
         }
@@ -115,9 +137,9 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
     public int getLimit() throws RemoteException {
         int maxMailbox = 0;
 
-        synchronized (Main.entries){
-            for(ServerEntry entry : Main.entries){
-                if(entry.getEndMailbox() > maxMailbox)
+        synchronized (Main.entries) {
+            for (ServerEntry entry : Main.entries) {
+                if (entry.getEndMailbox() > maxMailbox)
                     maxMailbox = entry.getEndMailbox();
             }
         }
