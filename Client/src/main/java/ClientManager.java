@@ -95,6 +95,12 @@ public class ClientManager {
     public void loadUserContents(int userId) {
         //get current conversation
         conversations.addAll(localStorageManager.getConversations(userId));
+        for (Conversation conversation : conversations) {
+            for (Message message : localStorageManager.getMessagesFromConvoId(conversation.getContactId())) {
+
+                conversation.addMessage(message);
+            }
+        }
         this.currentConversation = this.getConversations().get(0);
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
@@ -152,7 +158,7 @@ public class ClientManager {
 
     public void addNewConversation(String name, File location) {
         //create conversation
-        System.out.println("userid: "+userID);
+        System.out.println("userid: " + userID);
 
         Conversation conversation = null;
         try {

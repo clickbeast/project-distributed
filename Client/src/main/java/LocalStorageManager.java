@@ -181,26 +181,26 @@ public class LocalStorageManager {
         return hexString.toString();*/
     }
 
-    public List<Message> getMessagesFromUserID(int userId) {
+    public List<Message> getMessagesFromConvoId(int convoId) {
         List<Message> messages = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT userID,text,messageDate FROM messages WHERE userID = ?";
+        String sql = "SELECT text,fromUser,seen,delivered,messageDate FROM messages WHERE contactId = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
+            pstmt.setInt(1, convoId);
             ResultSet rs = pstmt.executeQuery();
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
                 messages.add(new Message(rs.getString("text"),
-                        rs.getInt("userID"),
+                        convoId,
                         rs.getLong("messageDate"),
                         rs.getInt("fromUser") == 1,
                         rs.getInt("delivered") == 1,
-                        rs.getInt("read") == 1));
+                        rs.getInt("seen") == 1));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -212,7 +212,7 @@ public class LocalStorageManager {
     public int storeMessage(Message message) {
 
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -220,13 +220,13 @@ public class LocalStorageManager {
             pstmt.setInt(1, message.getContactId());
             pstmt.setString(2, message.getText());
             pstmt.setInt(3, message.isFromUser() ? 1 : 0);
-            pstmt.setInt(3, message.isSeen() ? 1 : 0);
-            pstmt.setInt(3, message.isDelivered() ? 1 : 0);
-            pstmt.setLong(4, message.getTimeStamp());
+            pstmt.setInt(4, message.isSeen() ? 1 : 0);
+            pstmt.setInt(5, message.isDelivered() ? 1 : 0);
+            pstmt.setLong(6, message.getTimeStamp());
             pstmt.executeUpdate();
             sql = "SELECT last_insert_rowid()";
             ResultSet rs = conn.prepareStatement(sql).executeQuery();
-
+            System.out.println("message saved " + message);
             return rs.getInt("last_insert_rowid()");
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
@@ -240,7 +240,7 @@ public class LocalStorageManager {
         List<Conversation> conversations = new ArrayList<>();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
+        String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
                 "WHERE userID = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -251,7 +251,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                conversations.add(new Conversation(0,
+                conversations.add(new Conversation(rs.getInt("contactId"),
                         userId,
                         rs.getString("contactname"),
                         new BoardKey(
@@ -262,7 +262,7 @@ public class LocalStorageManager {
                                 rs.getString("encryptKeyUs"),
                                 rs.getString("tagUs"),
                                 rs.getInt("nextSpotUs")),
-                        (ObservableList<Message>) getMessagesFromUserID(userId)));
+                        (ObservableList<Message>) getMessagesFromConvoId(userId)));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
