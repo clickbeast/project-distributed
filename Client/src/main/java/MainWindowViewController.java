@@ -288,6 +288,7 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void addNewConversation() {
+        this.loadEmptyConversation();
         File fileLocation = this.chooseFileLocation();
         if (fileLocation == null) {
             this.hideInlineDialog();
@@ -303,7 +304,7 @@ public class MainWindowViewController implements Initializable {
             this.hideInlineDialog();
             this.clientManager.addNewConversation(field.getText(), fileLocation);
         });
-        this.inlineDialog(field,create);
+        this.inlineDialog(field, create);
     }
 
     public void createNewConversation() {
@@ -374,8 +375,8 @@ public class MainWindowViewController implements Initializable {
         Button addNewConversation = new Button();
         addNewConversation.setText("Import Conversation");
         addNewConversation.setOnAction(e -> {
-            this.addNewConversation();
             this.hideInlineDialog();
+            this.addNewConversation();
         });
         Button createNewConversation = new Button();
         createNewConversation.setDefaultButton(true);

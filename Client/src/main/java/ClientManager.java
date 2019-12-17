@@ -154,6 +154,7 @@ public class ClientManager {
         }
         if (conversation != null) {
             localStorageManager.saveConversation(conversation);
+            conversations.add(conversation);
 
             this.mainWindowViewController.loadConversation(conversation);
         }

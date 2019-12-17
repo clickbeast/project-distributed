@@ -39,7 +39,10 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         if (conversation != null && !empty) {
             name.setText(conversation.getUserName());
             if (!conversation.getMessages().isEmpty()) {
-                message.setText(conversation.getMessages().get(0).getText().substring(0, 50));
+
+                message.setText(conversation.getMessages().get(0).getText().length() > 50 ?
+                        conversation.getMessages().get(0).getText().substring(0, 50) :
+                        conversation.getMessages().get(0).getText());
                 message.setWrapText(true);
                 timestamp.setText(conversation.getMessages().get(0).getFormattedTimeStamp());
                 //TODO: adjust

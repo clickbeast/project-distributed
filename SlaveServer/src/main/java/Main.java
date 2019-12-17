@@ -32,7 +32,7 @@ public class Main {
 
 
             try {
-                writer = new PrintWriter("/home/andres/Desktop/LOG FILES/Slave_" + PORT_NUMBER + "_LOG.txt", "UTF-8");
+                writer = new PrintWriter("/home/adegeter/Desktop/LOG FILES/Slave_" + PORT_NUMBER + "_LOG.txt", "UTF-8");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {

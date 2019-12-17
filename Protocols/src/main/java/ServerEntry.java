@@ -1,7 +1,7 @@
 import java.io.Serializable;
 
 public class ServerEntry implements Serializable {
-    int startMailbox,endMailbox;
+    int startMailbox, endMailbox;
     String ip;
     int portNumber;
 
@@ -44,11 +44,15 @@ public class ServerEntry implements Serializable {
         this.portNumber = portNumber;
     }
 
-    public String address(){
+    public String address() {
         return ip + ":" + portNumber;
     }
 
-    public boolean contains(int mailbox){
+    public String chatAddress() {
+        return ip + ":" + (portNumber + 1);
+    }
+
+    public boolean contains(int mailbox) {
         if (startMailbox <= mailbox && endMailbox >= mailbox)
             return true;
         return false;

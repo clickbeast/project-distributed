@@ -5,12 +5,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BulletinBoard extends UnicastRemoteObject implements Chat,VisualizerToSlaveCommunication {
+public class BulletinBoard extends UnicastRemoteObject implements Chat, VisualizerToSlaveCommunication {
     private String path;
     int amountOfMessages;
 
     public BulletinBoard(boolean backup, int portNumber) throws RemoteException {
-        path = System.getProperty("user.dir") + File.separator + "board" +portNumber+ (backup ? "bak" : "") + ".db";
+        path = System.getProperty("user.dir") + File.separator + "board" + portNumber + (backup ? "bak" : "") + ".db";
         createDatabase();
         initializeMessageTable();
         amountOfMessages = 0;
@@ -127,7 +127,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat,Visualize
         synchronized (Main.entries) {
             for (ServerEntry entry : Main.entries) {
                 if (entry.contains(boxnumber))
-                    return entry.address();
+                    return entry.chatAddress();
             }
         }
         return null;
