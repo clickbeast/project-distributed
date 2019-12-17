@@ -163,7 +163,7 @@ public class ClientManager {
 
 
         Conversation c = new Conversation(name, messageManager.getLastBound());
-
+        localStorageManager.initializeConversationsDatabase();
         int id = localStorageManager.saveConversation(c);
         if (id != -1) {
             c.setContactId(id);
