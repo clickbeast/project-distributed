@@ -22,11 +22,6 @@ this.name=name;
 
     }
 
-    public Slave(String name, Slave backup) {
-        this.name = name;
-    }
-
-
     public String getName() {
         return name;
     }
