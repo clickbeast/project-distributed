@@ -206,7 +206,7 @@ public class MainWindowViewController implements Initializable {
 
 
     public void loadInbox() {
-        this.inboxPane.getChildren().removeAll();
+        this.inboxPane.getChildren().clear();
         this.clientManager.sortConversationsAccordingToPolicy();
         final ListView<Conversation> listView = new ListView<Conversation>(this.clientManager.getConversations());
         listView.setCellFactory(new Callback<ListView<Conversation>, ListCell<Conversation>>() {

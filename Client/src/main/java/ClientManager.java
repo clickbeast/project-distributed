@@ -62,7 +62,7 @@ public class ClientManager {
     /* LOADING ------------------------------------------------------------------ */
 
     public LocalStorageManager prepareLocalStorage() {
-        String path = "/home/adegeter/test/testdb.db";
+        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db";
         return new LocalStorageManager(path);
     }
 
@@ -119,7 +119,7 @@ public class ClientManager {
             callback.accept(new Feedback(true, "Login success"));
             this.loadUserContents(userID);
         }
-        this.loadUserContents(0);
+        //this.loadUserContents(0);
     }
 
     public void logout() {

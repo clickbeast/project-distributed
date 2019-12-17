@@ -240,8 +240,8 @@ public class LocalStorageManager {
         List<Conversation> conversations = new ArrayList<>();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
-                "WHERE userID = ?";
+        String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
+                "WHERE userId = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -251,7 +251,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                conversations.add(new Conversation(0,
+                conversations.add(new Conversation(rs.getInt("contactId"),
                         userId,
                         rs.getString("contactname"),
                         new BoardKey(

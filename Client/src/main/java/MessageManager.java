@@ -104,7 +104,7 @@ public class MessageManager {
                         e.printStackTrace();
                     }
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(100000000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -167,6 +167,13 @@ public class MessageManager {
                 NotBoundException {
             while (this.registry == null || this.chat == null) {
                 String ip = connectionObject.chat.getServerWithMailbox(nextSpot);
+                try {
+                    Thread.sleep(100000000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
                 if (ip.equals(connectionObject.currentIp)) {
                     this.registry = connectionObject.registry;
                     this.chat = (Chat) connectionObject.chat;
@@ -219,6 +226,12 @@ public class MessageManager {
                     chat = (ClientToMasterCommunication) registry.lookup("ClientToMasterCommunication");
                     currentIp = MASTER_SERVER_IP;
                 } catch (RemoteException | NotBoundException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    Thread.sleep(100000000);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
