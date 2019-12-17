@@ -8,20 +8,17 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import model.Conversation;
 import model.Message;
-import ui.ConversationListViewCell;
-import ui.MessageListViewCell;
 import ui.ToolBarLabel;
 
 
@@ -204,7 +201,7 @@ public class MainWindowViewController implements Initializable {
         listView.setCellFactory(new Callback<ListView<Conversation>, ListCell<Conversation>>() {
             @Override
             public ListCell<Conversation> call(ListView<Conversation> listView) {
-                return new ConversationListViewCell();
+                return new ConversationListViewCell(clientManager.getMainWindowViewController());
             }
         });
         
@@ -260,11 +257,17 @@ public class MainWindowViewController implements Initializable {
         messageView.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>() {
             @Override
             public ListCell<Message> call(ListView<Message> listView) {
-                return new MessageListViewCell();
+                return new MessageListViewCell(clientManager.getMainWindowViewController());
             }
         });
 
         this.messageListView = messageView;
+
+        messageField.setOnKeyPressed(event -> {
+            if(event.getCode().equals(KeyCode.ENTER)){
+                this.sendMessageAction();
+            }
+        });
 
         this.getMessagePane().getChildren().add(messageView);
 

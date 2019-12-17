@@ -3,6 +3,8 @@ import exceptions.AccountAlreadyExistsException;
 import interfaces.ThreadListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import model.Conversation;
 import model.Message;
 import ui.Feedback;
@@ -30,14 +32,19 @@ public class ClientManager {
         //TODO: not working now
 
         Message message1 = new Message(
-                "Message 1",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore " +
+                        "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
+                        "nisi ut aliquip ex ea commodo consequat.",
                 0
                 , System.currentTimeMillis(),
                 true
                 , true
                 , true);
 
-        Message message2 = new Message("Message 2", 0, System.currentTimeMillis(), true, true, true);
+        Message message2 = new Message("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
+                "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud " +
+                "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", 0,
+                System.currentTimeMillis(), false, true, true);
 
         ObservableList<Message> messages = FXCollections.observableArrayList();
         messages.add(message1);
@@ -167,7 +174,7 @@ public class ClientManager {
     }
 
     public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, true, true);
+        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, false, true);
         conversation.getMessages().add(message);
         ThreadListener listener = new ThreadListener() {
 
@@ -184,6 +191,7 @@ public class ClientManager {
         messageManager.sendMessage(conversation, message, listener);
 
         this.mainWindowViewController.messageField.setText("");
+
         //TODO:@simon CALLBACK MECHANISM
         this.mainWindowViewController.reloadUI();
 
@@ -211,8 +219,9 @@ public class ClientManager {
     //JIIUUUWP
     public synchronized void messageDelivered(Conversation conversation) {
         System.out.println("MESSAGE DELIVERED");
-
+        this.mainWindowViewController.reloadUI();
     }
+
     //PING
     public synchronized void messageReceived(Conversation conversation, Message message) {
         System.out.println("MESSAGE RECEIVED");

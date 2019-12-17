@@ -44,7 +44,6 @@ public class BoardKey {
         cipher.init(Cipher.ENCRYPT_MODE, getEncryptKey());
         return bytesToHex(cipher.doFinal(stringToEncrypt.getBytes()));
 
-
     }
 
     public Message decrypt(String text, int id) throws NoSuchPaddingException, NoSuchAlgorithmException,

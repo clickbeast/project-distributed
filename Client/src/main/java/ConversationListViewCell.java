@@ -1,5 +1,3 @@
-package ui;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
@@ -13,19 +11,21 @@ public class ConversationListViewCell extends ListCell<Conversation> {
 
     private HBox content;
     private Text name;
-    private Text message;
+    private Label message;
     private Text timestamp;
+    MainWindowViewController mainWindowViewController;
 
-    public ConversationListViewCell() {
+    public ConversationListViewCell(MainWindowViewController mainWindowViewController) {
         super();
         name = new Text();
         name.setFont(Font.font("Helvetica", FontWeight.BLACK,13.0));
-        message = new Text();
+        message = new Label();
         timestamp = new Text();
         VBox vBox = new VBox(name, message);
         content = new HBox(vBox, timestamp);
         timestamp.setTextAlignment(TextAlignment.RIGHT);
         content.setSpacing(10);
+        this.mainWindowViewController = mainWindowViewController;
     }
 
         /*
@@ -37,7 +37,8 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         super.updateItem(conversation, empty);
         if (conversation != null && !empty) {
             name.setText(conversation.getUserName());
-            message.setText(conversation.getMessages().get(0).getText());
+            message.setText(conversation.getMessages().get(0).getText().substring(0,50));
+            message.setWrapText(true);
             timestamp.setText(conversation.getMessages().get(0).getFormattedTimeStamp());
             //TODO: adjust
             if(!conversation.getMessages().get(0).isSeen()) {
