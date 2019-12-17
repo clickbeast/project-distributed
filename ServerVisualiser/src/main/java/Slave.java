@@ -10,14 +10,7 @@ public class Slave {
     public Slave(int size, int startBox) {
         mailboxes = new Mailbox[size];
         this.startBox = startBox;
-
-
     }
-
-    public Slave(String name, Slave backup) {
-        this.name = name;
-    }
-
 
     public String getName() {
         return name;
