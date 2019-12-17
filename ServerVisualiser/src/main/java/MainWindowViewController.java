@@ -62,7 +62,7 @@ public class MainWindowViewController implements Initializable {
 
     public void loadSlaveListView() {
         this.getSlavePane().getChildren().clear();
-        final ListView<Slave> listView = new ListView<Slave>(this.stateManager.getSlaves());
+        final ListView<Slave> listView = new ListView<Slave>(this.stateManager.getMaster().getSlaves());
         listView.setCellFactory(new Callback<ListView<Slave>, ListCell<Slave>>() {
             @Override
             public ListCell<Slave> call(ListView<Slave> listView) {

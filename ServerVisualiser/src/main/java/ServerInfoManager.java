@@ -14,6 +14,7 @@ public class ServerInfoManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("a");
                 while (true) {
                     try {
                         List<Slave> slaves = master.getSlaves();
@@ -50,7 +51,12 @@ public class ServerInfoManager {
                         e.printStackTrace();
                     }
                     threadListener.onUpdate(master);
-                    System.out.println();
+                    System.out.println("abc");
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

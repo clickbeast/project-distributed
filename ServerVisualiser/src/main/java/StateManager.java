@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -6,7 +7,7 @@ import java.util.List;
 
 public class StateManager {
 
-    private  MainWindowViewController mainWindowViewController;
+    private MainWindowViewController mainWindowViewController;
 
 
     /* MODEL ------------------------------------------------------------------ */
@@ -35,11 +36,13 @@ public class StateManager {
 
 
         ServerInfoManager serverInfoManage = new ServerInfoManager();
-        Master master = new Master();
+        this.master = new Master();
         ThreadListener lister = new ThreadListener() {
             @Override
             public void onUpdate(Master m) {
-                mainWindowViewController.loadServerView();
+                System.out.println("yes");
+                Platform.runLater(() -> mainWindowViewController.loadServerView());
+//                mainWindowViewController.loadServerView();
             }
         };
         serverInfoManage.checkBoxes(master, lister);
@@ -73,7 +76,7 @@ public class StateManager {
         return mainWindowViewController;
     }
 
-  /*  public Master getMaster() {
+  public Master getMaster() {
         return master;
     }
 
@@ -81,7 +84,7 @@ public class StateManager {
         this.master = master;
     }
 
-    public MasterWatcher getMasterWatcher() {
+  /*  public MasterWatcher getMasterWatcher() {
         return masterWatcher;
     }
 

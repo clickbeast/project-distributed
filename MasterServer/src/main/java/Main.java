@@ -12,14 +12,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Main {
-    public static String PATH_TO_WATCHER_JAR = "/home/andres/Documents/project-distributed/MasterServer/Watcher";
-    public static String PATH_TO_SLAVE_JAR = "/home/andres/Documents/project-distributed/MasterServer/SlaveServer";
+    public static String PATH_TO_WATCHER_JAR = "/home/adegeter/Documents/school/project-distributed/MasterServer/Watcher";
+    public static String PATH_TO_SLAVE_JAR = "/home/adegeter/Documents/school/project-distributed/MasterServer/SlaveServer";
     public static boolean SELF_DESTRUCT = false;
     public static PrintWriter writer;
 
     static {
         try {
-            writer = new PrintWriter("/home/andres/Desktop/LOG FILES/MasterLOG.txt", "UTF-8");
+            writer = new PrintWriter("/home/adegeter/Desktop/LOG FILES/MasterLOG.txt", "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {

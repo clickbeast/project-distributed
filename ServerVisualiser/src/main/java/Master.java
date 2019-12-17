@@ -9,7 +9,7 @@ public class Master {
 
     public Master() {
         slaves = FXCollections.observableArrayList();
-        ;
+
     }
 
     public void addSlave(Slave slave) {
@@ -22,7 +22,7 @@ public class Master {
         }
     }
 
-    public List<Slave> getSlaves() {
+    public ObservableList<Slave> getSlaves() {
         return slaves;
     }
 
