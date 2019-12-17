@@ -57,7 +57,10 @@ public class MainWindowViewController implements Initializable {
 
 
     public TextArea messageField;
+    public AnchorPane messageFieldPane;
+
     public TextField usernameField;
+
     public PasswordField passwordField;
 
     public TextField createAccountUsernameField;
@@ -91,6 +94,16 @@ public class MainWindowViewController implements Initializable {
         //this.clientManager.loadUserContents();
 //        this.leftStatusLabel.setText("");
         //      this.rightStatusLabel.setText("");
+        messageField = new SpecialTextArea();
+        messageField.setPrefRowCount(1);
+        AnchorPane.setBottomAnchor(messageField, 0.0);
+        AnchorPane.setTopAnchor(messageField,0.0);
+        AnchorPane.setRightAnchor(messageField,0.0);
+        AnchorPane.setLeftAnchor(messageField,0.0);
+        this.messageFieldPane.getChildren().add(messageField);
+
+
+
         this.setupDefaultToolbarConversation();
         this.freezeUI();
         //this.clientManager.loadUserContents();
@@ -260,7 +273,7 @@ public class MainWindowViewController implements Initializable {
 
         this.messageListView = messageView;
 
-        messageField.setOnKeyPressed(event -> {
+        scene.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
                 this.sendMessageAction();
             }

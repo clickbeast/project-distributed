@@ -119,6 +119,7 @@ public class ClientManager {
             callback.accept(new Feedback(true, "Login success"));
             this.loadUserContents(userID);
         }
+        this.loadUserContents(0);
     }
 
     public void logout() {
