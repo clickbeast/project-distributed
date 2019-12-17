@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MessageManager {
     private static List<String> serverList = new ArrayList<>();
@@ -50,15 +51,27 @@ public class MessageManager {
                         }
 
                         try {
+                            Random rnd = new Random();
+                            int nextspot = rnd.nextInt(slotLimit);
+                            String tag = conversation.getBoardKey().generateRandomString();
                             message.setDelivered(messageChat.sendMessage(conversation.getBoardKey().getNextSpot(),
                                     new String(hash(conversation.getBoardKey().getTag()), StandardCharsets.ISO_8859_1),
-                                    conversation.getBoardKey().encrypt(message, slotLimit)));
+                                    conversation.getBoardKey().encrypt(message, slotLimit, nextspot, tag)));
+                            if (message.isDelivered()) {
+                                conversation.getBoardKey().setTag(tag);
+                                conversation.getBoardKey().setNextSpot(nextspot);
+                            }
                         } catch (RemoteException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
                             e.printStackTrace();
                         }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     } catch (NotBoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -103,6 +116,7 @@ public class MessageManager {
                     } catch (RemoteException | NotBoundException e) {
                         e.printStackTrace();
                     }
+
                     try {
                         Thread.sleep(100000000);
                     } catch (InterruptedException e) {

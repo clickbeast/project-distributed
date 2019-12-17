@@ -138,6 +138,7 @@ public class MainWindowViewController implements Initializable {
     public void reloadUI() {
         this.loadConversation(this.clientManager.getCurrentConversation());
         this.loadInbox();
+        System.out.println();
     }
 
     public void freezeUI() {
@@ -248,6 +249,7 @@ public class MainWindowViewController implements Initializable {
         if (conversation == null) {
             System.out.println("No current conversation");
             this.loadEmptyConversation();
+            return;
         }
 
         this.clientManager.setCurrentConversation(conversation);

@@ -39,14 +39,14 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         if (conversation != null && !empty) {
             name.setText(conversation.getUserName());
             if (!conversation.getMessages().isEmpty()) {
-
-                message.setText(conversation.getMessages().get(0).getText().length() > 50 ?
-                        conversation.getMessages().get(0).getText().substring(0, 50) :
-                        conversation.getMessages().get(0).getText());
+int lastmsg=conversation.getMessages().size()-1;
+                message.setText(conversation.getMessages().get(lastmsg).getText().length() > 50 ?
+                        conversation.getMessages().get(lastmsg).getText().substring(0, 50) :
+                        conversation.getMessages().get(lastmsg).getText());
                 message.setWrapText(true);
-                timestamp.setText(conversation.getMessages().get(0).getFormattedTimeStamp());
+                timestamp.setText(conversation.getMessages().get(lastmsg).getFormattedTimeStamp());
                 //TODO: adjust
-                if (!conversation.getMessages().get(0).isSeen()) {
+                if (!conversation.getMessages().get(lastmsg).isSeen()) {
                     this.setStyle("-fx-background-color: #187592");
                 }
             }

@@ -3,7 +3,6 @@ package model;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -17,11 +16,9 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
-import java.util.Base64;
 import java.util.Random;
 
 @SuppressWarnings("Duplicates")
@@ -37,7 +34,11 @@ public class BoardKey {
         System.out.println(range);
         key = generateRandomString();
         tag = generateRandomString();
-        nextSpot = rnd.nextInt(range + 1);
+        if (range != 0) {
+            nextSpot = rnd.nextInt(range);
+        } else {
+            nextSpot = 1;
+        }
     }
 
     public BoardKey(String key, String tag, int nextSpot) {
@@ -46,13 +47,15 @@ public class BoardKey {
         this.nextSpot = nextSpot;
     }
 
-    public String encrypt(Message message, int bound) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    public String encrypt(Message message, int bound, int next, String tag) throws NoSuchPaddingException,
+            NoSuchAlgorithmException,
             InvalidKeySpecException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException,
             InvalidAlgorithmParameterException {
         Random rnd = new Random();
 
-        String stringToEncrypt = message.getText() + ":" + generateRandomString() + ":" + rnd.nextInt(bound);
-        stringToEncrypt = stringToEncrypt.replace("\n",   " ").replace("\r", " ");
+
+        String stringToEncrypt = message.getText() + ":" + tag + ":" + next;
+        stringToEncrypt = stringToEncrypt.replace("\n", " ").replace("\r", " ");
 
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, getEncryptKey());
@@ -118,34 +121,6 @@ public class BoardKey {
         return keyGen.generateKey();*/
     }
 
-    public void test() throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException,
-            NoSuchPaddingException, InvalidKeyException, InvalidParameterSpecException, BadPaddingException,
-            IllegalBlockSizeException, InvalidAlgorithmParameterException {
-/*
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec spec = new PBEKeySpec(key.toCharArray(), new byte[1], 1000, 128);
-        SecretKey tmp = factory.generateSecret(spec);
-        SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");*/
-
-
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, getEncryptKey());
-        AlgorithmParameters params = cipher.getParameters();
-        byte[] ciphertext1 = cipher.doFinal("abc:a:1".getBytes(StandardCharsets.ISO_8859_1));
-        byte[] ciphertext =
-                encrypt(new Message("abc", 0, 0, false, false, false), 10).getBytes(StandardCharsets.ISO_8859_1);
-        System.out.println("first" + new String(ciphertext, StandardCharsets.ISO_8859_1));
-        System.out.println(bytesToHex(ciphertext));
-        System.out.println(encrypt(new Message("abc", 0, 0, false, false, false), 10));
-        System.out.println();
-        System.out.println(bytesToHex(ciphertext1));
-
-//3661346130663661313365393231383130306161313935383439666363316133633532633030363132386362646434383331643762396338613662326265303139303563383362653165333838356661376332333136333633313066356665636537363365666464616332613961383734326366663764356139636133353132
-        Cipher cipher2 = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher2.init(Cipher.DECRYPT_MODE, getEncryptKey());
-        String plaintext = new String(cipher2.doFinal(ciphertext), StandardCharsets.ISO_8859_1);
-        System.out.println(plaintext);
-    }
 
     public String getKey() {
         return key;
