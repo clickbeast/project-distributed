@@ -55,8 +55,10 @@ public class Main {
             }
 
             MasterListener masterListener = new MasterListener();
-            masterListener.run();
-        }catch (Exception e){
+            Thread thread = new Thread(masterListener);
+            thread.start();
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -69,20 +71,21 @@ public class Main {
         Main.print("[SLAVE: " + PORT_NUMBER + "] ===================================");
     }
 
-    public static void print(String string){
+    public static void print(String string) {
         System.out.println(string);
         LOG(string);
     }
 
-    public static void printError(String string){
+    public static void printError(String string) {
         System.out.println(string);
         LOG(string);
     }
 
     public static void LOG(String string) {
-        if(LOG) {
-            writer.println(string);
-            writer.flush();
+        synchronized (writer) {
+            if (LOG) {
+                writer.println(string);
+            }
         }
     }
 }

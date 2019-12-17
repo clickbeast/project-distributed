@@ -32,7 +32,16 @@ public class SlaveServer {
     }
 
     public void reconnect(){
+        boolean reconnected = false;
 
+        while (!reconnected){
+            try{
+                Registry registry = LocateRegistry.getRegistry(ip,portNumber);
+                this.toSlave = (MasterToSlaveCommunication) registry.lookup("MasterToSlaveCommunication");
+            } catch (RemoteException | NotBoundException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     public int getPortNumber() {

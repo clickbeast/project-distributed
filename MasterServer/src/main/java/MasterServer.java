@@ -21,8 +21,14 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
 
     public void run(int numberOfSlaves){
         initiateSlaves(numberOfSlaves);
-        SlaveWatcher slaveWatcher = new SlaveWatcher();
-        slaveWatcher.run();
+        Runnable slaveWatcher = new SlaveWatcher();
+        Thread thread = new Thread(slaveWatcher);
+        thread.start();
+
+        if(Main.SELF_DESTRUCT) {
+            Main.print("[MASTER] SHUTTING DOWN");
+            System.exit(0);
+        }
     }
 
     private void initiateSlaves(int numberOfSlaves){
