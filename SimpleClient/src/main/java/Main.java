@@ -8,12 +8,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Main {
-    public static Chat chat;
+    public static ClientToMasterCommunication chat;
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException,
             NoSuchAlgorithmException {
-        Registry registry = LocateRegistry.getRegistry("localhost", 9020);
-        chat = (Chat) registry.lookup("Chat");
+        Registry registry = LocateRegistry.getRegistry("localhost", 8999);
+        chat = (ClientToMasterCommunication) registry.lookup("ClientToMasterCommunication");
 
         System.out.println(chat.getServerWithMailbox(2));
     }

@@ -167,7 +167,7 @@ public class MessageManager {
                 } else {
                     this.registry = LocateRegistry.getRegistry(ip.split(":")[0],
                             Integer.parseInt(ip.split(":")[1]));
-                    this.chat = (Chat) connectionObject.registry.lookup("Chat");
+                    this.chat = (Chat) this.registry.lookup("Chat");
                 }
             }
         }
