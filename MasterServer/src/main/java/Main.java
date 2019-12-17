@@ -26,8 +26,8 @@ public class Main {
             e.printStackTrace();
         }
     }
-    public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 100;
-    public static int NUMBER_OF_SLAVES = 5;
+    public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 3;
+    public static int NUMBER_OF_SLAVES = 2;
     public static Ping CONNECTION_TO_WATCHER;
     public static int WAIT_TIME_BETWEEN_SERVER_SPAWNS = 2000;
 

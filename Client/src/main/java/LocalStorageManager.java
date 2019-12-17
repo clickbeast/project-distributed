@@ -240,7 +240,8 @@ public class LocalStorageManager {
         List<Conversation> conversations = new ArrayList<>();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
+        String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM " +
+                "conversations " +
                 "WHERE userID = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -261,8 +262,7 @@ public class LocalStorageManager {
                         new BoardKey(
                                 rs.getString("encryptKeyUs"),
                                 rs.getString("tagUs"),
-                                rs.getInt("nextSpotUs")),
-                        (ObservableList<Message>) getMessagesFromConvoId(userId)));
+                                rs.getInt("nextSpotUs")), null));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -363,6 +363,21 @@ public class LocalStorageManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, text);
             pstmt.setInt(2, contactId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void updateMessage(Message message) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "UPDATE messages SET delivered = ? WHERE messageID = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, 1);
+            pstmt.setInt(2, message.getMessageId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");

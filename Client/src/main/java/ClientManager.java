@@ -53,7 +53,7 @@ public class ClientManager {
         messages.add(message1);
         messages.add(message2);
 
-        Conversation conversation = new Conversation(0, this.conversations.size() + 1, name, null, null, messages);
+        Conversation conversation = new Conversation(99999999, userID, name, null, null, messages);
 
         return conversation;
 
@@ -88,12 +88,13 @@ public class ClientManager {
         };
 
         messageManager.getMessages(listener);
-        Conversation conversation = conversationDummy("Vincent");
-        this.conversations.add(conversation);
+//        Conversation conversation = conversationDummy("Vincent");
+//        this.conversations.add(conversation);
     }
 
     public void loadUserContents(int userId) {
         //get current conversation
+     //   conversations.clear();
         conversations.addAll(localStorageManager.getConversations(userId));
         for (Conversation conversation : conversations) {
             for (Message message : localStorageManager.getMessagesFromConvoId(conversation.getContactId())) {
@@ -101,7 +102,11 @@ public class ClientManager {
                 conversation.addMessage(message);
             }
         }
-        this.currentConversation = this.getConversations().get(0);
+        if (conversations.isEmpty()) {
+            this.mainWindowViewController.loadEmptyConversation();
+        } else {
+            this.currentConversation = this.getConversations().get(0);
+        }
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
         this.mainWindowViewController.loadConversation(getCurrentConversation());
@@ -125,14 +130,14 @@ public class ClientManager {
             callback.accept(new Feedback(true, "Login success"));
             this.loadUserContents(userID);
         }
-        this.loadUserContents(0);
     }
 
     public void logout() {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
-
+        this.conversations = FXCollections.observableArrayList();
+        this.currentConversation = null;
         messageManager.clearConversations();
 
         this.mainWindowViewController.loadLoginView();
@@ -198,7 +203,9 @@ public class ClientManager {
 
     public void sendMessage(Conversation conversation, String text) {
         Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, false, true);
+        message.setMessageId(localStorageManager.storeMessage(message));
         conversation.getMessages().add(message);
+
         ThreadListener listener = new ThreadListener() {
 
             @Override
@@ -243,9 +250,11 @@ public class ClientManager {
     //JIIUUUWP
     public synchronized void messageDelivered(Message message, Conversation conversation) {
         message.setContactId(conversation.getContactId());
-        localStorageManager.storeMessage(message);
+        conversation.addMessage(message);
+        localStorageManager.updateMessage(message);
         System.out.println("MESSAGE DELIVERED");
         this.mainWindowViewController.reloadUI();
+        this.loadUserContents(userID);
     }
 
     //PING

@@ -9,6 +9,7 @@ public class Message {
     private boolean fromUser;
     private boolean delivered;
     private boolean seen;
+    private int messageId;
 
     public Message(String text, int contactId, long timeStamp, boolean fromUser, boolean delivered,boolean seen) {
         this.text = text;
@@ -89,4 +90,12 @@ public class Message {
                 '}';
     }
 
+    public void setMessageId(int messageId) {
+
+        this.messageId = messageId;
+    }
+
+    public int getMessageId() {
+        return messageId;
+    }
 }

@@ -34,7 +34,11 @@ public class BoardKey {
         System.out.println(range);
         key = generateRandomString();
         tag = generateRandomString();
-        nextSpot = rnd.nextInt(range + 1);
+        if (range != 0) {
+            nextSpot = rnd.nextInt(range);
+        } else {
+            nextSpot = 1;
+        }
     }
 
     public BoardKey(String key, String tag, int nextSpot) {

@@ -193,6 +193,11 @@ public class MessageManager {
                             Integer.parseInt(ip.split(":")[1]));
                     this.chat = (Chat) this.registry.lookup("Chat");
                 }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -237,6 +242,11 @@ public class MessageManager {
                     chat = (ClientToMasterCommunication) registry.lookup("ClientToMasterCommunication");
                     currentIp = MASTER_SERVER_IP;
                 } catch (RemoteException | NotBoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
