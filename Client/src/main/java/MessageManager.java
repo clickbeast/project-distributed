@@ -92,8 +92,6 @@ public class MessageManager {
                                     if (text != null && !text.equals("")) {
                                         Message message = conversation.getBoardKeyUs().decrypt(text,
                                                 conversation.getUserId());
-                                        new Message(text, conversation.getUserId(),
-                                                System.currentTimeMillis(), false, true, false);
 
                                         threadListener.newMessage(message, conversation);
                                     }

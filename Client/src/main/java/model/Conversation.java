@@ -155,4 +155,8 @@ public class Conversation {
     public int getContactId() {
         return this.contactId;
     }
+
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
 }

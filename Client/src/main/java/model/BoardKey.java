@@ -52,6 +52,8 @@ public class BoardKey {
         Random rnd = new Random();
 
         String stringToEncrypt = message.getText() + ":" + generateRandomString() + ":" + rnd.nextInt(bound);
+        stringToEncrypt = stringToEncrypt.replace("\n",   " ").replace("\r", " ");
+
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, getEncryptKey());
         byte[] ciphertext = cipher.doFinal(stringToEncrypt.getBytes(StandardCharsets.ISO_8859_1));

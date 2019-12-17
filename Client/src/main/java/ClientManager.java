@@ -23,6 +23,8 @@ public class ClientManager {
     private LocalStorageManager localStorageManager;
     private MessageManager messageManager;
 
+    private int userID = -1;
+
     /**
      * Creates a dummy conversation used for UI testing
      *
@@ -90,8 +92,9 @@ public class ClientManager {
         this.conversations.add(conversation);
     }
 
-    public void loadUserContents() {
+    public void loadUserContents(int userId) {
         //get current conversation
+        conversations.addAll(localStorageManager.getConversations(userId));
         this.currentConversation = this.getConversations().get(0);
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
@@ -108,13 +111,14 @@ public class ClientManager {
 
     public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
-        int userID = localStorageManager.login(username, password);
-        if (userID != 1) {
-            callback.accept(new Feedback(true, "Login failed please try again"));
+        userID = localStorageManager.login(username, password);
+        System.out.println(userID);
+        if (userID == -1) {
+            callback.accept(new Feedback(false, "Login failed please try again"));
         } else {
-            callback.accept(new Feedback(false, "Login success"));
+            callback.accept(new Feedback(true, "Login success"));
+            this.loadUserContents(userID);
         }
-        this.loadUserContents();
     }
 
     public void logout() {
@@ -148,6 +152,7 @@ public class ClientManager {
 
     public void addNewConversation(String name, File location) {
         //create conversation
+        System.out.println("userid: "+userID);
 
         Conversation conversation = null;
         try {
@@ -156,6 +161,7 @@ public class ClientManager {
             //TODO: @simon give notification if wrong file?
         }
         if (conversation != null) {
+            conversation.setUserId(userID);
             localStorageManager.saveConversation(conversation);
             conversations.add(conversation);
             messageManager.addConversation(conversation);
@@ -165,10 +171,13 @@ public class ClientManager {
     }
 
     public void createNewConversation(String name) {
+        System.out.println(userID);
 
 
         Conversation c = new Conversation(name, messageManager.getLastBound());
         localStorageManager.initializeConversationsDatabase();
+        c.setUserId(userID);
+
         int id = localStorageManager.saveConversation(c);
         if (id != -1) {
             c.setContactId(id);
@@ -187,7 +196,7 @@ public class ClientManager {
 
             @Override
             public void threadFinished() {
-                Platform.runLater(() -> messageDelivered(conversation));
+                Platform.runLater(() -> messageDelivered(message, conversation));
 
             }
 
@@ -225,14 +234,23 @@ public class ClientManager {
     /* RESPONSES ------------------------------------------------------------------ */
 
     //JIIUUUWP
-    public synchronized void messageDelivered(Conversation conversation) {
+    public synchronized void messageDelivered(Message message, Conversation conversation) {
+        message.setContactId(conversation.getContactId());
+        localStorageManager.storeMessage(message);
         System.out.println("MESSAGE DELIVERED");
         this.mainWindowViewController.reloadUI();
     }
 
     //PING
     public synchronized void messageReceived(Conversation conversation, Message message) {
+        conversation.addMessage(message);
+        message.setContactId(conversation.getContactId());
+        localStorageManager.storeMessage(message);
+
         System.out.println("MESSAGE RECEIVED");
+        this.currentConversation = conversation;
+        this.mainWindowViewController.reloadUI();
+
     }
 
     /*

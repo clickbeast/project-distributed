@@ -53,7 +53,8 @@ public class LocalStorageManager {
      */
     public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
-        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId INTEGER PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
+        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId INTEGER PRIMARY KEY AUTOINCREMENT, loginname " +
+                "VARCHAR NOT " +
                 "NULL,password VARCHAR NOT NULL,salt" +
                 " VARCHAR DEFAULT '')";
         try (Connection conn = DriverManager.getConnection(url);
@@ -250,7 +251,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                conversations.add(new Conversation(rs.getInt("contactId"),
+                conversations.add(new Conversation(0,
                         userId,
                         rs.getString("contactname"),
                         new BoardKey(
@@ -271,18 +272,20 @@ public class LocalStorageManager {
 
     public int saveConversation(Conversation conversation) {
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO conversations (contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs) " +
-                "VALUES(?,?,?,?,?,?,?); ";
+        String sql = "INSERT INTO conversations (userId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs," +
+                "nextSpotUs) " +
+                "VALUES(?,?,?,?,?,?,?,?); ";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, conversation.getUserName());
-            pstmt.setString(2, conversation.getBoardKey().getKey());
-            pstmt.setString(3, conversation.getBoardKey().getTag());
-            pstmt.setInt(4, conversation.getBoardKey().getNextSpot());
-            pstmt.setString(5, conversation.getBoardKeyUs().getKey());
-            pstmt.setString(6, conversation.getBoardKeyUs().getTag());
-            pstmt.setInt(7, conversation.getBoardKeyUs().getNextSpot());
+            pstmt.setInt(1, conversation.getUserId());
+            pstmt.setString(2, conversation.getUserName());
+            pstmt.setString(3, conversation.getBoardKey().getKey());
+            pstmt.setString(4, conversation.getBoardKey().getTag());
+            pstmt.setInt(5, conversation.getBoardKey().getNextSpot());
+            pstmt.setString(6, conversation.getBoardKeyUs().getKey());
+            pstmt.setString(7, conversation.getBoardKeyUs().getTag());
+            pstmt.setInt(8, conversation.getBoardKeyUs().getNextSpot());
             pstmt.executeUpdate();
             sql = "SELECT last_insert_rowid()";
             ResultSet rs = conn.prepareStatement(sql).executeQuery();

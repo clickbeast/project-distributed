@@ -291,6 +291,7 @@ public class MainWindowViewController implements Initializable {
             getKey.setDefaultButton(true);
             getKey.setOnAction(a -> {
                 this.getKeyForConversationAction();
+                this.hideInlineDialog();
             });
             this.inlineDialog(label, getKey);
         });
