@@ -43,6 +43,7 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void loadServerView() {
+        System.out.println("RELOAD VIEW");
         //TODO: @simon
         loadMasterView();
         loadMasterWatcherView();
@@ -60,7 +61,7 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void loadSlaveListView() {
-
+        this.getSlavePane().getChildren().clear();
         final ListView<Slave> listView = new ListView<Slave>(this.stateManager.getSlaves());
         listView.setCellFactory(new Callback<ListView<Slave>, ListCell<Slave>>() {
             @Override
@@ -87,10 +88,31 @@ public class MainWindowViewController implements Initializable {
 
     /* UI ACTIONS ------------------------------------------------------------------ */
 
+    //TODO: @ ARNE of @ANDRES act on these events
+
+
+    //Same that's get called once in a while
     public void fetch() {
 
     }
 
+    public void killAllExceptMaster() {
+
+    }
+
+    public void killAllExceptMasterWatcher() {
+
+
+    }
+
+    public void killMaster() {
+
+
+    }
+
+    public void killMasterWatcher() {
+
+    }
 
 
     /*
