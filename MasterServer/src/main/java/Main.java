@@ -12,7 +12,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Main {
+    public static String PATH_TO_WATCHER_JAR = "/home/andres/Documents/project-distributed/MasterServer/Watcher";
     public static String PATH_TO_SLAVE_JAR = "/home/andres/Documents/project-distributed/MasterServer/SlaveServer";
+    public static boolean SELF_DESTRUCT = false;
     public static PrintWriter writer;
 
     static {
@@ -25,7 +27,7 @@ public class Main {
         }
     }
     public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 100;
-    public static int NUMBER_OF_SLAVES = 10;
+    public static int NUMBER_OF_SLAVES = 5;
     public static Ping CONNECTION_TO_WATCHER;
     public static int WAIT_TIME_BETWEEN_SERVER_SPAWNS = 2000;
 
@@ -36,7 +38,7 @@ public class Main {
     public static final int PORT_FOR_CLIENT_TO_MASTER_COMMUNICATION = 8999;
     public static final int PORT_FOR_PINGING_TO_MASTER = 8998;
 
-    public static void main(String[] args) throws IOException, NotBoundException {
+    public static void main(String[] args) throws IOException {
         MasterServer server = new MasterServer();
 
         Registry visualizerToMaster = LocateRegistry.createRegistry(PORT_FOR_VISUALIZER);
@@ -55,8 +57,13 @@ public class Main {
             Registry pingToWatcher = LocateRegistry.getRegistry(IP_OF_WATCHER, PORT_OF_WATCHER);
             CONNECTION_TO_WATCHER = (Ping) pingToWatcher.lookup("Ping");
         } catch (Exception e){
+            printError("[MASTER] failed to setup connection to watcher");
             e.printStackTrace();
         }
+
+        WatcherCommunication watcherCommunication = new WatcherCommunication();
+        Thread thread = new Thread(watcherCommunication);
+        thread.start();
 
         if (args.length == 0)
             server.run(NUMBER_OF_SLAVES);

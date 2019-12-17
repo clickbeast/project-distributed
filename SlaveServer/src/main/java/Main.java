@@ -30,7 +30,6 @@ public class Main {
 
             PORT_NUMBER = toMaster.getPort();
 
-
             try {
                 writer = new PrintWriter("/home/andres/Desktop/LOG FILES/Slave_" + PORT_NUMBER + "_LOG.txt", "UTF-8");
             } catch (FileNotFoundException e) {
@@ -55,7 +54,9 @@ public class Main {
             }
 
             MasterListener masterListener = new MasterListener();
-            masterListener.run();
+            Thread thread = new Thread(masterListener);
+            thread.start();
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -80,9 +81,11 @@ public class Main {
     }
 
     public static void LOG(String string) {
-        if(LOG) {
-            writer.println(string);
-            writer.flush();
+        synchronized (writer) {
+            if (LOG) {
+                writer.println(string);
+                writer.flush();
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ public class MasterListener implements Runnable{
                     Registry registryToServer = LocateRegistry.getRegistry(Main.IP, 9000);
                     SlaveToMasterCommunication toMaster = (SlaveToMasterCommunication) registryToServer.lookup("SlaveToMasterCommunication");
 
-                    toMaster.confirmConfiguration(
+                    Main.entries = toMaster.confirmConfiguration(
                             Main.PORT_NUMBER,
                             InetAddress.getLocalHost().toString(),
                             Main.BASE_MAILBOX,
