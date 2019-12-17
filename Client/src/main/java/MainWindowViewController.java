@@ -276,6 +276,28 @@ public class MainWindowViewController implements Initializable {
 
     }
 
+    public void createNewConversation() {
+        this.loadEmptyConversation();
+        TextField field = new TextField();
+        field.setPromptText("Choose Parnter Name");
+        Button create = new Button();
+        create.setText("Create");
+        create.setDefaultButton(true);
+        create.setOnAction(e -> {
+            this.hideInlineDialog();
+            this.clientManager.createNewConversation(field.getText());
+            ToolBarLabel label = new ToolBarLabel("Do you want to save the key for your partner?");
+            Button getKey = new Button("Save key");
+            getKey.setDefaultButton(true);
+            getKey.setOnAction(a -> {
+                this.getKeyForConversationAction();
+            });
+            this.inlineDialog(label, getKey);
+        });
+
+        this.inlineDialog(field, create);
+    }
+
     public void loadEmptyConversation() {
         this.clientManager.setCurrentConversation(null);
         this.messagePane.getChildren().clear();
@@ -304,28 +326,6 @@ public class MainWindowViewController implements Initializable {
             this.hideInlineDialog();
             this.clientManager.addNewConversation(field.getText(), fileLocation);
         });
-        this.inlineDialog(field, create);
-    }
-
-    public void createNewConversation() {
-        this.loadEmptyConversation();
-        TextField field = new TextField();
-        field.setPromptText("Choose Parnter Name");
-        Button create = new Button();
-        create.setText("Create");
-        create.setDefaultButton(true);
-        create.setOnAction(e -> {
-            this.hideInlineDialog();
-            this.clientManager.createNewConversation(field.getText());
-            ToolBarLabel label = new ToolBarLabel("Do you want to save the key for your partner?");
-            Button getKey = new Button("Save key");
-            getKey.setDefaultButton(true);
-            getKey.setOnAction(a -> {
-                this.getKeyForConversationAction();
-            });
-            this.inlineDialog(label, getKey);
-        });
-
         this.inlineDialog(field, create);
     }
 
