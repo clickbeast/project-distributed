@@ -1,4 +1,4 @@
 public interface ThreadListener {
- Mailbox onUpdate(Mailbox m,int box);
+    void onUpdate(Master m);
 
 }

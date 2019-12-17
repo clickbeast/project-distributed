@@ -10,6 +10,18 @@ public class Master {
         slaves.add(slave);
     }
 
+    public List<Slave> getSlaves() {
+        return slaves;
+    }
 
+    public void setSlaves(List<Slave> slaves) {
+        this.slaves = slaves;
+    }
 
+    @Override
+    public String toString() {
+        return "Master{" +
+                "slaves=" + slaves +
+                '}';
+    }
 }
