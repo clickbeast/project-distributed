@@ -1,3 +1,6 @@
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -5,12 +8,17 @@ public class Slave {
 
     private int startBox;
     private String name;
-    private Mailbox[] mailboxes;
+    int size;
+    private ObservableList<Mailbox> mailboxes;
 
-    public Slave(int size, int startBox) {
-        mailboxes = new Mailbox[size];
+    public Slave(int size, int startBox,String name) {
+        this.size = size;
+        mailboxes = FXCollections.observableArrayList();
+        for (int i = 0; i < size; i++) {
+            mailboxes.add(new Mailbox(startBox+i));
+        }
         this.startBox = startBox;
-
+this.name=name;
 
     }
 
@@ -27,16 +35,9 @@ public class Slave {
         this.name = name;
     }
 
-    public Mailbox[] getMailboxes() {
-        return mailboxes;
-    }
-
-    public void setMailboxes(Mailbox[] mailboxes) {
-        this.mailboxes = mailboxes;
-    }
 
     public void addMessage(MailBoxEntry mailBoxEntry) {
-        mailboxes[mailBoxEntry.getBoxNumber() - startBox].addMessage(new Message(mailBoxEntry.getTag(),
+        mailboxes.get(mailBoxEntry.getBoxNumber() - startBox).addMessage(new Message(mailBoxEntry.getTag(),
                 mailBoxEntry.getMessage()));
     }
 
@@ -53,18 +54,13 @@ public class Slave {
         return Objects.hash(name);
     }
 
-    public void checkBounds(ServerEntry serverEntry) {
-        if (mailboxes.length != serverEntry.endMailbox - serverEntry.startMailbox) {
-            mailboxes=new Mailbox[serverEntry.endMailbox - serverEntry.startMailbox];
-        }
-    }
-
     @Override
     public String toString() {
         return "Slave{" +
                 "startBox=" + startBox +
                 ", name='" + name + '\'' +
-                ", mailboxes=" + Arrays.toString(mailboxes) +
+                ", size=" + size +
+                ", mailboxes=" + mailboxes +
                 '}';
     }
 }
