@@ -140,12 +140,12 @@ public class Conversation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Conversation that = (Conversation) o;
-        return userId == that.userId;
+        return contactId == that.contactId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId);
+        return Objects.hash(contactId);
     }
 
     public void setContactId(int contactId) {

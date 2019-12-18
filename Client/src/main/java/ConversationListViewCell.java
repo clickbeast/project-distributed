@@ -1,6 +1,9 @@
+import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -22,9 +25,21 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         name.setFont(Font.font("Helvetica", FontWeight.BLACK, 13.0));
         message = new Label();
         timestamp = new Text();
-        VBox vBox = new VBox(name, message);
-        content = new HBox(vBox, timestamp);
         timestamp.setTextAlignment(TextAlignment.RIGHT);
+
+
+        HBox boxy = new HBox(timestamp);
+        boxy.setAlignment(Pos.CENTER_RIGHT);
+        HBox.setHgrow(timestamp, Priority.ALWAYS);
+
+        HBox hBox = new HBox();
+        hBox.getChildren().add(name);
+        //hBox.getChildren().add(boxy);
+
+
+
+        VBox vBox = new VBox(hBox,timestamp, message);
+        content = new HBox(vBox);
         content.setSpacing(10);
         this.mainWindowViewController = mainWindowViewController;
     }
@@ -42,6 +57,7 @@ public class ConversationListViewCell extends ListCell<Conversation> {
                         conversation.getMessages().get(lastmsg).getText());
                 message.setWrapText(true);
                 timestamp.setText(conversation.getMessages().get(lastmsg).getFormattedTimeStamp());
+                System.out.println(conversation.getMessages().get(lastmsg).getFormattedTimeStamp());
                 //TODO: adjust
                 if (!conversation.getMessages().get(lastmsg).isSeen()) {
                     this.setStyle("-fx-background-color: #187592");
