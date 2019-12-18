@@ -32,6 +32,11 @@ public class SlaveServer extends UnicastRemoteObject implements MasterToSlaveCom
     }
 
     @Override
+    public void kill() throws RemoteException {
+        System.exit((0));
+    }
+
+    @Override
     public void sendServerList(LinkedList<ServerEntry> entries) throws RemoteException {
 //        synchronized (Main.entries){
             Main.entries = entries;
