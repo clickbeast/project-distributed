@@ -29,17 +29,14 @@ public class ConversationListViewCell extends ListCell<Conversation> {
         this.mainWindowViewController = mainWindowViewController;
     }
 
-        /*
-            https://stackoverflow.com/questions/9722418/how-to-handle-listview-item-clicked-action
-         */
-
     @Override
     protected void updateItem(Conversation conversation, boolean empty) {
         super.updateItem(conversation, empty);
         if (conversation != null && !empty) {
             name.setText(conversation.getUserName());
             if (!conversation.getMessages().isEmpty()) {
-int lastmsg=conversation.getMessages().size()-1;
+
+                int lastmsg=conversation.getMessages().size()-1;
                 message.setText(conversation.getMessages().get(lastmsg).getText().length() > 50 ?
                         conversation.getMessages().get(lastmsg).getText().substring(0, 50) :
                         conversation.getMessages().get(lastmsg).getText());

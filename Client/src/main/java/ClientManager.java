@@ -88,8 +88,15 @@ public class ClientManager {
         };
 
         messageManager.getMessages(listener);
-//        Conversation conversation = conversationDummy("Vincent");
-//        this.conversations.add(conversation);
+        /*Conversation conversation = conversationDummy("Vincent");
+        Conversation conversation1 = conversationDummy("Greet");
+        Conversation conversation2 = conversationDummy("Stijn");
+
+        this.conversations.add(conversation);
+        this.conversations.add(conversation1);
+        this.conversations.add(conversation2);*/
+
+
     }
 
     public void loadUserContents(int userId) {
@@ -98,7 +105,6 @@ public class ClientManager {
         conversations.addAll(localStorageManager.getConversations(userId));
         for (Conversation conversation : conversations) {
             for (Message message : localStorageManager.getMessagesFromConvoId(conversation.getContactId())) {
-
                 conversation.addMessage(message);
             }
         }
@@ -107,6 +113,7 @@ public class ClientManager {
         } else {
             this.currentConversation = this.getConversations().get(0);
         }
+
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
         this.mainWindowViewController.loadConversation(getCurrentConversation());

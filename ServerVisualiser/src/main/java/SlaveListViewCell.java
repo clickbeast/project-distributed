@@ -14,10 +14,12 @@ public class SlaveListViewCell extends ListCell<Slave> {
 
     public TreeView<String> slaveTreeView;
     public TitledPane slaveTitledPane;
+    public MainWindowViewController mainWindowViewController;
 
 
-    public SlaveListViewCell() {
+    public SlaveListViewCell(MainWindowViewController mainWindowViewController) {
         super();
+        this.mainWindowViewController = mainWindowViewController;
 
     }
 
@@ -47,7 +49,11 @@ public class SlaveListViewCell extends ListCell<Slave> {
 
             VBox box = new VBox();
             box.setSpacing(5.0);
+
+            Button button = new Button("Kill Slave");
+            button.setOnAction(a -> mainWindowViewController.killSlave(slave));
             box.getChildren().add(new Button("Kill Slave"));
+
             box.getChildren().add(new Separator());
             box.getChildren().add(this.getSlaveTreeView());
             TitledPane titledPane = new TitledPane();
