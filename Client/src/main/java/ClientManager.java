@@ -88,13 +88,13 @@ public class ClientManager {
         };
 
         messageManager.getMessages(listener);
-        Conversation conversation = conversationDummy("Vincent");
+        /*Conversation conversation = conversationDummy("Vincent");
         Conversation conversation1 = conversationDummy("Greet");
         Conversation conversation2 = conversationDummy("Stijn");
 
         this.conversations.add(conversation);
         this.conversations.add(conversation1);
-        this.conversations.add(conversation2);
+        this.conversations.add(conversation2);*/
 
 
     }
