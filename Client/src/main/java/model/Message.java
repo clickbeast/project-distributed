@@ -2,9 +2,9 @@ package model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.sun.tools.javac.util.Constants.format;
 
 public class Message {
     private String text;
@@ -15,7 +15,7 @@ public class Message {
     private boolean seen;
     private int messageId;
 
-    public Message(String text, int contactId, long timeStamp, boolean fromUser, boolean delivered,boolean seen) {
+    public Message(String text, int contactId, long timeStamp, boolean fromUser, boolean delivered, boolean seen) {
         this.text = text;
         this.contactId = contactId;
         this.timeStamp = timeStamp;
@@ -24,6 +24,16 @@ public class Message {
         this.seen = seen;
     }
 
+    public Message(int messageID, String text, int convoId, long messageDate, boolean fromUser, boolean delivered,
+                   boolean seen) {
+        this.messageId = messageID;
+        this.text = text;
+        this.contactId = convoId;
+        this.timeStamp = messageDate;
+        this.fromUser = fromUser;
+        this.delivered = delivered;
+        this.seen = seen;
+    }
 
 
     public String getText() {
@@ -103,5 +113,18 @@ public class Message {
 
     public int getMessageId() {
         return messageId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return messageId == message.messageId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(messageId);
     }
 }

@@ -102,7 +102,7 @@ public class ClientManager {
 
     public void loadUserContents(int userId) {
         //get current conversation
-     //   conversations.clear();
+        //   conversations.clear();
         conversations.addAll(localStorageManager.getConversations(userId));
         for (Conversation conversation : conversations) {
             for (Message message : localStorageManager.getMessagesFromConvoId(conversation.getContactId())) {
@@ -203,7 +203,10 @@ public class ClientManager {
         if (id != -1) {
             c.setContactId(id);
         }
+        currentConversation = c;
         conversations.add(c);
+        this.mainWindowViewController.inboxListView.getSelectionModel().select(c);
+
         messageManager.addConversation(c);
 
         this.mainWindowViewController.loadConversation(c);
@@ -221,6 +224,7 @@ public class ClientManager {
                 Platform.runLater(() -> messageDelivered(message, conversation));
 
             }
+
             @Override
             public void newMessage(Message message, Conversation conversation) {
                 System.err.println("You shouldn't be here");
@@ -241,11 +245,11 @@ public class ClientManager {
         //NOTE: This will make the thread not check anymore for new, I assume that's enough
         messageManager.removeConversation(conversation);
 
-        if(!this.conversations.isEmpty()) {
-            this.currentConversation =  conversations.get(0);
+        if (!this.conversations.isEmpty()) {
+            this.currentConversation = conversations.get(0);
             this.mainWindowViewController.reloadUI();
             this.mainWindowViewController.inboxListView.getSelectionModel().select(0);
-        }else{
+        } else {
             this.mainWindowViewController.loadEmptyConversation();
         }
     }
@@ -264,11 +268,12 @@ public class ClientManager {
     //JIIUUUWP
     public synchronized void messageDelivered(Message message, Conversation conversation) {
         message.setContactId(conversation.getContactId());
-        conversation.addMessage(message);
+
+        //conversation.addMessage(message);
         localStorageManager.updateMessage(message);
         System.out.println("MESSAGE DELIVERED");
         this.mainWindowViewController.reloadUI();
-        this.loadUserContents(userID);
+//        this.loadUserContents(userID);
     }
 
     //PING

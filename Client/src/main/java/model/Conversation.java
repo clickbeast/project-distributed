@@ -157,6 +157,8 @@ public class Conversation {
     }
 
     public void addMessage(Message message) {
-        messages.add(message);
+        if (!messages.contains(message)) {
+            messages.add(message);
+        }
     }
 }

@@ -50,7 +50,6 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     public void createNewServer(){
         synchronized (this) {
             makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, currentNumberOfMailboxes);
-            currentNumberOfMailboxes += Main.NUMBER_OF_MAILBOXES_PER_SLAVE;
         }
     }
 

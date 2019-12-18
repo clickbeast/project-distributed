@@ -117,6 +117,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat {
     }
 
     @Override
+    public void kill() throws RemoteException {
+
+    }
+
+    @Override
     public int getLimit()throws RemoteException {
         return 100;
     }

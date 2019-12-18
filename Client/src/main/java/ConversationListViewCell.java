@@ -62,6 +62,9 @@ public class ConversationListViewCell extends ListCell<Conversation> {
                 if (!conversation.getMessages().get(lastmsg).isSeen()) {
                     this.setStyle("-fx-background-color: #187592");
                 }
+            }else{
+                message.setText("");
+                timestamp.setText("");
             }
             setGraphic(content);
         } else {
