@@ -398,8 +398,13 @@ public class MainWindowViewController implements Initializable {
             deleteButton.setText("Delete");
             deleteButton.setDefaultButton(true);
             deleteButton.setOnAction(e -> {
-                this.clientManager.deleteConversation(clientManager.getCurrentConversation());
+                System.out.println("delete:" +  clientManager.currentConversation);
+                //this.clientManager.deleteConversation(clientManager.getCurrentConversation());
+                clientManager.deleteConversation(clientManager.getCurrentConversation());
                 this.hideInlineDialog();
+
+                //Select the correct one..
+                //TODO: select correct one
             });
             this.inlineDialog(label, deleteButton);
         }

@@ -1,6 +1,10 @@
 package model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import static com.sun.tools.javac.util.Constants.format;
 
 public class Message {
     private String text;
@@ -71,12 +75,14 @@ public class Message {
     }
 
     public String getFormattedTimeStamp() {
-        String.format("%d:%d",
+        String whoop = String.format("%d:%d",
                 TimeUnit.MILLISECONDS.toMinutes(this.getTimeStamp()),
                 TimeUnit.MILLISECONDS.toSeconds(this.getTimeStamp()) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(this.getTimeStamp()))
         );
-        return "";
+
+        return (new SimpleDateFormat("HH:mm")).format(new Date(this.getTimeStamp()));
+
     }
 
     @Override

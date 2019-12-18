@@ -240,7 +240,14 @@ public class ClientManager {
         localStorageManager.deleteConversation(conversation);
         //NOTE: This will make the thread not check anymore for new, I assume that's enough
         messageManager.removeConversation(conversation);
-        this.mainWindowViewController.loadEmptyConversation();
+
+        if(!this.conversations.isEmpty()) {
+            this.currentConversation =  conversations.get(0);
+            this.mainWindowViewController.reloadUI();
+            this.mainWindowViewController.inboxListView.getSelectionModel().select(0);
+        }else{
+            this.mainWindowViewController.loadEmptyConversation();
+        }
     }
 
     public void editPartnerName(String text) {
@@ -269,11 +276,10 @@ public class ClientManager {
         conversation.addMessage(message);
         message.setContactId(conversation.getContactId());
         localStorageManager.storeMessage(message);
-
         System.out.println("MESSAGE RECEIVED");
         this.currentConversation = conversation;
         this.mainWindowViewController.reloadUI();
-
+        this.mainWindowViewController.inboxListView.getSelectionModel().select(this.currentConversation);
     }
 
     /*
