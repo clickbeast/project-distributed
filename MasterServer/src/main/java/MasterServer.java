@@ -62,6 +62,34 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         startSlave(true, numberOfMailBoxes, baseMailbox);
 //        print("[MASTER] New server active.");
     }
+    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox, int portNumber){
+//        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
+//        print("[MASTER] New server active.");
+    }
+
+    private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
+        ProcessBuilder pb = new ProcessBuilder(
+                "/bin/bash",
+                "SlaveServer.sh",
+                Integer.toString(numberOfMailboxes),
+                Integer.toString(baseMailbox),
+                Integer.toString(portNumber));
+
+        pb.directory(new File(Main.PATH_TO_SLAVE_JAR));
+        try {
+            Process p = pb.start();
+            if(watch)
+                watch(p);
+        } catch (IOException e) {
+            Main.printError(e.toString());
+        }
+    }
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox) {
         ProcessBuilder pb = new ProcessBuilder(
