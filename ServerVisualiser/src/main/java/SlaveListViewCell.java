@@ -51,8 +51,8 @@ public class SlaveListViewCell extends ListCell<Slave> {
             box.setSpacing(5.0);
 
             Button button = new Button("Kill Slave");
-            button.setOnAction(a -> mainWindowViewController.killSlave(slave));
-            box.getChildren().add(new Button("Kill Slave"));
+            button.setOnMouseClicked(a -> mainWindowViewController.killSlave(slave));
+            box.getChildren().add(button);
 
             box.getChildren().add(new Separator());
             box.getChildren().add(this.getSlaveTreeView());

@@ -15,6 +15,7 @@ public class Main {
 
     public static Registry REGISTRY;
     public static String IP = "localhost";
+    public static int PORT_FOR_PINGING;
     public static int PORT_NUMBER;
     public static int NUMBER_OF_MAILBOXES;
     public static int BASE_MAILBOX;
@@ -28,19 +29,29 @@ public class Main {
             Registry registryToServer = LocateRegistry.getRegistry(IP, 9000);
             SlaveToMasterCommunication toMaster = (SlaveToMasterCommunication) registryToServer.lookup("SlaveToMasterCommunication");
 
-            PORT_NUMBER = toMaster.getPort();
+            if(args.length==3)
+                PORT_NUMBER = Integer.parseInt(args[2]);
+            else
+                PORT_NUMBER = toMaster.getPort();
+
+            PORT_FOR_PINGING = PORT_NUMBER + 2000;
 
 
             try {
-                writer = new PrintWriter("/home/adegeter/Desktop/LOG FILES/Slave_" + PORT_NUMBER + "_LOG.txt", "UTF-8");
+                writer = new PrintWriter("/home/andres/Desktop/LOG FILES/Slave_" + PORT_NUMBER + "_LOG.txt", "UTF-8");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
 
+            SlaveServer slaveServer = new SlaveServer(PORT_NUMBER, toMaster);
+
             Registry registryFromServer = LocateRegistry.createRegistry(PORT_NUMBER);
-            registryFromServer.rebind("MasterToSlaveCommunication", new SlaveServer(PORT_NUMBER, toMaster));
+            registryFromServer.rebind("MasterToSlaveCommunication", slaveServer);
+
+            Registry pingRegistry = LocateRegistry.createRegistry(PORT_FOR_PINGING);
+            pingRegistry.rebind("Ping", slaveServer);
 
             entries = new LinkedList<>();
 

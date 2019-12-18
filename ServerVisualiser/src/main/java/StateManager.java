@@ -13,6 +13,7 @@ public class StateManager {
     /* MODEL ------------------------------------------------------------------ */
 
     private Master master;
+    private KillManager killManager;
 
     /* SETUP ------------------------------------------------------------------ */
 
@@ -34,7 +35,7 @@ public class StateManager {
         Mailbox[] mailboxes =
         slaves.get(0).setMailboxes();*/
 
-
+       killManager = new KillManager();
         ServerInfoManager serverInfoManage = new ServerInfoManager();
         this.master = new Master();
         ThreadListener lister = new ThreadListener() {
@@ -50,7 +51,37 @@ public class StateManager {
     }
 
     /* UI ACTIONS ------------------------------------------------------------------ */
+//TODO: @Andres
+    public void killAllExceptMaster() {
+        killMasterWatcher();
+        for(Slave slave : master.slaves){
+            killSlave(slave);
+        }
+    }
 
+    //TODO: @Andres
+    public void killAllExceptMasterWatcher() {
+        killMaster();
+        for(Slave slave : master.slaves){
+            killSlave(slave);
+        }
+    }
+
+    //TODO: @Andres
+    public void killMaster() {
+        killManager.killMaster(master);
+    }
+
+    //TODO: @Andres
+    public void killMasterWatcher() {
+        killManager.killMasterWatcher();
+    }
+
+
+    //TODO: @Andres
+    public void killSlave(Slave slave) {
+        killManager.killSlave(slave);
+    }
 
     /*
      * GETTERS & SETTERS

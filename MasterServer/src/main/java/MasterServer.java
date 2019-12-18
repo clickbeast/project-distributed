@@ -17,7 +17,8 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     private Runtime command;
     public static LinkedList<SlaveServer> slaves;
     public static LinkedList<ServerEntry> entries;
-    private int currentNumberOfMailboxes;
+    private static Integer currentNumberOfMailboxes;
+    private static Integer numberOfMessages;
 
     public void run(int numberOfSlaves){
         initiateSlaves(numberOfSlaves);
@@ -43,6 +44,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         entries = new LinkedList<>();
         command = Runtime.getRuntime();
         currentNumberOfMailboxes = 0;
+        numberOfMessages = 0;
     }
 
     public void createNewServer(){
@@ -53,6 +55,9 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     }
 
     public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
+        synchronized (currentNumberOfMailboxes) {
+            currentNumberOfMailboxes+=numberOfMailBoxes;
+        }
 //        print("[MASTER] Spawning new server.");
         try {
             sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
@@ -61,6 +66,67 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         }
         startSlave(true, numberOfMailBoxes, baseMailbox);
 //        print("[MASTER] New server active.");
+    }
+    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox, int portNumber){
+//        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
+//        print("[MASTER] New server active.");
+    }
+
+    private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
+        ProcessBuilder pb = new ProcessBuilder(
+                "/bin/bash",
+                "SlaveServer.sh",
+                Integer.toString(numberOfMailboxes),
+                Integer.toString(baseMailbox),
+                Integer.toString(portNumber));
+
+        pb.directory(new File(Main.PATH_TO_SLAVE_JAR));
+        try {
+            Process p = pb.start();
+            if(watch)
+                watch(p);
+        } catch (IOException e) {
+            Main.printError(e.toString());
+        }
+    }
+
+    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox, int portNumber){
+        synchronized (currentNumberOfMailboxes){
+            currentNumberOfMailboxes+=numberOfMailBoxes;
+        }
+//        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
+//        print("[MASTER] New server active.");
+    }
+
+    private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
+
+        ProcessBuilder pb = new ProcessBuilder(
+                "/bin/bash",
+                "SlaveServer.sh",
+                Integer.toString(numberOfMailboxes),
+                Integer.toString(baseMailbox),
+                Integer.toString(portNumber));
+
+        pb.directory(new File(Main.PATH_TO_SLAVE_JAR));
+        try {
+            Process p = pb.start();
+            if(watch)
+                watch(p);
+        } catch (IOException e) {
+            Main.printError(e.toString());
+        }
     }
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox) {
@@ -108,6 +174,11 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         }
 
         return null;
+    }
+
+    @Override
+    public void kill() throws RemoteException {
+        System.exit(0);
     }
 
     @Override
@@ -171,6 +242,22 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     public LinkedList<ServerEntry> getSlaveList() throws RemoteException {
         synchronized (entries) {
             return entries;
+        }
+    }
+
+    @Override
+    public void incrementAmountOfMessages() throws RemoteException {
+        synchronized (numberOfMessages){
+            numberOfMessages++;
+            if(numberOfMessages > currentNumberOfMailboxes)
+                makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, currentNumberOfMailboxes);
+        }
+    }
+
+    @Override
+    public void decrementAmountOfMessages() throws RemoteException {
+        synchronized (numberOfMessages){
+            numberOfMessages--;
         }
     }
 }

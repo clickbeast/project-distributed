@@ -34,8 +34,9 @@ public class SlaveServer {
 
     public void reconnect() {
         boolean reconnected = false;
+        MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox, this.portNumber);
 
-        MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox);
+        MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox, this.portNumber);
         while (!reconnected) {
             try {
                 Registry registry = LocateRegistry.getRegistry(ip, portNumber);

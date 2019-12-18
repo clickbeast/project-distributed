@@ -58,4 +58,8 @@ e.printStackTrace();            }
     public boolean ping() throws RemoteException {
         return true;
     }
+
+    public void kill() throws RemoteException {
+        System.exit(0);
+    }
 }

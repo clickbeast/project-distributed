@@ -7,4 +7,6 @@ public interface SlaveToMasterCommunication extends Remote {
     LinkedList<ServerEntry> confirmConfiguration(int portNumber, String ip, int startMailbox, int endMailbox) throws RemoteException;
     boolean ping() throws RemoteException;
     LinkedList<ServerEntry> getSlaveList() throws RemoteException;
+    void incrementAmountOfMessages() throws RemoteException;
+    void decrementAmountOfMessages() throws RemoteException;
 }

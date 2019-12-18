@@ -62,7 +62,7 @@ public class ClientManager {
     /* LOADING ------------------------------------------------------------------ */
 
     public LocalStorageManager prepareLocalStorage() {
-        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db";
+        String path = "/home/adegeter/test/testdb.db";
         return new LocalStorageManager(path);
     }
 

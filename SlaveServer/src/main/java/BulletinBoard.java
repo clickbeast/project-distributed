@@ -10,7 +10,7 @@ import java.util.List;
 
 public class BulletinBoard extends UnicastRemoteObject implements Chat, VisualizerToSlaveCommunication {
     private String path;
-    int amountOfMessages;
+    Integer amountOfMessages;
 
     public BulletinBoard(boolean backup, int portNumber) throws RemoteException {
         path = System.getProperty("user.dir") + File.separator + "board" + portNumber + (backup ? "bak" : "") + ".db";
@@ -67,7 +67,9 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
             return false;
         }
 
-        amountOfMessages++;
+        synchronized (amountOfMessages) {
+            amountOfMessages++;
+        }
         return true;
     }
 
@@ -97,7 +99,9 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
                 pstmt2.setString(2, tag);
                 pstmt2.executeUpdate();
 
-                amountOfMessages--;
+                synchronized (amountOfMessages) {
+                    amountOfMessages--;
+                }
                 return rs.getString("message");
             }
 
@@ -138,6 +142,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
             }
         }
         return null;
+    }
+
+    @Override
+    public void kill() throws RemoteException {
+        System.exit(0);
     }
 
     @Override
