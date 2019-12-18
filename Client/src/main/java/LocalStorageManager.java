@@ -236,8 +236,8 @@ public class LocalStorageManager {
 
     }
 
-    public List<Conversation> getConversations(int userId) {
-        List<Conversation> conversations = new ArrayList<>();
+    public ObservableList<Conversation> getConversations(int userId) {
+        ObservableList<Conversation> conversations = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
         String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +

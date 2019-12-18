@@ -100,6 +100,7 @@ public class MainWindowViewController implements Initializable {
 
     //TODO: @Andres
     public void killAllExceptMaster() {
+
     }
 
     //TODO: @Andres
