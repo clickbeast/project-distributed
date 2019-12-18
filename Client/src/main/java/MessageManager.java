@@ -118,7 +118,7 @@ public class MessageManager {
                     }
 
                     try {
-                        Thread.sleep(100000000);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -182,7 +182,7 @@ public class MessageManager {
             while (this.registry == null || this.chat == null) {
                 String ip = connectionObject.chat.getServerWithMailbox(nextSpot);
                 try {
-                    Thread.sleep(100000000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -244,7 +244,7 @@ public class MessageManager {
                 }
 
                 try {
-                    Thread.sleep(100000000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

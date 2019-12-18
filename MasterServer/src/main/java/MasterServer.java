@@ -51,7 +51,6 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     public void createNewServer(){
         synchronized (this) {
             makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, currentNumberOfMailboxes);
-            currentNumberOfMailboxes += Main.NUMBER_OF_MAILBOXES_PER_SLAVE;
         }
     }
 
@@ -82,6 +81,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
 //        print("[MASTER] New server active.");
     }
+
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
 

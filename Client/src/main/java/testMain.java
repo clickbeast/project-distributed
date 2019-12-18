@@ -13,7 +13,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -55,6 +57,7 @@ public class testMain {
 //        messageManager.getMessages(listener);
 //        messageManager.addConversation(new Conversation("abc", 123));
 //
+        System.out.println((new SimpleDateFormat("HH:mm")).format(new Date(   1576688779441L)));
 
 
         BoardKey boardKey = new BoardKey("abc", "abc123", 123123);

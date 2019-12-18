@@ -185,7 +185,7 @@ public class LocalStorageManager {
         List<Message> messages = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT text,fromUser,seen,delivered,messageDate FROM messages WHERE contactId = ?";
+        String sql = "SELECT messageID,text,fromUser,seen,delivered,messageDate FROM messages WHERE contactId = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -195,7 +195,7 @@ public class LocalStorageManager {
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
-                messages.add(new Message(rs.getString("text"),
+                messages.add(new Message(rs.getInt("messageID"),rs.getString("text"),
                         convoId,
                         rs.getLong("messageDate"),
                         rs.getInt("fromUser") == 1,

@@ -34,7 +34,6 @@ public class SlaveServer {
 
     public void reconnect() {
         boolean reconnected = false;
-        MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox, this.portNumber);
 
         while (!reconnected) {
             try {

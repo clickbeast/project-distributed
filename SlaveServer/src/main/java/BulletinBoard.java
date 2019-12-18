@@ -69,7 +69,13 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
 
         synchronized (amountOfMessages) {
             amountOfMessages++;
+            try {
+                SlaveServer.toMaster.incrementAmountOfMessages();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
+
         return true;
     }
 
@@ -101,6 +107,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
 
                 synchronized (amountOfMessages) {
                     amountOfMessages--;
+                    try {
+                        SlaveServer.toMaster.decrementAmountOfMessages();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
                 }
                 return rs.getString("message");
             }
