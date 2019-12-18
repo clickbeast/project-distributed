@@ -348,6 +348,23 @@ public class LocalStorageManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, conversation.getContactId());
             pstmt.executeUpdate();
+
+            deleteMessages(conversation.getContactId());
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private void deleteMessages(int contactId) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "DELETE FROM messages  WHERE contactId = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, contactId);
+            pstmt.executeUpdate();
+
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
             System.err.println(e.getMessage());
