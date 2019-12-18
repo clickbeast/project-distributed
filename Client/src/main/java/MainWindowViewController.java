@@ -400,7 +400,6 @@ public class MainWindowViewController implements Initializable {
             deleteButton.setOnAction(e -> {
                 this.clientManager.deleteConversation(clientManager.getCurrentConversation());
                 this.hideInlineDialog();
-                this.loadEmptyConversation();
             });
             this.inlineDialog(label, deleteButton);
         }
