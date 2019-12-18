@@ -94,6 +94,7 @@ public class ClientManager {
 
         this.conversations.add(conversation);
         this.conversations.add(conversation1);
+        this.conversations.add(conversation1);
         this.conversations.add(conversation2);*/
 
 
@@ -210,18 +211,16 @@ public class ClientManager {
     }
 
     public void sendMessage(Conversation conversation, String text) {
-        Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, false, true);
+        Message message = new Message(text, conversation.getContactId(), System.currentTimeMillis(), true, false, true);
         message.setMessageId(localStorageManager.storeMessage(message));
         conversation.getMessages().add(message);
 
         ThreadListener listener = new ThreadListener() {
-
             @Override
             public void threadFinished() {
                 Platform.runLater(() -> messageDelivered(message, conversation));
 
             }
-
             @Override
             public void newMessage(Message message, Conversation conversation) {
                 System.err.println("You shouldn't be here");
