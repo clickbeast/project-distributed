@@ -12,22 +12,22 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class Main {
-    public static String PATH_TO_WATCHER_JAR = "/home/andres/Documents/project-distributed/MasterServer/Watcher";
-    public static String PATH_TO_SLAVE_JAR = "/home/andres/Documents/project-distributed/MasterServer/SlaveServer";
+    public static String PATH_TO_WATCHER_JAR = "/home/adegeter/Documents/school/project-distributed/MasterServer/Watcher";
+    public static String PATH_TO_SLAVE_JAR = "/home/adegeter/Documents/school/project-distributed/MasterServer/SlaveServer";
     public static boolean SELF_DESTRUCT = false;
     public static PrintWriter writer;
 
     static {
         try {
-            writer = new PrintWriter("/home/andres/Desktop/LOG FILES/MasterLOG.txt", "UTF-8");
+            writer = new PrintWriter("/home/adegeter/Desktop/LOG FILES/MasterLOG.txt", "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
-    public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 100;
-    public static int NUMBER_OF_SLAVES = 5;
+    public static int NUMBER_OF_MAILBOXES_PER_SLAVE = 3;
+    public static int NUMBER_OF_SLAVES = 2;
     public static Ping CONNECTION_TO_WATCHER;
     public static int WAIT_TIME_BETWEEN_SERVER_SPAWNS = 2000;
 

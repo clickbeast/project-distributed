@@ -11,14 +11,14 @@ public class Slave {
     int size;
     private ObservableList<Mailbox> mailboxes;
 
-    public Slave(int size, int startBox,String name) {
+    public Slave(int size, int startBox, String name) {
         this.size = size;
         mailboxes = FXCollections.observableArrayList();
         for (int i = 0; i < size; i++) {
-            mailboxes.add(new Mailbox(startBox+i));
+            mailboxes.add(new Mailbox(startBox + i));
         }
         this.startBox = startBox;
-this.name=name;
+        this.name = name;
 
     }
 
@@ -32,8 +32,10 @@ this.name=name;
 
 
     public void addMessage(MailBoxEntry mailBoxEntry) {
-        mailboxes.get(mailBoxEntry.getBoxNumber() - startBox).addMessage(new Message(mailBoxEntry.getTag(),
-                mailBoxEntry.getMessage()));
+        Message m = new Message(mailBoxEntry.getTag(), mailBoxEntry.getMessage());
+        if (!mailboxes.get(mailBoxEntry.getBoxNumber() - startBox).containsMessage(m)) {
+            mailboxes.get(mailBoxEntry.getBoxNumber() - startBox).addMessage(m);
+        }
     }
 
     @Override
@@ -57,5 +59,29 @@ this.name=name;
                 ", size=" + size +
                 ", mailboxes=" + mailboxes +
                 '}';
+    }
+
+    public int getStartBox() {
+        return startBox;
+    }
+
+    public void setStartBox(int startBox) {
+        this.startBox = startBox;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public ObservableList<Mailbox> getMailboxes() {
+        return mailboxes;
+    }
+
+    public void setMailboxes(ObservableList<Mailbox> mailboxes) {
+        this.mailboxes = mailboxes;
     }
 }

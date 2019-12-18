@@ -1,16 +1,19 @@
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BulletinBoard extends UnicastRemoteObject implements Chat,VisualizerToSlaveCommunication {
+public class BulletinBoard extends UnicastRemoteObject implements Chat, VisualizerToSlaveCommunication {
     private String path;
     int amountOfMessages;
 
     public BulletinBoard(boolean backup, int portNumber) throws RemoteException {
-        path = System.getProperty("user.dir") + File.separator + "board" +portNumber+ (backup ? "bak" : "") + ".db";
+        path = System.getProperty("user.dir") + File.separator + "board" + portNumber + (backup ? "bak" : "") + ".db";
         createDatabase();
         initializeMessageTable();
         amountOfMessages = 0;
@@ -70,7 +73,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat,Visualize
 
     public String getMessage(int boxNumber, String tag) {
         String url = "jdbc:sqlite:" + path;
-
+        try {
+            tag = new String(hash(tag), StandardCharsets.ISO_8859_1);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         String sql = "SELECT message FROM messages WHERE boxNumber = ? AND tag = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -127,7 +134,7 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat,Visualize
         synchronized (Main.entries) {
             for (ServerEntry entry : Main.entries) {
                 if (entry.contains(boxnumber))
-                    return entry.address();
+                    return entry.chatAddress();
             }
         }
         return null;
@@ -144,6 +151,13 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat,Visualize
             }
         }
         return maxMailbox;
+    }
+
+    private static byte[] hash(String string) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] passwordByte = string.getBytes(StandardCharsets.ISO_8859_1);
+        return digest.digest(passwordByte);
+
     }
 
 }

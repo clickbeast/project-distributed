@@ -34,4 +34,24 @@ public class Mailbox {
                 ", messageList=" + messageList +
                 '}';
     }
+
+
+    public int getBoxnumber() {
+        return boxnumber;
+    }
+
+    public void setBoxnumber(int boxnumber) {
+        this.boxnumber = boxnumber;
+    }
+
+    public ObservableList<Message> getMessageList() {
+        return messageList;
+    }
+
+    public void setMessageList(ObservableList<Message> messageList) {
+        this.messageList = messageList;
+    }
+
+    public boolean containsMessage(Message m) {return messageList.contains(m);
+    }
 }

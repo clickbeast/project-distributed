@@ -6,6 +6,7 @@ import model.Conversation;
 import model.Message;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -52,7 +53,8 @@ public class LocalStorageManager {
      */
     public void initializeAccountsDatabase() {
         String url = "jdbc:sqlite:" + path;
-        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId INTEGER PRIMARY KEY AUTOINCREMENT, loginname VARCHAR NOT " +
+        String sql = "CREATE TABLE IF NOT EXISTS accounts ( userId INTEGER PRIMARY KEY AUTOINCREMENT, loginname " +
+                "VARCHAR NOT " +
                 "NULL,password VARCHAR NOT NULL,salt" +
                 " VARCHAR DEFAULT '')";
         try (Connection conn = DriverManager.getConnection(url);
@@ -157,7 +159,7 @@ public class LocalStorageManager {
      */
     private static byte[] hash(String string) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] passwordByte = string.getBytes();
+        byte[] passwordByte = string.getBytes(StandardCharsets.UTF_8);
         return digest.digest(passwordByte);
 
     }
@@ -169,35 +171,36 @@ public class LocalStorageManager {
      * @return
      */
     private static String bytesToHex(byte[] hash) {
-        StringBuffer hexString = new StringBuffer();
+        return new String(hash, StandardCharsets.UTF_8);
+        /*StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
             if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
-        return hexString.toString();
+        return hexString.toString();*/
     }
 
-    public List<Message> getMessagesFromUserID(int userId) {
+    public List<Message> getMessagesFromConvoId(int convoId) {
         List<Message> messages = FXCollections.observableArrayList();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT userID,text,messageDate FROM messages WHERE userID = ?";
+        String sql = "SELECT text,fromUser,seen,delivered,messageDate FROM messages WHERE contactId = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
+            pstmt.setInt(1, convoId);
             ResultSet rs = pstmt.executeQuery();
 
             // There should only be one person with that loginname, but just to be sure.
             while (rs.next()) {
                 messages.add(new Message(rs.getString("text"),
-                        rs.getInt("userID"),
+                        convoId,
                         rs.getLong("messageDate"),
                         rs.getInt("fromUser") == 1,
                         rs.getInt("delivered") == 1,
-                        rs.getInt("read") == 1));
+                        rs.getInt("seen") == 1));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -209,7 +212,7 @@ public class LocalStorageManager {
     public int storeMessage(Message message) {
 
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO messages (contactId,text,fromUser,seen,delivered,messageDate) VALUES(?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -217,13 +220,13 @@ public class LocalStorageManager {
             pstmt.setInt(1, message.getContactId());
             pstmt.setString(2, message.getText());
             pstmt.setInt(3, message.isFromUser() ? 1 : 0);
-            pstmt.setInt(3, message.isSeen() ? 1 : 0);
-            pstmt.setInt(3, message.isDelivered() ? 1 : 0);
-            pstmt.setLong(4, message.getTimeStamp());
+            pstmt.setInt(4, message.isSeen() ? 1 : 0);
+            pstmt.setInt(5, message.isDelivered() ? 1 : 0);
+            pstmt.setLong(6, message.getTimeStamp());
             pstmt.executeUpdate();
             sql = "SELECT last_insert_rowid()";
             ResultSet rs = conn.prepareStatement(sql).executeQuery();
-
+            System.out.println("message saved " + message);
             return rs.getInt("last_insert_rowid()");
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");
@@ -237,8 +240,8 @@ public class LocalStorageManager {
         List<Conversation> conversations = new ArrayList<>();
         String url = "jdbc:sqlite:" + path;
 
-        String sql = "SELECT contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
-                "WHERE userID = ?";
+        String sql = "SELECT contactId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs FROM conversations " +
+                "WHERE userId = ?";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -258,8 +261,7 @@ public class LocalStorageManager {
                         new BoardKey(
                                 rs.getString("encryptKeyUs"),
                                 rs.getString("tagUs"),
-                                rs.getInt("nextSpotUs")),
-                        (ObservableList<Message>) getMessagesFromUserID(userId)));
+                                rs.getInt("nextSpotUs")), null));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -269,18 +271,20 @@ public class LocalStorageManager {
 
     public int saveConversation(Conversation conversation) {
         String url = "jdbc:sqlite:" + path;
-        String sql = "INSERT INTO conversations (contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs,nextSpotUs) " +
-                "VALUES(?,?,?,?,?,?,?); ";
+        String sql = "INSERT INTO conversations (userId,contactname,encryptKey,tag,nextSpot,encryptKeyUs,tagUs," +
+                "nextSpotUs) " +
+                "VALUES(?,?,?,?,?,?,?,?); ";
 
         try (Connection conn = DriverManager.getConnection(url);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, conversation.getUserName());
-            pstmt.setString(2, conversation.getBoardKey().getKey());
-            pstmt.setString(3, conversation.getBoardKey().getTag());
-            pstmt.setInt(4, conversation.getBoardKey().getNextSpot());
-            pstmt.setString(5, conversation.getBoardKeyUs().getKey());
-            pstmt.setString(6, conversation.getBoardKeyUs().getTag());
-            pstmt.setInt(7, conversation.getBoardKeyUs().getNextSpot());
+            pstmt.setInt(1, conversation.getUserId());
+            pstmt.setString(2, conversation.getUserName());
+            pstmt.setString(3, conversation.getBoardKey().getKey());
+            pstmt.setString(4, conversation.getBoardKey().getTag());
+            pstmt.setInt(5, conversation.getBoardKey().getNextSpot());
+            pstmt.setString(6, conversation.getBoardKeyUs().getKey());
+            pstmt.setString(7, conversation.getBoardKeyUs().getTag());
+            pstmt.setInt(8, conversation.getBoardKeyUs().getNextSpot());
             pstmt.executeUpdate();
             sql = "SELECT last_insert_rowid()";
             ResultSet rs = conn.prepareStatement(sql).executeQuery();
@@ -358,6 +362,21 @@ public class LocalStorageManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, text);
             pstmt.setInt(2, contactId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.print(e.getErrorCode() + "\t");
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void updateMessage(Message message) {
+        String url = "jdbc:sqlite:" + path;
+        String sql = "UPDATE messages SET delivered = ? WHERE messageID = ?";
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, 1);
+            pstmt.setInt(2, message.getMessageId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.print(e.getErrorCode() + "\t");

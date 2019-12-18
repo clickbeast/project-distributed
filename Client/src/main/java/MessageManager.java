@@ -5,15 +5,19 @@ import model.Message;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MessageManager {
     private static List<String> serverList = new ArrayList<>();
@@ -47,15 +51,27 @@ public class MessageManager {
                         }
 
                         try {
+                            Random rnd = new Random();
+                            int nextspot = rnd.nextInt(slotLimit);
+                            String tag = conversation.getBoardKey().generateRandomString();
                             message.setDelivered(messageChat.sendMessage(conversation.getBoardKey().getNextSpot(),
-                                    conversation.getBoardKey().getTag(),
-                                    conversation.getBoardKey().encrypt(message, slotLimit)));
-                        } catch (RemoteException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+                                    new String(hash(conversation.getBoardKey().getTag()), StandardCharsets.ISO_8859_1),
+                                    conversation.getBoardKey().encrypt(message, slotLimit, nextspot, tag)));
+                            if (message.isDelivered()) {
+                                conversation.getBoardKey().setTag(tag);
+                                conversation.getBoardKey().setNextSpot(nextspot);
+                            }
+                        } catch (RemoteException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
                             e.printStackTrace();
                         }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     } catch (NotBoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -89,14 +105,10 @@ public class MessageManager {
                                     if (text != null && !text.equals("")) {
                                         Message message = conversation.getBoardKeyUs().decrypt(text,
                                                 conversation.getUserId());
-                                        new Message(text, conversation.getUserId(),
-                                                System.currentTimeMillis(), false, true, false);
 
                                         threadListener.newMessage(message, conversation);
                                     }
-                                } catch (RemoteException | NoSuchAlgorithmException | InvalidKeyException |
-                                        NoSuchPaddingException | BadPaddingException | InvalidKeySpecException |
-                                        IllegalBlockSizeException e) {
+                                } catch (RemoteException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | InvalidKeySpecException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -104,8 +116,9 @@ public class MessageManager {
                     } catch (RemoteException | NotBoundException e) {
                         e.printStackTrace();
                     }
+
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(100000000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -125,6 +138,13 @@ public class MessageManager {
 
     private synchronized void removeFirstIp() {
         serverList.remove(0);
+    }
+
+    private static byte[] hash(String string) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] passwordByte = string.getBytes(StandardCharsets.ISO_8859_1);
+        return digest.digest(passwordByte);
+
     }
 
     private synchronized Conversation getConversationOnSpot(int i) {
@@ -161,13 +181,20 @@ public class MessageManager {
                 NotBoundException {
             while (this.registry == null || this.chat == null) {
                 String ip = connectionObject.chat.getServerWithMailbox(nextSpot);
+                try {
+                    Thread.sleep(100000000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
                 if (ip.equals(connectionObject.currentIp)) {
                     this.registry = connectionObject.registry;
                     this.chat = (Chat) connectionObject.chat;
                 } else {
                     this.registry = LocateRegistry.getRegistry(ip.split(":")[0],
                             Integer.parseInt(ip.split(":")[1]));
-                    this.chat = (Chat) connectionObject.registry.lookup("Chat");
+                    this.chat = (Chat) this.registry.lookup("Chat");
                 }
             }
         }
@@ -213,6 +240,12 @@ public class MessageManager {
                     chat = (ClientToMasterCommunication) registry.lookup("ClientToMasterCommunication");
                     currentIp = MASTER_SERVER_IP;
                 } catch (RemoteException | NotBoundException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    Thread.sleep(100000000);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

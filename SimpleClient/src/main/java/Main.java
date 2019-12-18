@@ -12,10 +12,10 @@ public class Main {
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException,
             NoSuchAlgorithmException {
-        Registry registry = LocateRegistry.getRegistry("localhost", 5000);
+        Registry registry = LocateRegistry.getRegistry("localhost", 9002);
         chat = (Chat) registry.lookup("Chat");
 
-        System.out.println(chat.sendMessage(23, bytesToHex(hash("5c2c8be948ffd3ccf2aab4607347049e")), "ABC"));
+        System.out.println(chat.getMessage(0,"b4d465d59b2dd7510d9d6420c86f85d2"));
     }
     /**
      * hashes given string

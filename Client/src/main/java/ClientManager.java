@@ -1,6 +1,7 @@
 
 import exceptions.AccountAlreadyExistsException;
 import interfaces.ThreadListener;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextArea;
@@ -21,6 +22,8 @@ public class ClientManager {
     ObservableList<Conversation> conversations;
     private LocalStorageManager localStorageManager;
     private MessageManager messageManager;
+
+    private int userID = -1;
 
     /**
      * Creates a dummy conversation used for UI testing
@@ -50,7 +53,7 @@ public class ClientManager {
         messages.add(message1);
         messages.add(message2);
 
-        Conversation conversation = new Conversation(0, this.conversations.size() + 1, name, null, null, messages);
+        Conversation conversation = new Conversation(99999999, userID, name, null, null, messages);
 
         return conversation;
 
@@ -59,7 +62,7 @@ public class ClientManager {
     /* LOADING ------------------------------------------------------------------ */
 
     public LocalStorageManager prepareLocalStorage() {
-        String path = "/home/adegeter/test/testdb.db";
+        String path = "/Users/simonvermeir/Documents/School/industrial-engeneering/SCHOOL-CURRENT/Distributed-Systems/project-distributed/test.db";
         return new LocalStorageManager(path);
     }
 
@@ -78,18 +81,32 @@ public class ClientManager {
 
             @Override
             public void newMessage(Message message, Conversation conversation) {
-                messageReceived(conversation, message);
+                Platform.runLater(() -> messageReceived(conversation, message));
+
+
             }
         };
 
         messageManager.getMessages(listener);
-        Conversation conversation = conversationDummy("Vincent");
-        this.conversations.add(conversation);
+//        Conversation conversation = conversationDummy("Vincent");
+//        this.conversations.add(conversation);
     }
 
-    public void loadUserContents() {
+    public void loadUserContents(int userId) {
         //get current conversation
-        this.currentConversation = this.getConversations().get(0);
+     //   conversations.clear();
+        conversations.addAll(localStorageManager.getConversations(userId));
+        for (Conversation conversation : conversations) {
+            for (Message message : localStorageManager.getMessagesFromConvoId(conversation.getContactId())) {
+
+                conversation.addMessage(message);
+            }
+        }
+        if (conversations.isEmpty()) {
+            this.mainWindowViewController.loadEmptyConversation();
+        } else {
+            this.currentConversation = this.getConversations().get(0);
+        }
         this.mainWindowViewController.loadApplicationView();
         this.mainWindowViewController.loadInbox();
         this.mainWindowViewController.loadConversation(getCurrentConversation());
@@ -105,20 +122,23 @@ public class ClientManager {
 
     public void login(String username, String password, Consumer<Feedback> callback) {
         System.out.println("Logging in");
-        int userID = localStorageManager.login(username, password);
-        if (userID != 1) {
-            callback.accept(new Feedback(true, "Login failed please try again"));
+        userID = localStorageManager.login(username, password);
+        System.out.println(userID);
+        if (userID == -1) {
+            callback.accept(new Feedback(false, "Login failed please try again"));
         } else {
-            callback.accept(new Feedback(false, "Login success"));
+            callback.accept(new Feedback(true, "Login success"));
+            this.loadUserContents(userID);
         }
-        this.loadUserContents();
+        //this.loadUserContents(0);
     }
 
     public void logout() {
         System.out.println("Logging out");
         this.mainWindowViewController.loadEmptyConversation();
         this.mainWindowViewController.freezeUI();
-
+        this.conversations = FXCollections.observableArrayList();
+        this.currentConversation = null;
         messageManager.clearConversations();
 
         this.mainWindowViewController.loadLoginView();
@@ -145,6 +165,7 @@ public class ClientManager {
 
     public void addNewConversation(String name, File location) {
         //create conversation
+        System.out.println("userid: " + userID);
 
         Conversation conversation = null;
         try {
@@ -153,34 +174,45 @@ public class ClientManager {
             //TODO: @simon give notification if wrong file?
         }
         if (conversation != null) {
+            conversation.setUserId(userID);
             localStorageManager.saveConversation(conversation);
+            conversations.add(conversation);
+            messageManager.addConversation(conversation);
 
             this.mainWindowViewController.loadConversation(conversation);
         }
     }
 
     public void createNewConversation(String name) {
+        System.out.println(userID);
 
 
         Conversation c = new Conversation(name, messageManager.getLastBound());
+        localStorageManager.initializeConversationsDatabase();
+        c.setUserId(userID);
 
         int id = localStorageManager.saveConversation(c);
         if (id != -1) {
             c.setContactId(id);
         }
         conversations.add(c);
+        messageManager.addConversation(c);
+
         this.mainWindowViewController.loadConversation(c);
 
     }
 
     public void sendMessage(Conversation conversation, String text) {
         Message message = new Message(text, conversation.getUserId(), System.currentTimeMillis(), true, false, true);
+        message.setMessageId(localStorageManager.storeMessage(message));
         conversation.getMessages().add(message);
+
         ThreadListener listener = new ThreadListener() {
 
             @Override
             public void threadFinished() {
-                messageDelivered(conversation);
+                Platform.runLater(() -> messageDelivered(message, conversation));
+
             }
 
             @Override
@@ -217,14 +249,25 @@ public class ClientManager {
     /* RESPONSES ------------------------------------------------------------------ */
 
     //JIIUUUWP
-    public synchronized void messageDelivered(Conversation conversation) {
+    public synchronized void messageDelivered(Message message, Conversation conversation) {
+        message.setContactId(conversation.getContactId());
+        conversation.addMessage(message);
+        localStorageManager.updateMessage(message);
         System.out.println("MESSAGE DELIVERED");
         this.mainWindowViewController.reloadUI();
+        this.loadUserContents(userID);
     }
 
     //PING
     public synchronized void messageReceived(Conversation conversation, Message message) {
+        conversation.addMessage(message);
+        message.setContactId(conversation.getContactId());
+        localStorageManager.storeMessage(message);
+
         System.out.println("MESSAGE RECEIVED");
+        this.currentConversation = conversation;
+        this.mainWindowViewController.reloadUI();
+
     }
 
     /*

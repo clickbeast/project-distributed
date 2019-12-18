@@ -14,6 +14,7 @@ public class ServerInfoManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("a");
                 while (true) {
                     try {
                         List<Slave> slaves = master.getSlaves();
@@ -22,17 +23,17 @@ public class ServerInfoManager {
 
                         VisualizerToMasterCommunication visualizer =
                                 (VisualizerToMasterCommunication) registry.lookup("VisualizerToMasterCommunication");
-                        LinkedList<ServerEntry> a=visualizer.getSlaveList();
+                        LinkedList<ServerEntry> a = visualizer.getSlaveList();
                         for (ServerEntry serverEntry : visualizer.getSlaveList()) {
                             Slave slave =
                                     slaves.stream().filter(x -> x.getName().equals(serverEntry.getIp() + ":" + (serverEntry.getPortNumber())))
-                                            .findAny().orElse(new Slave(serverEntry.endMailbox - serverEntry.startMailbox,
-                                            serverEntry.startMailbox,serverEntry.ip+":"+serverEntry.portNumber));
+                                            .findAny().orElse(new Slave(serverEntry.endMailbox - serverEntry.startMailbox + 1,
+                                            serverEntry.startMailbox, serverEntry.ip + ":" + serverEntry.portNumber));
                             master.addSlave(slave);
                             try {
 
                                 Registry slaveRegistery = LocateRegistry.getRegistry(serverEntry.getIp(),
-                                        serverEntry.portNumber+10000);
+                                        serverEntry.portNumber + 10000);
                                 VisualizerToSlaveCommunication slaveCommunication =
                                         (VisualizerToSlaveCommunication) slaveRegistery.lookup(
                                                 "VisualizerToSlaveCommunication");
@@ -50,7 +51,12 @@ public class ServerInfoManager {
                         e.printStackTrace();
                     }
                     threadListener.onUpdate(master);
-                    System.out.println();
+                    System.out.println("abc");
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

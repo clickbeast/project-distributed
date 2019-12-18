@@ -1,5 +1,6 @@
 package model;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.BufferedWriter;
@@ -29,6 +30,9 @@ public class Conversation {
         this.boardKey = boardKey;
         this.boardKeyUs = boardKeyUs;
         this.messages = messages;
+        if (messages == null) {
+            this.messages = FXCollections.observableArrayList();
+        }
         this.read = true;
     }
 
@@ -38,11 +42,17 @@ public class Conversation {
         Random random = new Random();
         this.boardKey = new BoardKey(random.nextInt(bound));
         this.boardKeyUs = new BoardKey(random.nextInt(bound));
+        if (messages == null) {
+            this.messages = FXCollections.observableArrayList();
+        }
     }
 
     public Conversation(String name, File location) throws FileNotFoundException {
         this.userName = name;
         this.initializeBoardKeysFromFile(location);
+        if (messages == null) {
+            this.messages = FXCollections.observableArrayList();
+        }
     }
 
     public void initializeBoardKeysFromFile(File file) throws FileNotFoundException {
@@ -52,9 +62,9 @@ public class Conversation {
             line = sc.nextLine();
             String[] linesplit = line.split(",");
             if (i == 0) {
-                this.boardKey = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
-            } else {
                 this.boardKeyUs = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
+            } else {
+                this.boardKey = new BoardKey(linesplit[0], linesplit[1], Integer.parseInt(linesplit[2]));
             }
         }
 
@@ -144,5 +154,9 @@ public class Conversation {
 
     public int getContactId() {
         return this.contactId;
+    }
+
+    public void addMessage(Message message) {
+        messages.add(message);
     }
 }

@@ -49,6 +49,11 @@ public class WatcherCommunication implements Runnable{
         boolean reconnected = false;
 
         while (!reconnected){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try{
                 Registry pingToWatcher = LocateRegistry.getRegistry(Main.IP_OF_WATCHER, Main.PORT_OF_WATCHER);
                 Main.CONNECTION_TO_WATCHER = (Ping) pingToWatcher.lookup("Ping");
