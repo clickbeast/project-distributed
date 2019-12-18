@@ -77,7 +77,19 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
 //        print("[MASTER] New server active.");
     }
-
+    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox, int portNumber){
+        synchronized (currentNumberOfMailboxes){
+            currentNumberOfMailboxes+=numberOfMailBoxes;
+        }
+//        print("[MASTER] Spawning new server.");
+        try {
+            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
+//        print("[MASTER] New server active.");
+    }
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
         ProcessBuilder pb = new ProcessBuilder(
                 "/bin/bash",
@@ -96,19 +108,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         }
     }
 
-    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox, int portNumber){
-        synchronized (currentNumberOfMailboxes){
-            currentNumberOfMailboxes+=numberOfMailBoxes;
-        }
-//        print("[MASTER] Spawning new server.");
-        try {
-            sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        startSlave(true, numberOfMailBoxes, baseMailbox, portNumber);
-//        print("[MASTER] New server active.");
-    }
+
 
     private static void startSlave(boolean watch, int numberOfMailboxes, int baseMailbox, int portNumber) {
 

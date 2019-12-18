@@ -7,7 +7,7 @@ public class Main{
 
     static {
         try {
-            writer = new PrintWriter("/home/andres/Desktop/LOG FILES/WatcherLOG.txt", "UTF-8");
+            writer = new PrintWriter("/home/adegeter/Desktop/LOG FILES/WatcherLOG.txt", "UTF-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -67,7 +67,7 @@ public class Main{
         else
             pb = new ProcessBuilder("/bin/bash", "MasterServer.sh", "restart");
 
-        pb.directory(new File("/home/andres/Documents/project-distributed/Watcher/MasterServer"));
+        pb.directory(new File("/home/adegeter/Documents/school/project-distributed/Watcher/MasterServer"));
         try {
             Process p = pb.start();
             watch(p);
