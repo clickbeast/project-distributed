@@ -1,6 +1,7 @@
 import java.io.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.LinkedList;
 
 public class Main{
     public static PrintWriter writer;
@@ -18,6 +19,7 @@ public class Main{
     public static String IP_OF_MASTER = "localhost";
     public static int PORT_FOR_PINGING_TO_MASTER= 8998;
     public static int PORT_FOR_PINGING_TO_WATCHER = 7000;
+    public static LinkedList<ServerEntry> entries;
 
     public static void main(String[] args) {
         print("[WATCHER] started");

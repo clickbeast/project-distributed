@@ -8,6 +8,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.Thread.sleep;
 
@@ -37,6 +39,7 @@ e.printStackTrace();            }
             try {
                 sleep(1000);
                 Main.PING_TO_MASTER.ping();
+                Main.entries = Main.PING_TO_MASTER.getEntries();
                 Main.print("[WATCHER] ping to master succesfull");
             } catch (Exception e) {
                 Main.printError(
@@ -61,5 +64,9 @@ e.printStackTrace();            }
 
     public void kill() throws RemoteException {
         System.exit(0);
+    }
+
+    public LinkedList<ServerEntry> getEntries() throws RemoteException {
+        return Main.entries;
     }
 }

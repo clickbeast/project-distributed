@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
@@ -151,6 +152,11 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
     @Override
     public void kill() throws RemoteException {
         System.exit(0);
+    }
+
+    @Override
+    public LinkedList<ServerEntry> getEntries() throws RemoteException {
+        return entries;
     }
 
     @Override
