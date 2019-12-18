@@ -1,6 +1,8 @@
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -80,6 +82,11 @@ public class MainWindowViewController implements Initializable {
 
     public LoginViewController loginViewController;
 
+    public boolean conversationListViewLoaded;
+
+    public SelectionModel<Conversation> inboxSelectionModel;
+
+
 
     /* UI SETUP ------------------------------------------------------------------ */
 
@@ -136,9 +143,10 @@ public class MainWindowViewController implements Initializable {
     }
 
     public void reloadUI() {
+        System.out.println("RELOAD UI");
+
         this.loadConversation(this.clientManager.getCurrentConversation());
         this.loadInbox();
-        System.out.println();
     }
 
     public void freezeUI() {
@@ -208,7 +216,15 @@ public class MainWindowViewController implements Initializable {
 
     public void loadInbox() {
         this.inboxPane.getChildren().clear();
-        this.clientManager.sortConversationsAccordingToPolicy();
+
+     /*   Conversation conversation = clientManager.conversationDummy("hello world");
+        Conversation conversation1 = clientManager.conversationDummy("Bonjour");
+
+        ObservableList<Conversation> conversations = FXCollections.observableArrayList();
+        conversations.add(conversation);
+        conversations.add(conversation1);*/
+
+
         final ListView<Conversation> listView = new ListView<Conversation>(this.clientManager.getConversations());
         listView.setCellFactory(new Callback<ListView<Conversation>, ListCell<Conversation>>() {
             @Override
@@ -217,24 +233,12 @@ public class MainWindowViewController implements Initializable {
             }
         });
 
+        this.inboxSelectionModel = listView.getSelectionModel();
+
         this.inboxListView = listView;
         this.newConversationButton.setDisable(false);
         this.logoutButton.setDisable(false);
 
-
-        this.getInboxPane().getChildren().add(listView);
-
-
-        listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Conversation>() {
-            public void changed(ObservableValue<? extends Conversation> ov,
-                                final Conversation oldvalue, final Conversation newvalue) {
-
-                //TODO: IMPROVE (this is temp)
-                System.out.println("Selected:" + newvalue);
-                clientManager.setCurrentConversation(newvalue);
-                clientManager.getMainWindowViewController().reloadUI();
-            }
-        });
 
         //configure bounds
         AnchorPane.setBottomAnchor(inboxListView, 0.0);
@@ -242,7 +246,35 @@ public class MainWindowViewController implements Initializable {
         AnchorPane.setRightAnchor(inboxListView, 0.0);
         AnchorPane.setLeftAnchor(inboxListView, 0.0);
 
+        this.getInboxPane().getChildren().add(listView);
+        this.configureSelection();
+    }
 
+
+    boolean configured = false;
+
+    public void configureSelection(){
+        inboxSelectionModel.selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                System.out.println("Selected an item: " + newValue);
+                if(newValue.intValue() != -1) {
+                    Conversation conversation = getClientManager().getConversations().get(newValue.intValue());
+                    System.out.println("Conversation:" + conversation);
+                    getClientManager().setCurrentConversation(conversation);
+                    loadConversation(conversation);
+                    //reloadUI();
+
+                }
+            }
+
+        });
+
+
+    }
+
+    public MainWindowViewController getMainWindowViewController() {
+        return this;
     }
 
     public void loadConversation(Conversation conversation) {
@@ -261,7 +293,9 @@ public class MainWindowViewController implements Initializable {
         this.sendButton.setDisable(false);
         this.messageField.setDisable(false);
 
-        this.inboxListView.getSelectionModel().select(conversation);
+
+        //this.inboxListView.getSelectionModel().select(conversation);
+
 
         this.partnerNameLabel.setText(this.clientManager.getCurrentConversation().getUserName());
         final ListView<Message> messageView =
@@ -280,6 +314,9 @@ public class MainWindowViewController implements Initializable {
                 this.sendMessageAction();
             }
         });
+
+        messageView.getStylesheets().add(getClass().getResource("listViewStyle.css").toExternalForm());
+
 
         this.getMessagePane().getChildren().add(messageView);
 

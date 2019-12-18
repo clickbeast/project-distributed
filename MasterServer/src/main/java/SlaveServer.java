@@ -7,15 +7,16 @@ public class SlaveServer {
     private MasterToSlaveCommunication toSlave;
     private int portNumber;
     private String ip;
-    private int startMailbox,endMailbox;
+    private int startMailbox, endMailbox;
 
-    public SlaveServer(int portNumber, String ip, int startMailbox, int endMailbox) throws RemoteException, NotBoundException {
+    public SlaveServer(int portNumber, String ip, int startMailbox, int endMailbox) throws RemoteException,
+            NotBoundException {
         this.portNumber = portNumber;
         this.ip = ip;
         this.startMailbox = startMailbox;
         this.endMailbox = endMailbox;
 
-        ServerEntry entry = new ServerEntry(startMailbox,endMailbox,ip,portNumber);
+        ServerEntry entry = new ServerEntry(startMailbox, endMailbox, ip, portNumber);
         synchronized (MasterServer.entries) {
             MasterServer.entries.add(entry);
         }
@@ -25,22 +26,23 @@ public class SlaveServer {
         this.toSlave = (MasterToSlaveCommunication) registry.lookup("MasterToSlaveCommunication");
         Main.print("[MASTER] New slave connected on port " + portNumber);
 
-        if(this.toSlave.ping())
+        if (this.toSlave.ping())
             Main.print("[MASTER] ping to " + portNumber + " succesfull.");
         else
             Main.print("[MASTER] ping to " + portNumber + " failed.");
     }
 
-    public void reconnect(){
+    public void reconnect() {
         boolean reconnected = false;
         MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox, this.portNumber);
 
-        while (!reconnected){
-            try{
-                Registry registry = LocateRegistry.getRegistry(ip,portNumber);
+        MasterServer.makeNewSlave(Main.NUMBER_OF_MAILBOXES_PER_SLAVE, this.startMailbox);
+        while (!reconnected) {
+            try {
+                Registry registry = LocateRegistry.getRegistry(ip, portNumber);
                 this.toSlave = (MasterToSlaveCommunication) registry.lookup("MasterToSlaveCommunication");
                 reconnected = true;
-            } catch (RemoteException | NotBoundException e){
+            } catch (RemoteException | NotBoundException e) {
                 e.printStackTrace();
             }
         }
@@ -50,23 +52,23 @@ public class SlaveServer {
         return portNumber;
     }
 
-    public boolean containtsMailbox(int mailbox){
+    public boolean containtsMailbox(int mailbox) {
         if (startMailbox <= mailbox && endMailbox >= mailbox)
             return true;
         return false;
     }
 
-    public String getAddress(){
+    public String getAddress() {
         String address = "";
 
         address += (ip);
         address += ":";
-        address += portNumber+1;
+        address += portNumber + 1;
 
         return address;
     }
 
-    public MasterToSlaveCommunication communication(){
+    public MasterToSlaveCommunication communication() {
         return this.toSlave;
     }
 }
