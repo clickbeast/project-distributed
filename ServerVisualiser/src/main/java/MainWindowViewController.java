@@ -95,32 +95,31 @@ public class MainWindowViewController implements Initializable {
     //Same that's get called once in a while
     //TODO: @arne
     public void fetch() {
-
     }
 
     //TODO: @Andres
     public void killAllExceptMaster() {
+        this.stateManager.killAllExceptMaster();
     }
 
     //TODO: @Andres
     public void killAllExceptMasterWatcher() {
-
+        this.stateManager.killAllExceptMasterWatcher();
     }
 
     //TODO: @Andres
     public void killMaster() {
-
+        this.stateManager.killMaster();
     }
 
     //TODO: @Andres
     public void killMasterWatcher() {
-
+        this.stateManager.killMasterWatcher();
     }
-
 
     //TODO: @Andres
     public void killSlave(Slave slave) {
-
+        this.stateManager.killSlave(slave);
     }
 
 

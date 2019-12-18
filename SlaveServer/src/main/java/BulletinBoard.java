@@ -141,6 +141,11 @@ public class BulletinBoard extends UnicastRemoteObject implements Chat, Visualiz
     }
 
     @Override
+    public void kill() throws RemoteException {
+        System.exit(0);
+    }
+
+    @Override
     public int getLimit() throws RemoteException {
         int maxMailbox = 0;
 

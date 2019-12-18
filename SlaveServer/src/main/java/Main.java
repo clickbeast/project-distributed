@@ -29,7 +29,11 @@ public class Main {
             Registry registryToServer = LocateRegistry.getRegistry(IP, 9000);
             SlaveToMasterCommunication toMaster = (SlaveToMasterCommunication) registryToServer.lookup("SlaveToMasterCommunication");
 
-            PORT_NUMBER = toMaster.getPort();
+            if(args.length==3)
+                PORT_NUMBER = Integer.parseInt(args[2]);
+            else
+                PORT_NUMBER = toMaster.getPort();
+
             PORT_FOR_PINGING = PORT_NUMBER + 2000;
 
 
