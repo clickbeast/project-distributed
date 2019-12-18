@@ -52,7 +52,7 @@ public class MasterServer extends UnicastRemoteObject implements SlaveToMasterCo
         }
     }
 
-    private void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
+    public static void makeNewSlave(int numberOfMailBoxes, int baseMailbox){
 //        print("[MASTER] Spawning new server.");
         try {
             sleep(Main.WAIT_TIME_BETWEEN_SERVER_SPAWNS);
